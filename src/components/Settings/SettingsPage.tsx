@@ -1,28 +1,22 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import {
-  Settings,
   User,
-  Download,
-  Upload,
-  RefreshCcw,
-  Trash2,
-  Moon,
+  Settings,
   Sun,
-  Laptop,
-  Check,
-  AlertTriangle,
-  Sparkles,
-  MapPin,
-  ShieldCheck,
-  FileText,
-  HelpCircle,
-  Database,
+  Moon,
   Cloud,
   CloudUpload,
   CloudDownload,
-  ExternalLink,
-  Copy,
+  Download,
+  Upload,
+  Trash2,
+  Check,
+  MapPin,
+  Sparkles,
+  AlertTriangle,
+  LogOut,
+  ArrowRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { StorageService } from '../../lib/storage';
@@ -45,31 +39,23 @@ export const SettingsPage: React.FC = () => {
     setActiveTab,
   } = useApp();
 
-  const [userNameDraft, setUserNameDraft] = useState(profile.name);
-  const [userBioDraft, setUserBioDraft] = useState(profile.bio);
-  const [profileSavedToast, setProfileSavedToast] = useState(false);
-  const [cloudToast, setCloudToast] = useState<string | null>(null);
-  const [sqlCopied, setSqlCopied] = useState(false);
-
+  const [nameDraft, setNameDraft] = useState(profile.name || '');
+  const [bioDraft, setBioDraft] = useState(profile.bio || '');
+  const [savedToast, setSavedToast] = useState(false);
+  const [syncToast, setSyncToast] = useState<string | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
-
   const [confirmDemoOpen, setConfirmDemoOpen] = useState(false);
-  const [importStatus, setImportStatus] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile({
-      name: userNameDraft.trim(),
-      bio: userBioDraft.trim(),
+      name: nameDraft.trim(),
+      bio: bioDraft.trim(),
     });
-    setProfileSavedToast(true);
-    setTimeout(() => setProfileSavedToast(false), 2500);
-  };
-
-  const handleExportBackup = () => {
-    StorageService.exportBackupFile();
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 2000);
   };
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +68,14 @@ export const SettingsPage: React.FC = () => {
       if (content) {
         const res = importJsonBackup(content);
         if (res.success) {
-          setImportStatus('Backup restored successfully!');
+          setSyncToast('ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!');
           setTimeout(() => {
-            setImportStatus(null);
+            setSyncToast(null);
             setActiveTab('explore');
-          }, 1800);
+          }, 1500);
         } else {
-          setImportStatus(`Import failed: ${res.error}`);
+          setSyncToast(`ইমপোর্ট ব্যর্থ: ${res.error}`);
+          setTimeout(() => setSyncToast(null), 3000);
         }
       }
     };
@@ -96,386 +83,300 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-300">
-      {/* Title */}
-      <div className="border-b border-stone-200/80 dark:border-white/10 pb-6">
-        <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26]">
-          সিস্টেম ও স্টোরেজ কনফিগারেশন
-        </span>
-        <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-tight text-stone-900 dark:text-white mt-1">
-          সেটিংস ও ডাটা ভল্ট
-        </h1>
-        <p className="font-body text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-light mt-1 max-w-xl">
-          ভ্রমণকারী প্রোফাইল, মানচিত্র ডিসপ্লে পছন্দ, ব্যাকআপ এক্সপোর্ট এবং সুপাবেস ক্লাউড ডাটাবেজ সিঙ্ক।
-        </p>
-      </div>
-
-      {/* Traveler Profile Section */}
-      <div className="bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 space-y-6 shadow-sm dark:shadow-none transition-colors">
-        <div className="border-b border-stone-200/80 dark:border-white/10 pb-3">
-          <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-stone-900 dark:text-white flex items-center gap-2.5">
-            <User className="w-6 h-6 text-[#F27D26]" />
-            ভ্রমণকারী প্রোফাইল
-          </h2>
-          <p className="font-body text-xs text-stone-500 dark:text-stone-400 font-light mt-0.5">
-            ব্যক্তিগত তথ্য ও ডায়েরি লেখক মেটাডাটা
-          </p>
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-5">
+        <div>
+          <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#EA580C]">
+            কন্ট্রোল প্যানেল
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-0.5">
+            সেটিংস ও প্রোফাইল
+          </h1>
         </div>
 
-        <form onSubmit={handleSaveProfile} className="space-y-5">
-          <div>
-            <label className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-600 dark:text-white/60 mb-2">
-              ভ্রমণকারীর নাম
-            </label>
-            <input
-              type="text"
-              value={userNameDraft}
-              onChange={(e) => setUserNameDraft(e.target.value)}
-              placeholder="যেমন: এহসানুল তানজিল"
-              className="w-full px-4 py-3 text-sm bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/15 focus:border-[#F27D26] outline-none text-stone-900 dark:text-white font-body"
-            />
-          </div>
-
-          <div>
-            <label className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-600 dark:text-white/60 mb-2">
-              ভ্রমণ নীতিবাক্য / মোটো
-            </label>
-            <input
-              type="text"
-              value={userBioDraft}
-              onChange={(e) => setUserBioDraft(e.target.value)}
-              placeholder="যেমন: ব্যাকপ্যাক এবং ক্যামেরা নিয়ে ৬৪ জেলা অন্বেষণে।"
-              className="w-full px-4 py-3 text-sm bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/15 focus:border-[#F27D26] outline-none text-stone-900 dark:text-white font-body"
-            />
-          </div>
-
-          <div className="flex items-center justify-between pt-2">
-            {profileSavedToast && (
-              <span className="font-body font-bold text-xs text-[#EA580C] dark:text-[#F27D26] uppercase tracking-wider flex items-center gap-1.5">
-                <Check className="w-4 h-4" /> প্রোফাইল সংরক্ষিত হয়েছে
-              </span>
-            )}
-            <button
-              type="submit"
-              className="px-6 py-3 bg-[#F27D26] hover:bg-[#d96c1e] text-white font-body font-bold text-xs uppercase tracking-wider transition-colors ml-auto cursor-pointer shadow-sm"
-            >
-              সংরক্ষণ করুন
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Map & App Display Options */}
-      <div className="bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 space-y-6 shadow-sm dark:shadow-none transition-colors">
-        <div className="border-b border-stone-200/80 dark:border-white/10 pb-3">
-          <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-stone-900 dark:text-white flex items-center gap-2.5">
-            <MapPin className="w-6 h-6 text-[#F27D26]" />
-            মানচিত্র ও ভিজ্যুয়াল ডিসপ্লে পছন্দ
-          </h2>
-          <p className="font-body text-xs text-stone-500 dark:text-stone-400 font-light mt-0.5">
-            মানচিত্রের রং, ভাষা এবং মার্কার কাস্টমাইজেশন
-          </p>
-        </div>
-
-
-        <div className="space-y-4">
-          {/* Theme Selector */}
-          <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10">
-            <div>
-              <p className="font-display text-base uppercase text-white tracking-wide">
-                COLOR APPEARANCE
-              </p>
-              <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-                Choose high-contrast dark, light, or follow system environment
-              </p>
-            </div>
-            <div className="flex items-center gap-1 bg-black p-1 border border-white/15">
-              <button
-                onClick={() => updateSettings({ theme: 'light' })}
-                className={`p-2 font-body text-xs font-bold transition-colors ${
-                  settings.theme === 'light'
-                    ? 'bg-[#F27D26] text-white'
-                    : 'text-white/40 hover:text-white'
-                }`}
-                title="Light Mode"
-              >
-                <Sun className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => updateSettings({ theme: 'dark' })}
-                className={`p-2 font-body text-xs font-bold transition-colors ${
-                  settings.theme === 'dark'
-                    ? 'bg-[#F27D26] text-white'
-                    : 'text-white/40 hover:text-white'
-                }`}
-                title="Dark Mode"
-              >
-                <Moon className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => updateSettings({ theme: 'system' })}
-                className={`p-2 font-body text-xs font-bold transition-colors ${
-                  settings.theme === 'system'
-                    ? 'bg-[#F27D26] text-white'
-                    : 'text-white/40 hover:text-white'
-                }`}
-                title="System Auto"
-              >
-                <Laptop className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Show Bengali Names toggle */}
-          <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10">
-            <div>
-              <p className="font-display text-base uppercase text-white tracking-wide">
-                SHOW BENGALI (বাংলা) SCRIPT
-              </p>
-              <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-                Display authentic Bengali district nomenclature (কক্সবাজার, সিলেট, ইত্যাদি)
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={settings.showBengaliNames}
-              onChange={(e) => updateSettings({ showBengaliNames: e.target.checked })}
-              className="w-5 h-5 accent-[#F27D26] cursor-pointer"
-            />
-          </div>
-
-          {/* Show District Center Labels */}
-          <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10">
-            <div>
-              <p className="font-display text-base uppercase text-white tracking-wide">
-                DISTRICT CENTROID LABELS
-              </p>
-              <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-                Render typography markers on district territorial centers
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              checked={settings.showDistrictLabels}
-              onChange={(e) => updateSettings({ showDistrictLabels: e.target.checked })}
-              className="w-5 h-5 accent-[#F27D26] cursor-pointer"
-            />
-          </div>
+        {/* Quick Auth Status Pill */}
+        <div className="flex items-center gap-2 bg-[#12141A] border border-white/10 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              cloudSync.connected ? 'bg-[#10B981] animate-pulse' : 'bg-amber-400'
+            }`}
+          />
+          <span className="font-body text-xs font-semibold text-stone-300">
+            {authUser ? authUser.email : 'গেস্ট সেশন (অফলাইন)'}
+          </span>
         </div>
       </div>
 
-      {/* Supabase Cloud Database Section */}
-      <div className="bg-[#0e0e0e] border border-white/10 p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-3">
-          <div>
-            <h2 className="font-display text-2xl uppercase tracking-wide text-white flex items-center gap-2.5">
-              <Database className="w-6 h-6 text-[#3ECF8E]" />
-              SUPABASE CLOUD DATABASE
-            </h2>
-            <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-              Sync your travel memories, visits, and district badges with Supabase cloud
-            </p>
-          </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span
-              className={`inline-flex items-center gap-1.5 font-body font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1 border ${
-                cloudSync.connected
-                  ? 'bg-[#3ECF8E]/10 border-[#3ECF8E]/40 text-[#3ECF8E]'
-                  : 'bg-yellow-500/10 border-yellow-500/40 text-yellow-400'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  cloudSync.connected ? 'bg-[#3ECF8E] animate-pulse' : 'bg-yellow-400'
-                }`}
-              />
-              {cloudSync.connected ? 'SUPABASE CONNECTED' : 'INITIALIZING'}
-            </span>
+      {syncToast && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3.5 bg-[#EA580C]/15 border border-[#EA580C]/40 text-[#EA580C] font-body text-xs font-bold rounded-2xl flex items-center gap-2"
+        >
+          <Check className="w-4 h-4 shrink-0" />
+          {syncToast}
+        </motion.div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* 1. Profile Card */}
+        <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#EA580C] text-white flex items-center justify-center font-bold text-base shadow-sm">
+                {(nameDraft || authUser?.email || 'U')[0]?.toUpperCase()}
+              </div>
+              <div>
+                <h3 className="font-display text-lg font-bold text-white leading-tight">
+                  ভ্রমণকারী পরিচিতি
+                </h3>
+                <p className="font-body text-xs text-stone-400 font-light">
+                  আপনার ডায়েরির নাম ও নীতিবাক্য
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-3.5 font-body">
+              <div>
+                <label className="block text-[11px] font-bold text-stone-400 mb-1">
+                  নাম / নামফলক
+                </label>
+                <input
+                  type="text"
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  placeholder="যেমন: এহসানুল তানজিল"
+                  className="w-full px-3.5 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#EA580C] transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-stone-400 mb-1">
+                  ভ্রমণ নীতিবাক্য
+                </label>
+                <input
+                  type="text"
+                  value={bioDraft}
+                  onChange={(e) => setBioDraft(e.target.value)}
+                  placeholder="যেমন: ৬৪ জেলার পথে প্রান্তরে..."
+                  className="w-full px-3.5 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#EA580C] transition-colors"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                {savedToast && (
+                  <span className="text-xs font-bold text-[#EA580C] flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> সংরক্ষিত
+                  </span>
+                )}
+                <button
+                  type="submit"
+                  className="ml-auto px-4 py-2 bg-[#EA580C] hover:bg-[#c2410c] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  সংরক্ষণ করুন
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
-        {cloudToast && (
-          <div className="p-4 bg-[#3ECF8E]/10 border border-[#3ECF8E]/40 text-[#3ECF8E] font-body font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-            <Check className="w-4 h-4 shrink-0" />
-            {cloudToast}
-          </div>
-        )}
-
-        {cloudSync.message && (
-          <div className="text-xs text-stone-400 font-mono bg-white/5 border border-white/10 p-3 rounded-none flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-stone-400" />
-              <span>{cloudSync.message}</span>
+        {/* 2. App & Map Preferences */}
+        <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+              <div className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-sm">
+                <Settings className="w-5 h-5 text-[#EA580C]" />
+              </div>
+              <div>
+                <h3 className="font-display text-lg font-bold text-white leading-tight">
+                  মানচিত্র ও ডিসপ্লে পছন্দ
+                </h3>
+                <p className="font-body text-xs text-stone-400 font-light">
+                  থিম ও ইন্টারফেস কাস্টমাইজেশন
+                </p>
+              </div>
             </div>
-            {cloudSync.lastSynced && (
-              <span className="text-[10px] text-stone-500">Last: {cloudSync.lastSynced}</span>
-            )}
-          </div>
-        )}
 
-        {/* User Auth Account Banner */}
-        <div className="p-4 bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-3 font-body">
+              {/* Theme Toggle */}
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
+                <div>
+                  <p className="text-xs font-bold text-white">কালার থিম</p>
+                  <p className="text-[11px] text-stone-400 font-light">
+                    {settings.theme === 'dark' ? 'ডার্ক মোড সক্রিয়' : 'হোয়াইট মোড সক্রিয়'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+                  <button
+                    onClick={() => updateSettings({ theme: 'light' })}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${
+                      settings.theme === 'light'
+                        ? 'bg-white text-stone-950 shadow-sm'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    <Sun className="w-3.5 h-3.5" />
+                    হোয়াইট
+                  </button>
+                  <button
+                    onClick={() => updateSettings({ theme: 'dark' })}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${
+                      settings.theme === 'dark'
+                        ? 'bg-[#EA580C] text-white shadow-sm'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    <Moon className="w-3.5 h-3.5" />
+                    ডার্ক
+                  </button>
+                </div>
+              </div>
+
+              {/* District Labels Toggle */}
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
+                <div>
+                  <p className="text-xs font-bold text-white">মানচিত্রে জেলার নাম</p>
+                  <p className="text-[11px] text-stone-400 font-light">
+                    মানচিত্রের উপরে বাংলা জেলার নাম প্রদর্শন
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.showDistrictLabels}
+                  onChange={(e) => updateSettings({ showDistrictLabels: e.target.checked })}
+                  className="w-5 h-5 accent-[#EA580C] cursor-pointer rounded"
+                />
+              </div>
+
+              {/* Wishlist Marker Toggle */}
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
+                <div>
+                  <p className="text-xs font-bold text-white">ইচ্ছাতালিকা হাইলাইট</p>
+                  <p className="text-[11px] text-stone-400 font-light">
+                    মানচিত্রে সোনালী রঙে ইচ্ছাতালিকা প্রদর্শন
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.showWishlistOnMap}
+                  onChange={(e) => updateSettings({ showWishlistOnMap: e.target.checked })}
+                  className="w-5 h-5 accent-[#EA580C] cursor-pointer rounded"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Cloud Database & Backup Actions (Clean Single Card) */}
+      <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-7 rounded-3xl space-y-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#F27D26] text-white flex items-center justify-center font-bold text-sm">
-              {authUser ? (authUser.user_metadata?.display_name || authUser.email || 'U')[0].toUpperCase() : <User className="w-5 h-5" />}
+            <div className="w-10 h-10 rounded-2xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center shadow-sm">
+              <Cloud className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-display text-sm uppercase text-white tracking-wider">
-                {authUser ? authUser.user_metadata?.display_name || 'Authenticated Explorer' : 'Guest / Offline Session'}
-              </p>
-              <p className="font-mono text-xs text-stone-400">
-                {authUser ? authUser.email : 'Log in to securely link your travels to your personal account'}
+              <h3 className="font-display text-lg font-bold text-white leading-tight">
+                ক্লাউড ডাটাবেজ ও ব্যাকআপ
+              </h3>
+              <p className="font-body text-xs text-stone-400 font-light">
+                আপনার ৬৪ জেলা ভ্রমণের সকল রেকর্ড ক্লাউড এবং লোকাল ফাইলে সংরক্ষণ করুন
               </p>
             </div>
           </div>
-          <div>
-            {authUser ? (
-              <button
-                onClick={signOut}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-display text-xs uppercase tracking-wider border border-white/20 transition-colors cursor-pointer"
-              >
-                Sign Out
-              </button>
-            ) : (
-              <button
-                onClick={openAuthModal}
-                className="px-5 py-2 bg-[#F27D26] hover:bg-[#d96615] text-white font-display text-xs uppercase tracking-wider font-bold transition-all shadow-md cursor-pointer"
-              >
-                Log In / Sign Up
-              </button>
-            )}
-          </div>
+
+          {/* Account Login / Logout Button */}
+          {authUser ? (
+            <button
+              onClick={signOut}
+              className="px-4 py-2 bg-white/10 hover:bg-rose-600/20 text-stone-300 hover:text-rose-400 border border-white/15 rounded-xl font-body text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              লগআউট করুন
+            </button>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className="px-4 py-2 bg-[#EA580C] hover:bg-[#c2410c] text-white rounded-xl font-body text-xs font-bold transition-all shadow-xs cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+            >
+              <span>লগইন / সাইন আপ</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Action Buttons Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-body">
+          {/* Cloud Push */}
           <button
             onClick={async () => {
-              setCloudToast('Syncing data to Supabase...');
+              setSyncToast('ক্লাউডে সিঙ্ক হচ্ছে...');
               const res = await pushToCloud();
               if (res.success) {
-                setCloudToast('Successfully pushed all records to Supabase Cloud!');
-                setTimeout(() => setCloudToast(null), 3000);
+                setSyncToast('সুপাবেস ক্লাউডে সফলভাবে সংরক্ষিত হয়েছে!');
+                setTimeout(() => setSyncToast(null), 2500);
               } else {
-                setCloudToast('Sync warning: ' + (res.error || 'Please run SQL schema first'));
-                setTimeout(() => setCloudToast(null), 5000);
+                setSyncToast(res.error || 'সিঙ্ক ব্যর্থ');
+                setTimeout(() => setSyncToast(null), 3500);
               }
             }}
             disabled={cloudSync.syncing}
-            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#3ECF8E] text-left transition-all group flex items-start gap-4 cursor-pointer disabled:opacity-50"
+            className="p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#10B981] rounded-2xl text-left transition-all group cursor-pointer disabled:opacity-50 flex items-center gap-3"
           >
-            <CloudUpload className="w-6 h-6 text-[#3ECF8E] shrink-0 mt-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <CloudUpload className="w-5 h-5 text-[#10B981] shrink-0" />
             <div>
-              <h4 className="font-display text-lg uppercase tracking-wide text-white">
-                PUSH TO SUPABASE
-              </h4>
-              <p className="font-body text-xs text-stone-400 font-light mt-1">
-                Upload your current 64-district progress, journal stories, trips, and settings to the cloud.
-              </p>
+              <p className="text-xs font-bold text-white">ক্লাউডে সেভ</p>
+              <p className="text-[10px] text-stone-400">আপডেট আপলোড করুন</p>
             </div>
           </button>
 
+          {/* Cloud Pull */}
           <button
             onClick={async () => {
-              if (window.confirm('Pull latest snapshot from Supabase? This will merge/update your local data.')) {
-                setCloudToast('Pulling data from Supabase...');
+              if (window.confirm('ক্লাউড থেকে ডাটা রিস্টোর করতে চান?')) {
+                setSyncToast('ক্লাউড থেকে আনা হচ্ছে...');
                 const res = await pullFromCloud();
                 if (res.success) {
-                  setCloudToast('Successfully restored data from Supabase Cloud!');
-                  setTimeout(() => setCloudToast(null), 3000);
+                  setSyncToast('ক্লাউড থেকে সফলভাবে রিস্টোর হয়েছে!');
+                  setTimeout(() => setSyncToast(null), 2500);
                 } else {
-                  setCloudToast('Pull error: ' + (res.error || 'No snapshot found'));
-                  setTimeout(() => setCloudToast(null), 5000);
+                  setSyncToast(res.error || 'কোনো ক্লাউড রেকর্ড মেলেনি');
+                  setTimeout(() => setSyncToast(null), 3500);
                 }
               }
             }}
             disabled={cloudSync.syncing}
-            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#3ECF8E] text-left transition-all group flex items-start gap-4 cursor-pointer disabled:opacity-50"
+            className="p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#10B981] rounded-2xl text-left transition-all group cursor-pointer disabled:opacity-50 flex items-center gap-3"
           >
-            <CloudDownload className="w-6 h-6 text-[#3ECF8E] shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <CloudDownload className="w-5 h-5 text-[#10B981] shrink-0" />
             <div>
-              <h4 className="font-display text-lg uppercase tracking-wide text-white">
-                PULL FROM SUPABASE
-              </h4>
-              <p className="font-body text-xs text-stone-400 font-light mt-1">
-                Retrieve and restore your latest saved travel logs from your cloud database.
-              </p>
+              <p className="text-xs font-bold text-white">ক্লাউড থেকে রিস্টোর</p>
+              <p className="text-[10px] text-stone-400">ডাটা নামিয়ে আনুন</p>
             </div>
           </button>
-        </div>
 
-        {/* Database Info & SQL Schema link */}
-        <div className="p-4 bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-stone-400">
-          <div>
-            <p className="text-white font-mono text-xs">Project: gdqcjcogpymuwfivoeok.supabase.co</p>
-            <p className="text-stone-400 text-[11px] mt-0.5">Database schema file included: <code className="text-[#3ECF8E]">supabase_schema.sql</code></p>
-          </div>
-          <a
-            href="https://supabase.com/dashboard/project/gdqcjcogpymuwfivoeok/sql"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3ECF8E]/10 hover:bg-[#3ECF8E]/20 text-[#3ECF8E] border border-[#3ECF8E]/30 font-display text-xs uppercase tracking-wider self-start sm:self-auto transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            OPEN SQL EDITOR
-          </a>
-        </div>
-      </div>
-
-      {/* Backup, Export & Restore Section */}
-      <div className="bg-[#0e0e0e] border border-white/10 p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-3">
-          <div>
-            <h2 className="font-display text-2xl uppercase tracking-wide text-white flex items-center gap-2.5">
-              <ShieldCheck className="w-6 h-6 text-[#F27D26]" />
-              DATA VAULT & PORTABILITY
-            </h2>
-            <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-              Export and restore your travel journals with zero cloud dependency
-            </p>
-          </div>
-          <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-[#F27D26] px-3 py-1 bg-white/5 border border-[#F27D26]/30 self-start sm:self-auto">
-            100% PRIVATE OFFLINE STORAGE
-          </span>
-        </div>
-
-        <p className="font-body text-xs text-stone-400 font-light leading-relaxed">
-          Your travel journal, photo memories, and trip records are stored safely in browser-persistent Indexed/Local storage. You can download a complete backup file to keep forever or transfer to another device.
-        </p>
-
-        {importStatus && (
-          <div className="p-4 bg-[#F27D26]/20 border border-[#F27D26] text-white font-body font-bold text-xs uppercase tracking-wider">
-            {importStatus}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Export JSON */}
           <button
-            onClick={handleExportBackup}
-            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#F27D26] text-left transition-all group flex items-start gap-4 cursor-pointer"
+            onClick={() => StorageService.exportBackupFile()}
+            className="p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#EA580C] rounded-2xl text-left transition-all group cursor-pointer flex items-center gap-3"
           >
-            <Download className="w-6 h-6 text-[#F27D26] shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <Download className="w-5 h-5 text-[#EA580C] shrink-0" />
             <div>
-              <h4 className="font-display text-lg uppercase tracking-wide text-white">
-                EXPORT JSON BACKUP
-              </h4>
-              <p className="font-body text-xs text-stone-400 font-light mt-1">
-                Download your full travel journal, photos & records as a portable JSON vault
-              </p>
+              <p className="text-xs font-bold text-white">ফাইল ব্যাকআপ</p>
+              <p className="text-[10px] text-stone-400">JSON ফাইল ডাউনলোড</p>
             </div>
           </button>
 
+          {/* Import JSON */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#F27D26] text-left transition-all group flex items-start gap-4 cursor-pointer"
+            className="p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#EA580C] rounded-2xl text-left transition-all group cursor-pointer flex items-center gap-3"
           >
-            <Upload className="w-6 h-6 text-[#F27D26] shrink-0 mt-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <Upload className="w-5 h-5 text-[#EA580C] shrink-0" />
             <div>
-              <h4 className="font-display text-lg uppercase tracking-wide text-white">
-                RESTORE / IMPORT BACKUP
-              </h4>
-              <p className="font-body text-xs text-stone-400 font-light mt-1">
-                Upload a previously saved .json travel journal vault
-              </p>
+              <p className="text-xs font-bold text-white">ফাইল ইমপোর্ট</p>
+              <p className="text-[10px] text-stone-400">JSON ফাইল আপলোড</p>
             </div>
           </button>
 
@@ -488,49 +389,49 @@ export const SettingsPage: React.FC = () => {
           />
         </div>
 
-        {/* Demo Mode & Reset Buttons */}
-        <div className="pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+        {/* Danger Zone / Reset */}
+        <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 font-body">
           <button
             onClick={() => setConfirmDemoOpen(true)}
-            className="px-5 py-2.5 text-xs font-body font-black uppercase tracking-[0.2em] text-[#F27D26] hover:text-white hover:bg-[#F27D26] border border-[#F27D26] flex items-center gap-2 transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-bold text-[#EA580C] hover:bg-[#EA580C]/10 border border-[#EA580C]/30 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <Sparkles className="w-4 h-4" />
-            LOAD SAMPLE EXPEDITION (17/64)
+            <Sparkles className="w-3.5 h-3.5" />
+            ডেমো ট্যুর ডাটা লোড করুন (১৭ জেলা)
           </button>
 
           <button
             onClick={() => setConfirmResetOpen(true)}
-            className="px-5 py-2.5 text-xs font-body font-black uppercase tracking-[0.2em] text-rose-400 hover:text-white hover:bg-rose-600 border border-rose-500/40 hover:border-rose-600 flex items-center gap-2 transition-colors ml-auto cursor-pointer"
+            className="px-4 py-2 text-xs font-bold text-rose-400 hover:bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-1.5 transition-colors ml-auto cursor-pointer"
           >
-            <Trash2 className="w-4 h-4" />
-            RESET TO CLEAN SLATE (0/64)
+            <Trash2 className="w-3.5 h-3.5" />
+            সব ডাটা রিসেট (০ জেলা)
           </button>
         </div>
       </div>
 
-      {/* Reset Confirmation Modal */}
+      {/* Reset Confirmation Dialog */}
       {confirmResetOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-[#0e0e0e] border border-white/20 p-6 sm:p-8 space-y-5"
+            className="w-full max-w-sm bg-[#12141A] border border-white/20 p-6 rounded-3xl space-y-4 shadow-2xl font-body"
           >
             <div className="flex items-center gap-3 text-rose-500">
-              <AlertTriangle className="w-7 h-7 shrink-0" />
-              <h3 className="font-display text-2xl uppercase tracking-wide text-white">
-                RESET ALL JOURNAL DATA?
+              <AlertTriangle className="w-6 h-6 shrink-0" />
+              <h3 className="text-base font-bold text-white">
+                সব ভ্রমণ ডাটা মুছে ফেলতে চান?
               </h3>
             </div>
-            <p className="font-body text-xs text-stone-300 font-light leading-relaxed">
-              This will clear all 64 districts, visits, memories, and trips so you can record your own real travels from 0/64. (You can also export a backup first).
+            <p className="text-xs text-stone-300 font-light leading-relaxed">
+              আপনার সংরক্ষিত ৬৪ জেলার ভ্রমণ স্থিতি, স্মৃতিকথা এবং ছবিগুলো পরিষ্কার করা হবে।
             </p>
-            <div className="flex items-center justify-end gap-3 pt-3">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setConfirmResetOpen(false)}
-                className="px-4 py-2.5 text-xs font-body font-black uppercase tracking-wider text-stone-400 hover:text-white cursor-pointer"
+                className="px-3.5 py-2 text-xs font-semibold text-stone-400 hover:text-white cursor-pointer"
               >
-                CANCEL
+                বাতিল
               </button>
               <button
                 onClick={() => {
@@ -538,38 +439,38 @@ export const SettingsPage: React.FC = () => {
                   setConfirmResetOpen(false);
                   setActiveTab('explore');
                 }}
-                className="px-5 py-2.5 text-xs font-body font-black uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white cursor-pointer"
+                className="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs cursor-pointer"
               >
-                YES, RESET TO 0
+                হ্যাঁ, রিসেট করুন
               </button>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Demo Load Confirmation Modal */}
+      {/* Demo Load Confirmation Dialog */}
       {confirmDemoOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-[#0e0e0e] border border-white/20 p-6 sm:p-8 space-y-5"
+            className="w-full max-w-sm bg-[#12141A] border border-white/20 p-6 rounded-3xl space-y-4 shadow-2xl font-body"
           >
-            <div className="flex items-center gap-3 text-[#F27D26]">
-              <Sparkles className="w-7 h-7 shrink-0" />
-              <h3 className="font-display text-2xl uppercase tracking-wide text-white">
-                LOAD SAMPLE TRAVEL JOURNAL?
+            <div className="flex items-center gap-3 text-[#EA580C]">
+              <Sparkles className="w-6 h-6 shrink-0" />
+              <h3 className="text-base font-bold text-white">
+                নমুনা ডেমো ডাটা লোড করবেন?
               </h3>
             </div>
-            <p className="font-body text-xs text-stone-300 font-light leading-relaxed">
-              This will populate 17 iconic districts (Cox's Bazar, Bandarban, Sylhet, Sreemangal, Dhaka, Sundarbans, etc.) with rich photos, personal memories, and road trips.
+            <p className="text-xs text-stone-300 font-light leading-relaxed">
+              কক্সবাজার, বান্দরবান, সিলেটসহ ১৭টি জেলার আকর্ষণীয় ফটো ও স্মৃতিকথা লোড করা হবে।
             </p>
-            <div className="flex items-center justify-end gap-3 pt-3">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setConfirmDemoOpen(false)}
-                className="px-4 py-2.5 text-xs font-body font-black uppercase tracking-wider text-stone-400 hover:text-white cursor-pointer"
+                className="px-3.5 py-2 text-xs font-semibold text-stone-400 hover:text-white cursor-pointer"
               >
-                CANCEL
+                বাতিল
               </button>
               <button
                 onClick={() => {
@@ -577,9 +478,9 @@ export const SettingsPage: React.FC = () => {
                   setConfirmDemoOpen(false);
                   setActiveTab('explore');
                 }}
-                className="px-5 py-2.5 text-xs font-body font-black uppercase tracking-wider bg-[#F27D26] hover:bg-[#d96c1e] text-white cursor-pointer"
+                className="px-4 py-2 text-xs font-bold bg-[#EA580C] hover:bg-[#c2410c] text-white rounded-xl shadow-xs cursor-pointer"
               >
-                LOAD SAMPLE DATA
+                লোড করুন
               </button>
             </div>
           </motion.div>
