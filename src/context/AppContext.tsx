@@ -121,11 +121,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
-  const [userData, setUserData] = useState<Record<string, DistrictUserData>>({});
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [userData, setUserData] = useState<Record<string, DistrictUserData>>(() => StorageService.loadData().userData);
+  const [visits, setVisits] = useState<Visit[]>(() => StorageService.loadData().visits);
+  const [trips, setTrips] = useState<Trip[]>(() => StorageService.loadData().trips);
+  const [profile, setProfile] = useState<UserProfile>(() => StorageService.loadData().profile);
+  const [settings, setSettings] = useState<AppSettings>(() => StorageService.loadData().settings);
 
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
   const [viewingJournalDistrictId, setViewingJournalDistrictId] = useState<string | null>(null);
