@@ -1,0 +1,7 @@
+{
+  "name": "My Bangladesh",
+  "description": "A personal travel journal, interactive 64-district Bangladesh map, photo memory album, and travel progress tracker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

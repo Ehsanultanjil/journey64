@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Anton', Impact, sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Newsreader', Georgia, serif;
+    --font-bengali: 'Hind Siliguri', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .font-body {
+    font-family: var(--font-sans);
+  }
+
+  .font-editorial {
+    font-family: var(--font-serif);
+  }
+
+  .font-bn {
+    font-family: var(--font-bengali);
+  }
+
+  .vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .text-outline {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
+    color: transparent;
+  }
+
+  .text-outline-orange {
+    -webkit-text-stroke: 1.5px #F27D26;
+    color: transparent;
+  }
+
+  .text-outline-dark {
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.35);
+    color: transparent;
+  }
+}
+
+/* Custom map styling & smooth rendering */
+.bd-district-path {
+  transition: fill 0.2s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.15s ease, stroke-width 0.15s ease, filter 0.2s ease, opacity 0.2s ease;
+  vector-effect: non-scaling-stroke;
+}
+
+.bd-district-path:hover {
+  cursor: pointer;
+}
+
+/* Hide scrollbars in clean carousels while keeping scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
