@@ -1,8 +1,127 @@
 const fs = require('fs');
 
-const districts = JSON.parse(fs.readFileSync('./src/data/compiledDistricts.json', 'utf8'));
+// Read raw geojson
+const geojson = JSON.parse(fs.readFileSync('./src/data/bd-raw-geojson.json', 'utf8'));
 
-// Coastal and Hill sets
+// Read district info metadata
+const infoRaw = JSON.parse(fs.readFileSync('./src/data/bd-districts-info.json', 'utf8'));
+const infoDistricts = infoRaw.districts || [];
+
+// Calculate bounding box of all coordinates
+let minLng = Infinity, maxLng = -Infinity;
+let minLat = Infinity, maxLat = -Infinity;
+
+function traverseCoords(coords, cb) {
+  if (typeof coords[0] === 'number') {
+    cb(coords[0], coords[1]);
+  } else {
+    for (const c of coords) traverseCoords(c, cb);
+  }
+}
+
+for (const feature of geojson.features) {
+  traverseCoords(feature.geometry.coordinates, (lng, lat) => {
+    if (lng < minLng) minLng = lng;
+    if (lng > maxLng) maxLng = lng;
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
+  });
+}
+
+console.log('Geo bounds:', { minLng, maxLng, minLat, maxLat });
+
+// Mercator projection math
+function latToMercatorY(latDeg) {
+  const rad = (latDeg * Math.PI) / 180;
+  return Math.log(Math.tan(Math.PI / 4 + rad / 2));
+}
+
+const minMercY = latToMercatorY(minLat);
+const maxMercY = latToMercatorY(maxLat);
+
+// Target SVG viewport: 800 x 1000 with padding
+const targetWidth = 800;
+const targetHeight = 1000;
+const paddingX = 45;
+const paddingTop = 45;
+const paddingBottom = 45;
+
+const availableW = targetWidth - paddingX * 2;
+const availableH = targetHeight - paddingTop - paddingBottom;
+
+const scaleX = availableW / (maxLng - minLng);
+const scaleY = availableH / (maxMercY - minMercY);
+const scale = Math.min(scaleX, scaleY);
+
+const offsetX = paddingX + (availableW - (maxLng - minLng) * scale) / 2;
+const offsetY = paddingTop + (availableH - (maxMercY - minMercY) * scale) / 2;
+
+function project(lng, lat) {
+  const x = offsetX + (lng - minLng) * scale;
+  const mercY = latToMercatorY(lat);
+  const y = offsetY + (maxMercY - mercY) * scale;
+  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
+}
+
+function ringToPath(ring) {
+  if (!ring || ring.length === 0) return '';
+  let d = '';
+  for (let i = 0; i < ring.length; i++) {
+    const [x, y] = project(ring[i][0], ring[i][1]);
+    d += (i === 0 ? `M${x},${y}` : `L${x},${y}`);
+  }
+  return d + 'Z';
+}
+
+function geometryToPath(geometry) {
+  if (geometry.type === 'Polygon') {
+    return geometry.coordinates.map(ringToPath).join('');
+  } else if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates.map(poly => poly.map(ringToPath).join('')).join('');
+  }
+  return '';
+}
+
+function computeCentroidAndBounds(geometry) {
+  let sumX = 0, sumY = 0, count = 0;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+  traverseCoords(geometry.coordinates, (lng, lat) => {
+    const [x, y] = project(lng, lat);
+    sumX += x;
+    sumY += y;
+    count++;
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  });
+
+  return {
+    center: [Math.round((sumX / count) * 10) / 10, Math.round((sumY / count) * 10) / 10],
+    bounds: [
+      [Math.round(minX * 10) / 10, Math.round(minY * 10) / 10],
+      [Math.round(maxX * 10) / 10, Math.round(maxY * 10) / 10]
+    ]
+  };
+}
+
+// Division mapping helpers
+const divMap = {
+  '1': 'Barishal',
+  '2': 'Chattogram',
+  '3': 'Dhaka',
+  '4': 'Khulna',
+  '5': 'Rajshahi',
+  '6': 'Rangpur',
+  '7': 'Sylhet',
+  '8': 'Mymensingh'
+};
+
+function toId(name) {
+  return name.toLowerCase().replace(/['\.]/g, '').replace(/[\s_]+/g, '-').trim();
+}
+
 const coastalSet = new Set([
   'cox-s-bazar', 'chattogram', 'bagerhat', 'khulna', 'satkhira', 'patuakhali',
   'bhola', 'barguna', 'lakshmipur', 'noakhali', 'feni', 'chandpur', 'jhalokati', 'pirojpur'
@@ -38,7 +157,8 @@ const famousSpotsMap = {
   'munshiganj': ['Idrakpur Fort', 'Padma River Bridge Vista', 'Atish Dipankar Memorial'],
   'tangail': ['Mohera Jamidar Bari', '201 Dome Mosque', 'Madhupur National Park (Pineapple Orchards)'],
   'brahmanbaria': ['Kharampur Mazar Sharif', 'Titas River Views', 'Arifil Mosque'],
-  'comilla': ['Shalban Vihara (Mainamati Buddhist Citadel)', 'Dharmasagar Dighi', 'Famous Comilla Rasmalai']
+  'comilla': ['Shalban Vihara (Mainamati Buddhist Citadel)', 'Dharmasagar Dighi', 'Famous Comilla Rasmalai'],
+  'cumilla': ['Shalban Vihara (Mainamati Buddhist Citadel)', 'Dharmasagar Dighi', 'Famous Comilla Rasmalai']
 };
 
 const taglinesMap = {
@@ -63,17 +183,67 @@ const taglinesMap = {
   'barishal': 'Venice of Bengal — floating guava markets and winding tidal creeks.'
 };
 
-const enriched = districts.map((d) => ({
-  ...d,
-  isCoastal: coastalSet.has(d.id),
-  isHill: hillSet.has(d.id),
-  famousSpots: famousSpotsMap[d.id] || [`Famous attractions of ${d.name}`, `${d.division} Division Landmarks`],
-  tagline: taglinesMap[d.id] || `Explore the landscapes, culture, and rich heritage of ${d.name}.`
-}));
+const compiled = geojson.features.map((feature) => {
+  const prop = feature.properties || {};
+  let name = prop.ADM2_EN || prop.name || '';
+  if (name.toLowerCase() === "cox's bazar" || name.toLowerCase() === 'coxs bazar') name = "Cox's Bazar";
+  if (name.toLowerCase() === 'chittagong') name = 'Chattogram';
+  if (name.toLowerCase() === 'comilla') name = 'Cumilla';
+  if (name.toLowerCase() === 'bogra') name = 'Bogura';
+  if (name.toLowerCase() === 'jessore') name = 'Jashore';
+  if (name.toLowerCase() === 'barisal') name = 'Barishal';
+  if (name.toLowerCase() === 'nawabganj' || name.toLowerCase() === 'chapai nawabganj' || name.toLowerCase() === 'chapainawabganj') name = 'Chapainawabganj';
+  if (name.toLowerCase() === 'sirajganj') name = 'Sirajgonj';
+  if (name.toLowerCase() === 'moulvibazar') name = 'Moulvibazar';
+  if (name.toLowerCase() === 'maulvibazar') name = 'Moulvibazar';
 
-const tsContent = `import { District } from '../types';
+  let id = toId(name);
+  if (id === 'coxs-bazar') id = 'cox-s-bazar';
+  if (id === 'chapainawabganj') id = 'nawabganj';
 
-export const DISTRICTS: District[] = ${JSON.stringify(enriched, null, 2)};
+  const info = infoDistricts.find(d => toId(d.name) === id || toId(d.name) === toId(name) || (id === 'nawabganj' && toId(d.name) === 'nawabganj')) || {};
+  
+  let division = prop.ADM1_EN || (info.division_id ? divMap[info.division_id] : 'Dhaka');
+  if (division === 'Chittagong') division = 'Chattogram';
+  if (division === 'Barisal') division = 'Barishal';
+
+  const path = geometryToPath(feature.geometry);
+  const { center, bounds } = computeCentroidAndBounds(feature.geometry);
+
+  const lat = info.lat ? parseFloat(info.lat) : 23.5;
+  const long = info.long ? parseFloat(info.long) : 90.0;
+  const bn_name = info.bn_name || name;
+
+  const isCoastal = coastalSet.has(id);
+  const isHill = hillSet.has(id);
+  const famousSpots = famousSpotsMap[id] || [`Famous attractions of ${name}`, `${division} Division Landmarks`];
+  const tagline = taglinesMap[id] || `Explore the landscapes, culture, and rich heritage of ${name}.`;
+
+  return {
+    id,
+    name,
+    bn_name,
+    division,
+    lat,
+    long,
+    path,
+    center,
+    bounds,
+    isCoastal,
+    isHill,
+    famousSpots,
+    tagline
+  };
+});
+
+compiled.sort((a, b) => a.name.localeCompare(b.name));
+
+console.log('Compiled', compiled.length, 'districts successfully!');
+fs.writeFileSync('./src/data/compiledDistricts.json', JSON.stringify(compiled, null, 2), 'utf8');
+
+const tsContent = `import type { District } from '../types';
+
+export const DISTRICTS: District[] = ${JSON.stringify(compiled, null, 2)};
 
 export function getDistrictById(id: string): District | undefined {
   return DISTRICTS.find((d) => d.id === id);
@@ -85,4 +255,4 @@ export function getDistrictsByDivision(division: string): District[] {
 `;
 
 fs.writeFileSync('./src/data/districts.ts', tsContent, 'utf8');
-console.log('Successfully written districts.ts with ' + enriched.length + ' districts.');
+console.log('Successfully written src/data/districts.ts with', compiled.length, 'districts');
