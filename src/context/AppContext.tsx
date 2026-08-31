@@ -915,8 +915,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const signOut = async () => {
     await SupabaseAuth.signOut();
     setAuthUser(null);
+    setProfile(DEFAULT_PROFILE);
     setCloudSync((prev) => ({
       ...prev,
+      connected: false,
       message: 'Signed out of Supabase account',
     }));
   };

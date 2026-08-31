@@ -26,10 +26,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export const DEFAULT_PROFILE: UserProfile = {
-  name: 'Ehsanul Tanjil',
-  displayName: 'Ehsanul Tanjil',
-  bio: 'Explorer of Bangladesh — one district at a time.',
-  joinedDate: '2024-01-01',
+  name: 'ভ্রমণকারী',
+  displayName: 'ভ্রমণকারী',
+  bio: 'বাংলাদেশের ৬৪ জেলার পথে প্রান্তরে এক অনন্য পদচিহ্ন।',
+  joinedDate: '2025-01-01',
 };
 
 // Image compression helper using HTML5 Canvas

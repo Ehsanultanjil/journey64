@@ -166,7 +166,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     required
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="e.g. Ehsanul Tanjil"
+                    placeholder="e.g. আপনার নাম / Explorer Name"
                     className="w-full bg-white/5 border border-white/10 pl-10 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#F27D26] font-body"
                   />
                 </div>
