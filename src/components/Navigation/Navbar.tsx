@@ -46,61 +46,46 @@ export const Navbar: React.FC = () => {
   return (
     <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-2 sm:gap-4 relative">
-        {/* Left Pill Navigation Bar */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#12141A]/90 backdrop-blur-xl border border-white/15 p-1.5 rounded-full shadow-lg">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.key;
-            return (
-              <button
-                key={item.key}
-                id={`nav-tab-${item.key}`}
-                onClick={() => handleTabChange(item.key)}
-                className={`px-4 py-2 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#EA580C] text-white shadow-md shadow-[#EA580C]/30 scale-105'
-                    : 'text-stone-300 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Mobile Left Brand Emblem */}
-        <div
-          onClick={() => handleTabChange('explore')}
-          className="md:hidden flex items-center gap-2 cursor-pointer bg-[#12141A]/90 border border-white/15 p-1.5 pr-3 rounded-full"
-        >
-          <div className="w-8 h-8 rounded-full bg-[#EA580C] text-white flex items-center justify-center shadow-sm">
-            <Compass className="w-4 h-4" />
-          </div>
-          <span className="font-display text-sm font-bold text-white tracking-tight">
-            আমার বাংলাদেশ
-          </span>
-        </div>
-
-        {/* Center Hanging Notched Brand Badge */}
-        <div
-          onClick={() => handleTabChange('explore')}
-          className="hidden md:flex items-center gap-2.5 bg-white text-stone-950 px-6 py-2.5 rounded-b-2xl shadow-xl border-x border-b border-stone-300/60 cursor-pointer group hover:scale-[1.02] transition-transform -mt-3"
-        >
-          <div className="w-7 h-7 bg-[#EA580C] text-white flex items-center justify-center rounded-lg shadow-xs group-hover:rotate-45 transition-transform duration-300">
-            <Compass className="w-4 h-4 stroke-[2.5]" />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 leading-none">
-              <span className="font-display text-base lg:text-lg font-black tracking-tight text-stone-950">
+        {/* Left Brand + Navigation Pills */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Brand Emblem */}
+          <div
+            onClick={() => handleTabChange('explore')}
+            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group bg-[#12141A]/90 border border-white/15 px-3 py-1.5 rounded-full shadow-md hover:border-white/30 transition-all"
+          >
+            <div className="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
+              <Compass className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-display text-sm sm:text-base font-bold text-white tracking-tight">
                 আমার বাংলাদেশ
               </span>
-              <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 bg-stone-100 text-stone-600 rounded">
+              <span className="text-[9px] font-mono text-stone-400 hidden sm:inline">
                 64
               </span>
             </div>
-            <span className="font-body text-[8px] font-bold text-[#EA580C] tracking-wider uppercase leading-tight mt-0.5">
-              Expedition Tracker
-            </span>
           </div>
+
+          {/* Nav Tabs */}
+          <nav className="hidden md:flex items-center gap-1 bg-[#12141A]/90 backdrop-blur-xl border border-white/15 p-1 rounded-full shadow-lg">
+            {navItems.map((item) => {
+              const isActive = activeTab === item.key;
+              return (
+                <button
+                  key={item.key}
+                  id={`nav-tab-${item.key}`}
+                  onClick={() => handleTabChange(item.key)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#EA580C] text-white shadow-md shadow-[#EA580C]/30 scale-105'
+                      : 'text-stone-300 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
         {/* Right Action Pills */}
