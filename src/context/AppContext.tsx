@@ -25,6 +25,8 @@ import {
   calculateDivisionStats,
   evaluateAchievements,
 } from '../lib/stats';
+import { checkSupabaseConnection } from '../lib/supabase/client';
+import { SupabaseDB } from '../lib/supabase/db';
 
 interface UnlockNotification {
   district: District;
@@ -39,6 +41,14 @@ interface LightboxState {
   districtName?: string;
 }
 
+export interface CloudSyncState {
+  connected: boolean;
+  syncing: boolean;
+  lastSynced?: string;
+  message?: string;
+  error?: string;
+}
+
 interface AppContextType {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
@@ -50,6 +60,10 @@ interface AppContextType {
   stats: TravelStats;
   divisionStats: DivisionStat[];
   achievements: Achievement[];
+  cloudSync: CloudSyncState;
+  pushToCloud: () => Promise<{ success: boolean; error?: string }>;
+  pullFromCloud: () => Promise<{ success: boolean; error?: string }>;
+
   selectedDistrict: District | null;
   selectedDistrictVisits: Visit[];
   selectedDistrictPhotos: Photo[];
@@ -113,6 +127,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     photos: [],
     currentIndex: 0,
   });
+
+  // Supabase Cloud Sync State
+  const [cloudSync, setCloudSync] = useState<CloudSyncState>({
+    connected: false,
+    syncing: false,
+    message: 'Checking Supabase connection...',
+  });
+
+  // Verify Supabase connection on startup
+  useEffect(() => {
+    let isMounted = true;
+    checkSupabaseConnection().then((res) => {
+      if (isMounted) {
+        setCloudSync((prev) => ({
+          ...prev,
+          connected: res.connected,
+          message: res.message,
+        }));
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Load initial data from StorageService
   useEffect(() => {
@@ -665,6 +703,107 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setShow100PercentModal(false);
   };
 
+  // Push full snapshot and structured records to Supabase
+  const pushToCloud = async (): Promise<{ success: boolean; error?: string }> => {
+    setCloudSync((prev) => ({ ...prev, syncing: true, error: undefined }));
+    try {
+      const payload = {
+        app: 'Journey64',
+        version: '1.0.0',
+        syncedAt: new Date().toISOString(),
+        profile,
+        userData,
+        visits,
+        trips,
+        settings,
+      };
+
+      // Push backup snapshot
+      const backupRes = await SupabaseDB.pushBackup(
+        `Cloud Sync - ${profile.name || 'User'} (${new Date().toLocaleDateString()})`,
+        payload
+      );
+
+      // Attempt structured sync
+      await Promise.allSettled([
+        SupabaseDB.saveProfile(profile),
+        SupabaseDB.saveSettings(settings),
+        SupabaseDB.syncDistrictUserData(userData),
+        SupabaseDB.syncVisits(visits),
+        SupabaseDB.syncTrips(trips),
+      ]);
+
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setCloudSync({
+        connected: true,
+        syncing: false,
+        lastSynced: nowStr,
+        message: `Synced to Supabase cloud at ${nowStr}`,
+      });
+
+      return { success: true };
+    } catch (err: any) {
+      setCloudSync((prev) => ({
+        ...prev,
+        syncing: false,
+        error: err.message,
+        message: 'Sync failed: ' + err.message,
+      }));
+      return { success: false, error: err.message };
+    }
+  };
+
+  // Pull latest snapshot from Supabase
+  const pullFromCloud = async (): Promise<{ success: boolean; error?: string }> => {
+    setCloudSync((prev) => ({ ...prev, syncing: true, error: undefined }));
+    try {
+      const res = await SupabaseDB.pullLatestBackup();
+      if (!res.success || !res.data) {
+        throw new Error(res.error || 'No cloud snapshot found in Supabase.');
+      }
+
+      const cloudData = res.data;
+      if (cloudData.userData) {
+        setUserData(cloudData.userData);
+        StorageService.saveUserData(cloudData.userData);
+      }
+      if (cloudData.visits) {
+        setVisits(cloudData.visits);
+        StorageService.saveVisits(cloudData.visits);
+      }
+      if (cloudData.trips) {
+        setTrips(cloudData.trips);
+        StorageService.saveTrips(cloudData.trips);
+      }
+      if (cloudData.profile) {
+        setProfile(cloudData.profile);
+        StorageService.saveProfile(cloudData.profile);
+      }
+      if (cloudData.settings) {
+        setSettings(cloudData.settings);
+        StorageService.saveSettings(cloudData.settings);
+      }
+
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setCloudSync({
+        connected: true,
+        syncing: false,
+        lastSynced: nowStr,
+        message: `Restored from Supabase cloud at ${nowStr}`,
+      });
+
+      return { success: true };
+    } catch (err: any) {
+      setCloudSync((prev) => ({
+        ...prev,
+        syncing: false,
+        error: err.message,
+        message: 'Pull failed: ' + err.message,
+      }));
+      return { success: false, error: err.message };
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -678,6 +817,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         stats,
         divisionStats,
         achievements,
+        cloudSync,
+        pushToCloud,
+        pullFromCloud,
+
         selectedDistrict,
         selectedDistrictVisits,
         selectedDistrictPhotos,

@@ -17,6 +17,12 @@ import {
   ShieldCheck,
   FileText,
   HelpCircle,
+  Database,
+  Cloud,
+  CloudUpload,
+  CloudDownload,
+  ExternalLink,
+  Copy,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { StorageService } from '../../lib/storage';
@@ -25,6 +31,9 @@ export const SettingsPage: React.FC = () => {
   const {
     profile,
     settings,
+    cloudSync,
+    pushToCloud,
+    pullFromCloud,
     updateProfile,
     updateSettings,
     resetToCleanSlate,
@@ -36,8 +45,11 @@ export const SettingsPage: React.FC = () => {
   const [userNameDraft, setUserNameDraft] = useState(profile.name);
   const [userBioDraft, setUserBioDraft] = useState(profile.bio);
   const [profileSavedToast, setProfileSavedToast] = useState(false);
+  const [cloudToast, setCloudToast] = useState<string | null>(null);
+  const [sqlCopied, setSqlCopied] = useState(false);
 
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+
   const [confirmDemoOpen, setConfirmDemoOpen] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
@@ -245,6 +257,129 @@ export const SettingsPage: React.FC = () => {
               className="w-5 h-5 accent-[#F27D26] cursor-pointer"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Supabase Cloud Database Section */}
+      <div className="bg-[#0e0e0e] border border-white/10 p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-3">
+          <div>
+            <h2 className="font-display text-2xl uppercase tracking-wide text-white flex items-center gap-2.5">
+              <Database className="w-6 h-6 text-[#3ECF8E]" />
+              SUPABASE CLOUD DATABASE
+            </h2>
+            <p className="font-body text-xs text-stone-400 font-light mt-0.5">
+              Sync your travel memories, visits, and district badges with Supabase cloud
+            </p>
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span
+              className={`inline-flex items-center gap-1.5 font-body font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1 border ${
+                cloudSync.connected
+                  ? 'bg-[#3ECF8E]/10 border-[#3ECF8E]/40 text-[#3ECF8E]'
+                  : 'bg-yellow-500/10 border-yellow-500/40 text-yellow-400'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  cloudSync.connected ? 'bg-[#3ECF8E] animate-pulse' : 'bg-yellow-400'
+                }`}
+              />
+              {cloudSync.connected ? 'SUPABASE CONNECTED' : 'INITIALIZING'}
+            </span>
+          </div>
+        </div>
+
+        {cloudToast && (
+          <div className="p-4 bg-[#3ECF8E]/10 border border-[#3ECF8E]/40 text-[#3ECF8E] font-body font-bold text-xs uppercase tracking-wider flex items-center gap-2">
+            <Check className="w-4 h-4 shrink-0" />
+            {cloudToast}
+          </div>
+        )}
+
+        {cloudSync.message && (
+          <div className="text-xs text-stone-400 font-mono bg-white/5 border border-white/10 p-3 rounded-none flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Cloud className="w-4 h-4 text-stone-400" />
+              <span>{cloudSync.message}</span>
+            </div>
+            {cloudSync.lastSynced && (
+              <span className="text-[10px] text-stone-500">Last: {cloudSync.lastSynced}</span>
+            )}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            onClick={async () => {
+              setCloudToast('Syncing data to Supabase...');
+              const res = await pushToCloud();
+              if (res.success) {
+                setCloudToast('Successfully pushed all records to Supabase Cloud!');
+                setTimeout(() => setCloudToast(null), 3000);
+              } else {
+                setCloudToast('Sync warning: ' + (res.error || 'Please run SQL schema first'));
+                setTimeout(() => setCloudToast(null), 5000);
+              }
+            }}
+            disabled={cloudSync.syncing}
+            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#3ECF8E] text-left transition-all group flex items-start gap-4 cursor-pointer disabled:opacity-50"
+          >
+            <CloudUpload className="w-6 h-6 text-[#3ECF8E] shrink-0 mt-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <div>
+              <h4 className="font-display text-lg uppercase tracking-wide text-white">
+                PUSH TO SUPABASE
+              </h4>
+              <p className="font-body text-xs text-stone-400 font-light mt-1">
+                Upload your current 64-district progress, journal stories, trips, and settings to the cloud.
+              </p>
+            </div>
+          </button>
+
+          <button
+            onClick={async () => {
+              if (window.confirm('Pull latest snapshot from Supabase? This will merge/update your local data.')) {
+                setCloudToast('Pulling data from Supabase...');
+                const res = await pullFromCloud();
+                if (res.success) {
+                  setCloudToast('Successfully restored data from Supabase Cloud!');
+                  setTimeout(() => setCloudToast(null), 3000);
+                } else {
+                  setCloudToast('Pull error: ' + (res.error || 'No snapshot found'));
+                  setTimeout(() => setCloudToast(null), 5000);
+                }
+              }
+            }}
+            disabled={cloudSync.syncing}
+            className="p-5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-[#3ECF8E] text-left transition-all group flex items-start gap-4 cursor-pointer disabled:opacity-50"
+          >
+            <CloudDownload className="w-6 h-6 text-[#3ECF8E] shrink-0 mt-0.5 group-hover:translate-y-0.5 transition-transform" />
+            <div>
+              <h4 className="font-display text-lg uppercase tracking-wide text-white">
+                PULL FROM SUPABASE
+              </h4>
+              <p className="font-body text-xs text-stone-400 font-light mt-1">
+                Retrieve and restore your latest saved travel logs from your cloud database.
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* Database Info & SQL Schema link */}
+        <div className="p-4 bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-stone-400">
+          <div>
+            <p className="text-white font-mono text-xs">Project: gdqcjcogpymuwfivoeok.supabase.co</p>
+            <p className="text-stone-400 text-[11px] mt-0.5">Database schema file included: <code className="text-[#3ECF8E]">supabase_schema.sql</code></p>
+          </div>
+          <a
+            href="https://supabase.com/dashboard/project/gdqcjcogpymuwfivoeok/sql"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3ECF8E]/10 hover:bg-[#3ECF8E]/20 text-[#3ECF8E] border border-[#3ECF8E]/30 font-display text-xs uppercase tracking-wider self-start sm:self-auto transition-colors"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            OPEN SQL EDITOR
+          </a>
         </div>
       </div>
 

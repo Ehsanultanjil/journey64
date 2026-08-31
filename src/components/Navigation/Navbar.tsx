@@ -18,6 +18,7 @@ export const Navbar: React.FC = () => {
     setActiveTab,
     stats,
     settings,
+    cloudSync,
     updateSettings,
     openDistrictJournal,
     openTripDetail,
@@ -109,6 +110,22 @@ export const Navbar: React.FC = () => {
               <div className="h-6 w-[1px] bg-white/20" />
               <span className="font-display text-sm text-[#F27D26]">
                 {stats.percentageExplored}%
+              </span>
+            </button>
+
+            {/* Supabase Cloud Indicator */}
+            <button
+              onClick={() => handleTabChange('settings')}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-mono transition-colors text-white/70 hover:text-white"
+              title={cloudSync.message || 'Supabase Cloud Database'}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  cloudSync.connected ? 'bg-[#3ECF8E] animate-pulse' : 'bg-yellow-400'
+                }`}
+              />
+              <span className="font-display uppercase tracking-wider text-[9px]">
+                {cloudSync.syncing ? 'SYNCING' : cloudSync.connected ? 'CLOUD ON' : 'DB READY'}
               </span>
             </button>
 
