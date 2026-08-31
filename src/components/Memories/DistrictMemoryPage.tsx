@@ -157,25 +157,25 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         <button
           id="journal-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-2xs"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold bg-white dark:bg-[#0e0e0e] border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-white/10 transition-colors shadow-xs cursor-pointer font-body"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Map
+          মানচিত্রে ফিরে যান
         </button>
 
         {/* Favorite & Rating in Header */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 px-2.5 py-1.5 rounded-2xl shadow-2xs">
+          <div className="flex items-center bg-white dark:bg-[#0e0e0e] border border-stone-200 dark:border-white/15 px-2.5 py-1.5 shadow-xs">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
                 onClick={() => updateDistrictRating(districtId, star)}
-                className="p-0.5 text-amber-400 hover:scale-110 transition-transform"
+                className="p-0.5 text-amber-500 dark:text-amber-400 hover:scale-110 transition-transform cursor-pointer"
                 aria-label={`Rate ${star} stars`}
               >
                 <Star
                   className={`w-3.5 h-3.5 ${
-                    star <= rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-stone-600'
+                    star <= rating ? 'fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400' : 'text-stone-300 dark:text-white/20'
                   }`}
                 />
               </button>
@@ -185,20 +185,20 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <button
             id="journal-fav-btn"
             onClick={() => toggleDistrictFavorite(districtId)}
-            className={`p-2 rounded-2xl border transition-all ${
+            className={`p-2 border transition-all cursor-pointer ${
               isFavorite
-                ? 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-400 shadow-2xs'
-                : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-400 hover:text-rose-500'
+                ? 'bg-[#F27D26] border-[#F27D26] text-white shadow-md'
+                : 'bg-white dark:bg-[#0e0e0e] border-stone-200 dark:border-white/15 text-stone-400 hover:text-[#F27D26]'
             }`}
             aria-label="Toggle favorite"
           >
-            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Hero Cover Photo & Title Container */}
-      <div className="relative rounded-3xl overflow-hidden bg-stone-900 text-white shadow-xl border border-stone-200 dark:border-stone-800">
+      <div className="relative overflow-hidden bg-stone-900 text-white shadow-xl border border-stone-200 dark:border-white/15">
         {coverPhoto ? (
           <div className="relative h-64 sm:h-80 md:h-96 w-full">
             <img
@@ -209,24 +209,24 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             />
             <button
               onClick={() => openLightbox(photos, 0, district.name)}
-              className="absolute top-4 right-4 p-2.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md text-white transition-colors"
+              className="absolute top-4 right-4 p-2.5 bg-black/50 hover:bg-black/80 backdrop-blur-md text-white transition-colors cursor-pointer"
               aria-label="View fullscreen photo"
             >
               <Maximize2 className="w-4 h-4" />
             </button>
           </div>
         ) : (
-          <div className="h-64 sm:h-72 w-full bg-gradient-to-br from-emerald-900 via-stone-900 to-stone-950 flex flex-col items-center justify-center p-8 text-center">
-            <Compass className="w-16 h-16 text-emerald-400/40 mb-3" />
-            <p className="text-sm text-emerald-200/90 font-medium">
-              Preserve your favorite memory of {district.name}
+          <div className="h-64 sm:h-72 w-full bg-gradient-to-br from-[#2a1708] via-[#111111] to-[#050505] flex flex-col items-center justify-center p-8 text-center">
+            <Compass className="w-16 h-16 text-[#F27D26]/40 mb-3" />
+            <p className="font-body text-sm text-stone-300 font-medium">
+              {district.bn_name} জেলার প্রিয় ছবি সংরক্ষণ করুন
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all"
+              className="mt-4 px-4 py-2 bg-[#F27D26] hover:bg-[#d96615] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer font-body"
             >
               <Camera className="w-3.5 h-3.5" />
-              Upload Cover Photograph
+              কভার ছবি আপলোড করুন
             </button>
           </div>
         )}
@@ -234,50 +234,41 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         {/* Hero Title Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600/90 backdrop-blur-md text-white">
-              {district.division} Division
+            <span className="px-3 py-1 font-body text-xs font-bold bg-[#F27D26] text-white">
+              {district.division} বিভাগ
             </span>
             {districtVisits.length > 1 && (
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-stone-800/80 backdrop-blur-md text-stone-200 border border-white/10">
-                {districtVisits.length} Trips Recorded
+              <span className="px-3 py-1 font-body text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/10">
+                {districtVisits.length}টি ভ্রমণ রেকর্ড
               </span>
-            )}
-            {connectedTrip && (
-              <button
-                onClick={() => openTripDetail(connectedTrip.id)}
-                className="px-3 py-1 rounded-full text-xs font-semibold bg-sky-600/80 hover:bg-sky-600 backdrop-blur-md text-white flex items-center gap-1 transition-colors"
-              >
-                <Car className="w-3 h-3" />
-                Part of: {connectedTrip.name}
-              </button>
             )}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight flex items-baseline gap-3">
-            {district.name}
-            <span className="text-lg sm:text-2xl font-normal text-stone-300">
-              {district.bn_name}
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight flex items-baseline gap-3 text-white">
+            {district.bn_name}
+            <span className="text-lg sm:text-2xl font-normal text-stone-300 font-sans">
+              ({district.name})
             </span>
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs sm:text-sm text-stone-300">
+          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs sm:text-sm text-stone-300 font-body">
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              Visited: {activeVisit?.visitDate || districtData?.firstVisitedDate || 'Recorded'}
+              <Calendar className="w-4 h-4 text-[#F27D26]" />
+              ভ্রমণ: {activeVisit?.visitDate || districtData?.firstVisitedDate || 'সংরক্ষিত'}
             </span>
             <span className="flex items-center gap-1.5">
-              <Camera className="w-4 h-4 text-emerald-400" />
-              {totalPhotos} / 5 memories saved
+              <Camera className="w-4 h-4 text-[#F27D26]" />
+              {totalPhotos} / ৫টি ছবি সংরক্ষিত
             </span>
           </div>
         </div>
       </div>
 
-      {/* Multiple Visits / Trips Selector Tabs (if more than 1 visit exists or user wants to log another journey) */}
-      <div className="bg-white dark:bg-stone-900 p-4 rounded-3xl border border-stone-200 dark:border-stone-800 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+      {/* Multiple Visits / Trips Selector Tabs */}
+      <div className="bg-white dark:bg-[#0e0e0e] p-4 border border-stone-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 shadow-xs transition-colors">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <span className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider whitespace-nowrap mr-1">
-            Journeys:
+          <span className="font-body text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider whitespace-nowrap mr-1">
+            ভ্রমণ তালিকা:
           </span>
           {districtVisits.map((v, idx) => (
             <button
@@ -286,25 +277,25 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 setSelectedVisitId(v.id);
                 setNotesDraft(v.notes || '');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 font-body text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 (activeVisit?.id === v.id || (!activeVisit && idx === 0))
-                  ? 'bg-emerald-700 text-white shadow-xs'
-                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  ? 'bg-[#F27D26] text-white shadow-xs'
+                  : 'bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-white/10'
               }`}
             >
               {v.visitDate
-                ? new Date(v.visitDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-                : `Visit #${idx + 1}`}
+                ? new Date(v.visitDate).toLocaleDateString('bn-BD', { month: 'short', year: 'numeric' })
+                : `ভ্রমণ #${idx + 1}`}
             </button>
           ))}
         </div>
 
         <button
           onClick={() => setIsAddingNewVisit(true)}
-          className="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex items-center gap-1 transition-colors ml-auto"
+          className="px-3 py-1.5 font-body text-xs font-bold text-[#EA580C] dark:text-[#F27D26] hover:bg-stone-100 dark:hover:bg-white/10 border border-[#F27D26]/40 flex items-center gap-1 transition-colors ml-auto cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          Log Another Trip Here
+          নতুন ভ্রমণ যোগ করুন
         </button>
       </div>
 
@@ -314,50 +305,50 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-3xl p-5 shadow-2xl border border-stone-200 dark:border-stone-800 space-y-4"
+            className="w-full max-w-sm bg-white dark:bg-[#111111] p-5 shadow-2xl border border-stone-200 dark:border-white/20 space-y-4"
           >
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-emerald-600" />
-              Log Another Visit to {district.name}
+            <h3 className="font-body text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#F27D26]" />
+              {district.bn_name} জেলায় নতুন ভ্রমণ যোগ করুন
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-3 font-body">
               <div>
-                <label className="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">
-                  Trip Title (optional)
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  ভ্রমণের শিরোনাম (ঐচ্ছিক)
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Winter Vacation 2026"
+                  placeholder="যেমন: শীতকালীন অবকাশ ২০২৬"
                   value={newVisitTitle}
                   onChange={(e) => setNewVisitTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-stone-100"
+                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/20 text-stone-900 dark:text-stone-100 focus:outline-none focus:border-[#F27D26]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1">
-                  Visit Date
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1">
+                  ভ্রমণের তারিখ
                 </label>
                 <input
                   type="date"
                   value={newVisitDate}
                   onChange={(e) => setNewVisitDate(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-stone-100"
+                  className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/20 text-stone-900 dark:text-stone-100 focus:outline-none focus:border-[#F27D26]"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2 font-body">
               <button
                 onClick={() => setIsAddingNewVisit(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl"
+                className="px-3.5 py-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/10 cursor-pointer"
               >
-                Cancel
+                বাতিল
               </button>
               <button
                 onClick={handleCreateVisit}
-                className="px-4 py-1.5 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs"
+                className="px-4 py-1.5 text-xs font-bold bg-[#F27D26] hover:bg-[#d96615] text-white shadow-xs cursor-pointer"
               >
-                Save Journey
+                সংরক্ষণ করুন
               </button>
             </div>
           </motion.div>
@@ -368,12 +359,12 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Camera className="w-5 h-5 text-emerald-600" />
-              Photo Album
+            <h2 className="font-display text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2">
+              <Camera className="w-5 h-5 text-[#F27D26]" />
+              ফটো অ্যালবাম
             </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Preserve 3–5 of your best memories from this district ({totalPhotos} / 5)
+            <p className="font-body text-xs text-stone-500 dark:text-stone-400">
+              এই জেলার সেরা ৩–৫টি স্মৃতি ছবি সংরক্ষণ করুন ({totalPhotos} / ৫)
             </p>
           </div>
 
@@ -391,30 +382,30 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               id="upload-photo-btn"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-2xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all hover:scale-105 disabled:opacity-50"
+              className="px-3.5 py-2 bg-[#F27D26] hover:bg-[#d96615] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer font-body disabled:opacity-50"
             >
               {isUploading ? (
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Plus className="w-3.5 h-3.5" />
               )}
-              Add Photo ({5 - totalPhotos} left)
+              ছবি যোগ করুন ({5 - totalPhotos}টি বাকি)
             </button>
           )}
         </div>
 
-        {/* Editorial Photo Grid (1 large + 2 medium + 2 bottom) */}
+        {/* Photo Grid */}
         {totalPhotos === 0 ? (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-3xl p-10 text-center cursor-pointer transition-colors bg-white/40 dark:bg-stone-900/40"
+            className="border-2 border-dashed border-stone-300 dark:border-white/20 hover:border-[#F27D26] dark:hover:border-[#F27D26] p-10 text-center cursor-pointer transition-colors bg-white dark:bg-[#0e0e0e]"
           >
             <ImageIcon className="w-10 h-10 text-stone-400 mx-auto mb-2" />
-            <h4 className="text-sm font-bold text-stone-800 dark:text-stone-200">
-              Save This Memory
+            <h4 className="font-body text-sm font-bold text-stone-800 dark:text-stone-200">
+              স্মৃতি সংরক্ষণ করুন
             </h4>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto">
-              Add 3–5 photos to remember this journey forever. Click here to select your first photo.
+            <p className="font-body text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto font-light">
+              আপনার ভ্রমণের ৩–৫টি ছবি যোগ করুন। প্রথম ছবি নির্বাচন করতে এখানে ক্লিক করুন।
             </p>
           </div>
         ) : (
@@ -427,7 +418,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`group relative rounded-2xl overflow-hidden bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm ${
+                  className={`group relative overflow-hidden bg-stone-900 border border-stone-200 dark:border-white/15 shadow-sm ${
                     index === 0 ? 'sm:col-span-2 md:col-span-2 aspect-video sm:aspect-16/9' : 'aspect-square'
                   }`}
                 >
@@ -441,19 +432,19 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   {/* Badges on photo */}
                   <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
                     {isCover && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600/90 backdrop-blur-md text-white shadow-2xs">
-                        Cover Photo
+                      <span className="px-2 py-0.5 font-body text-[10px] font-bold bg-[#F27D26] text-white shadow-xs">
+                        কভার ছবি
                       </span>
                     )}
                   </div>
 
                   {/* Actions overlay on hover */}
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md rounded-xl p-1">
+                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md p-1">
                     {!isCover && (
                       <button
                         onClick={() => updatePhoto(photo.id, { isCover: true })}
                         title="Set as Cover Photo"
-                        className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg text-xs"
+                        className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 text-xs cursor-pointer"
                       >
                         <Star className="w-3.5 h-3.5" />
                       </button>
@@ -464,29 +455,29 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                         setCaptionDraft(photo.caption || '');
                       }}
                       title="Edit Caption"
-                      className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg text-xs"
+                      className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 text-xs cursor-pointer"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => setDeletePhotoConfirmId(photo.id)}
                       title="Delete Photo"
-                      className="p-1.5 text-rose-300 hover:text-rose-100 hover:bg-rose-600/60 rounded-lg text-xs"
+                      className="p-1.5 text-rose-300 hover:text-rose-100 hover:bg-rose-600/60 text-xs cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
                   {/* Caption bar */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white font-body">
                     {editingPhotoCaptionId === photo.id ? (
                       <div className="flex items-center gap-2">
                         <input
                           type="text"
                           value={captionDraft}
                           onChange={(e) => setCaptionDraft(e.target.value)}
-                          placeholder="Write a short caption..."
-                          className="flex-1 px-2.5 py-1 text-xs bg-black/50 border border-white/30 rounded-lg text-white placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                          placeholder="ক্যাপশন লিখুন..."
+                          className="flex-1 px-2.5 py-1 text-xs bg-black/50 border border-white/30 text-white placeholder-stone-400 focus:outline-none focus:border-[#F27D26]"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleSaveCaption(photo.id);
@@ -495,13 +486,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                         />
                         <button
                           onClick={() => handleSaveCaption(photo.id)}
-                          className="p-1.5 bg-emerald-600 rounded-lg text-white hover:bg-emerald-700"
+                          className="p-1.5 bg-[#F27D26] text-white hover:bg-[#d96615] cursor-pointer"
                         >
                           <Check className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setEditingPhotoCaptionId(null)}
-                          className="p-1.5 bg-stone-700 rounded-lg text-white hover:bg-stone-600"
+                          className="p-1.5 bg-stone-700 text-white hover:bg-stone-600 cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -512,9 +503,9 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                           setEditingPhotoCaptionId(photo.id);
                           setCaptionDraft(photo.caption || '');
                         }}
-                        className="text-xs text-stone-200 line-clamp-2 cursor-pointer hover:text-white"
+                        className="text-xs text-stone-200 line-clamp-2 cursor-pointer hover:text-white font-light"
                       >
-                        {photo.caption ? `"${photo.caption}"` : '+ Add a caption...'}
+                        {photo.caption ? `"${photo.caption}"` : '+ ক্যাপশন যোগ করুন...'}
                       </p>
                     )}
                   </div>
@@ -531,29 +522,29 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-3xl p-5 shadow-2xl border border-stone-200 dark:border-stone-800 space-y-3"
+            className="w-full max-w-sm bg-white dark:bg-[#111] p-5 shadow-2xl border border-stone-200 dark:border-white/20 space-y-3 font-body"
           >
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
-              Delete this memory photo?
+              এই ছবিটি মুছে ফেলতে চান?
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-300">
-              This photo will be removed from your {district.name} album.
+              ছবিটি {district.bn_name} অ্যালবাম থেকে মুছে ফেলা হবে।
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setDeletePhotoConfirmId(null)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl"
+                className="px-3.5 py-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/10 cursor-pointer"
               >
-                Cancel
+                বাতিল
               </button>
               <button
                 onClick={() => {
                   deletePhoto(deletePhotoConfirmId);
                   setDeletePhotoConfirmId(null);
                 }}
-                className="px-4 py-1.5 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs"
+                className="px-4 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer"
               >
-                Delete
+                মুছে ফেলুন
               </button>
             </div>
           </motion.div>
@@ -561,21 +552,19 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
       )}
 
       {/* Personal Memory Journal Note */}
-      <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#0e0e0e] p-6 sm:p-8 border border-stone-200/80 dark:border-white/10 shadow-sm space-y-4 transition-colors font-body">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <span className="text-emerald-700 dark:text-emerald-400 font-serif italic text-2xl">
-              ✍️
-            </span>
-            MY MEMORY
+          <h2 className="font-display text-2xl font-bold tracking-wide text-stone-900 dark:text-white flex items-center gap-2">
+            <span className="text-[#F27D26] text-xl">✍️</span>
+            আমার ভ্রমণকাহিনী ও স্মৃতিকথা
           </h2>
           {!isEditingNotes && (
             <button
               onClick={() => setIsEditingNotes(true)}
-              className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#EA580C] dark:text-[#F27D26] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
-              Edit Story
+              সম্পাদনা করুন
             </button>
           )}
         </div>
@@ -586,8 +575,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               rows={5}
               value={notesDraft}
               onChange={(e) => setNotesDraft(e.target.value)}
-              placeholder={`Write your personal story of visiting ${district.name} — who you traveled with, what you tasted, quiet moments, or favorite adventures...`}
-              className="w-full p-4 text-sm font-editorial leading-relaxed bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-2xl text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder={`${district.bn_name} ভ্রমণের অভিজ্ঞতা, সাথে কে ছিলেন, কী খেলেন, দর্শনীয় স্থানের অনুভূতি লিখে রাখুন...`}
+              className="w-full p-4 text-sm leading-relaxed bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/20 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#F27D26]"
             />
             <div className="flex items-center justify-end gap-2">
               <button
@@ -595,30 +584,30 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   setNotesDraft(activeVisit?.notes || districtData?.notes || '');
                   setIsEditingNotes(false);
                 }}
-                className="px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl"
+                className="px-4 py-2 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/10 cursor-pointer"
               >
-                Cancel
+                বাতিল
               </button>
               <button
                 onClick={handleSaveNotes}
-                className="px-5 py-2 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs"
+                className="px-5 py-2 text-xs font-bold bg-[#F27D26] hover:bg-[#d96615] text-white shadow-xs cursor-pointer"
               >
-                Save Memory
+                সংরক্ষণ করুন
               </button>
             </div>
           </div>
         ) : (
           <div
             onClick={() => setIsEditingNotes(true)}
-            className="cursor-pointer group rounded-2xl p-4 -m-4 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors"
+            className="cursor-pointer group p-4 -m-4 hover:bg-stone-50 dark:hover:bg-white/5 transition-colors"
           >
             {notesDraft.trim().length > 0 ? (
-              <p className="text-base font-editorial leading-relaxed text-stone-700 dark:text-stone-300 italic whitespace-pre-line">
+              <p className="text-base leading-relaxed text-stone-800 dark:text-stone-300 italic whitespace-pre-line font-light">
                 "{notesDraft}"
               </p>
             ) : (
-              <p className="text-sm font-editorial text-stone-400 italic">
-                No story written yet for this trip. Click here to pen your personal thoughts, favorite moments, and memories of {district.name}...
+              <p className="text-sm text-stone-400 italic font-light">
+                এই ভ্রমণের কোনো গল্প এখনও লেখা হয়নি। {district.bn_name} জেলার স্মৃতি ও অভিজ্ঞতা লিখতে এখানে ক্লিক করুন...
               </p>
             )}
           </div>
@@ -627,3 +616,4 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     </div>
   );
 };
+
