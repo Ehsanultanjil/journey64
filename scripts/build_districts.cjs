@@ -1,4 +1,5 @@
 const fs = require('fs');
+const d3Geo = require('d3-geo');
 
 // Read raw geojson
 const geojson = JSON.parse(fs.readFileSync('./src/data/bd-raw-geojson.json', 'utf8'));
@@ -7,104 +8,11 @@ const geojson = JSON.parse(fs.readFileSync('./src/data/bd-raw-geojson.json', 'ut
 const infoRaw = JSON.parse(fs.readFileSync('./src/data/bd-districts-info.json', 'utf8'));
 const infoDistricts = infoRaw.districts || [];
 
-// Calculate bounding box of all coordinates
-let minLng = Infinity, maxLng = -Infinity;
-let minLat = Infinity, maxLat = -Infinity;
+// Target SVG dimensions: 800 x 1000
+const projection = d3Geo.geoMercator()
+  .fitExtent([[50, 40], [750, 960]], geojson);
 
-function traverseCoords(coords, cb) {
-  if (typeof coords[0] === 'number') {
-    cb(coords[0], coords[1]);
-  } else {
-    for (const c of coords) traverseCoords(c, cb);
-  }
-}
-
-for (const feature of geojson.features) {
-  traverseCoords(feature.geometry.coordinates, (lng, lat) => {
-    if (lng < minLng) minLng = lng;
-    if (lng > maxLng) maxLng = lng;
-    if (lat < minLat) minLat = lat;
-    if (lat > maxLat) maxLat = lat;
-  });
-}
-
-console.log('Geo bounds:', { minLng, maxLng, minLat, maxLat });
-
-// Mercator projection math
-function latToMercatorY(latDeg) {
-  const rad = (latDeg * Math.PI) / 180;
-  return Math.log(Math.tan(Math.PI / 4 + rad / 2));
-}
-
-const minMercY = latToMercatorY(minLat);
-const maxMercY = latToMercatorY(maxLat);
-
-// Target SVG viewport: 800 x 1000 with padding
-const targetWidth = 800;
-const targetHeight = 1000;
-const paddingX = 45;
-const paddingTop = 45;
-const paddingBottom = 45;
-
-const availableW = targetWidth - paddingX * 2;
-const availableH = targetHeight - paddingTop - paddingBottom;
-
-const scaleX = availableW / (maxLng - minLng);
-const scaleY = availableH / (maxMercY - minMercY);
-const scale = Math.min(scaleX, scaleY);
-
-const offsetX = paddingX + (availableW - (maxLng - minLng) * scale) / 2;
-const offsetY = paddingTop + (availableH - (maxMercY - minMercY) * scale) / 2;
-
-function project(lng, lat) {
-  const x = offsetX + (lng - minLng) * scale;
-  const mercY = latToMercatorY(lat);
-  const y = offsetY + (maxMercY - mercY) * scale;
-  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
-}
-
-function ringToPath(ring) {
-  if (!ring || ring.length === 0) return '';
-  let d = '';
-  for (let i = 0; i < ring.length; i++) {
-    const [x, y] = project(ring[i][0], ring[i][1]);
-    d += (i === 0 ? `M${x},${y}` : `L${x},${y}`);
-  }
-  return d + 'Z';
-}
-
-function geometryToPath(geometry) {
-  if (geometry.type === 'Polygon') {
-    return geometry.coordinates.map(ringToPath).join('');
-  } else if (geometry.type === 'MultiPolygon') {
-    return geometry.coordinates.map(poly => poly.map(ringToPath).join('')).join('');
-  }
-  return '';
-}
-
-function computeCentroidAndBounds(geometry) {
-  let sumX = 0, sumY = 0, count = 0;
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-
-  traverseCoords(geometry.coordinates, (lng, lat) => {
-    const [x, y] = project(lng, lat);
-    sumX += x;
-    sumY += y;
-    count++;
-    if (x < minX) minX = x;
-    if (x > maxX) maxX = x;
-    if (y < minY) minY = y;
-    if (y > maxY) maxY = y;
-  });
-
-  return {
-    center: [Math.round((sumX / count) * 10) / 10, Math.round((sumY / count) * 10) / 10],
-    bounds: [
-      [Math.round(minX * 10) / 10, Math.round(minY * 10) / 10],
-      [Math.round(maxX * 10) / 10, Math.round(maxY * 10) / 10]
-    ]
-  };
-}
+const pathGenerator = d3Geo.geoPath().projection(projection);
 
 // Division mapping helpers
 const divMap = {
@@ -207,8 +115,9 @@ const compiled = geojson.features.map((feature) => {
   if (division === 'Chittagong') division = 'Chattogram';
   if (division === 'Barisal') division = 'Barishal';
 
-  const path = geometryToPath(feature.geometry);
-  const { center, bounds } = computeCentroidAndBounds(feature.geometry);
+  const path = pathGenerator(feature) || '';
+  const centroid = pathGenerator.centroid(feature) || [400, 500];
+  const bounds = pathGenerator.bounds(feature) || [[0, 0], [800, 1000]];
 
   const lat = info.lat ? parseFloat(info.lat) : 23.5;
   const long = info.long ? parseFloat(info.long) : 90.0;
@@ -227,8 +136,11 @@ const compiled = geojson.features.map((feature) => {
     lat,
     long,
     path,
-    center,
-    bounds,
+    center: [Math.round(centroid[0] * 10) / 10, Math.round(centroid[1] * 10) / 10],
+    bounds: [
+      [Math.round(bounds[0][0] * 10) / 10, Math.round(bounds[0][1] * 10) / 10],
+      [Math.round(bounds[1][0] * 10) / 10, Math.round(bounds[1][1] * 10) / 10]
+    ],
     isCoastal,
     isHill,
     famousSpots,
@@ -238,7 +150,7 @@ const compiled = geojson.features.map((feature) => {
 
 compiled.sort((a, b) => a.name.localeCompare(b.name));
 
-console.log('Compiled', compiled.length, 'districts successfully!');
+console.log('Compiled', compiled.length, 'districts with d3-geo projection.');
 fs.writeFileSync('./src/data/compiledDistricts.json', JSON.stringify(compiled, null, 2), 'utf8');
 
 const tsContent = `import type { District } from '../types';
@@ -255,4 +167,4 @@ export function getDistrictsByDivision(division: string): District[] {
 `;
 
 fs.writeFileSync('./src/data/districts.ts', tsContent, 'utf8');
-console.log('Successfully written src/data/districts.ts with', compiled.length, 'districts');
+console.log('Successfully written accurate SVG map to src/data/districts.ts');
