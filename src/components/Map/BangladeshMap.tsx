@@ -89,41 +89,54 @@ export const BangladeshMap: React.FC = () => {
     ).slice(0, 5);
   }, [searchQuery]);
 
+  // Helper to clamp transform strictly within container boundaries
+  const clampTransform = (scale: number, x: number, y: number) => {
+    if (scale <= 1.05) {
+      return { scale: 1, x: 0, y: 0 };
+    }
+    const containerW = svgContainerRef.current?.clientWidth || 800;
+    const containerH = svgContainerRef.current?.clientHeight || 600;
+    const maxPanX = ((scale - 1) * containerW) / 2.2;
+    const maxPanY = ((scale - 1) * containerH) / 2.2;
+
+    return {
+      scale: Math.min(Math.max(scale, 1), 4),
+      x: Math.min(Math.max(x, -maxPanX), maxPanX),
+      y: Math.min(Math.max(y, -maxPanY), maxPanY),
+    };
+  };
+
   // Handle Zoom controls
   const handleZoomIn = () => {
-    setTransform((prev) => ({
-      ...prev,
-      scale: Math.min(prev.scale * 1.35, 4.5),
-    }));
+    setTransform((prev) => {
+      const nextScale = Math.min(prev.scale * 1.35, 4);
+      return clampTransform(nextScale, prev.x, prev.y);
+    });
   };
 
   const handleZoomOut = () => {
-    setTransform((prev) => ({
-      ...prev,
-      scale: Math.max(prev.scale / 1.35, 0.9),
-      x: prev.scale <= 1.2 ? 0 : prev.x,
-      y: prev.scale <= 1.2 ? 0 : prev.y,
-    }));
+    setTransform((prev) => {
+      const nextScale = Math.max(prev.scale / 1.35, 1);
+      return clampTransform(nextScale, prev.x, prev.y);
+    });
   };
 
   const handleResetZoom = () => {
     setTransform({ scale: 1, x: 0, y: 0 });
   };
 
-  // Mouse pan handlers
+  // Mouse pan handlers (Only pan when zoomed in)
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || transform.scale <= 1.05) return;
     setIsDragging(true);
     setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setTransform((prev) => ({
-      ...prev,
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    }));
+    if (!isDragging || transform.scale <= 1.05) return;
+    const rawX = e.clientX - dragStart.x;
+    const rawY = e.clientY - dragStart.y;
+    setTransform((prev) => clampTransform(prev.scale, rawX, rawY));
   };
 
   const handleMouseUp = () => {
@@ -135,19 +148,16 @@ export const BangladeshMap: React.FC = () => {
     setHoveredDistrict(null);
   };
 
-
-  // Touch pan handlers for mobile pinch & drag
-  const touchStartRef = useRef<{ x: number; y: number; dist: number }>({ x: 0, y: 0, dist: 0 });
+  // Touch handlers: Allow natural vertical page scroll at normal zoom. Only pan when zoomed in or 2-finger pinch!
+  const touchStartRef = useRef<{ x: number; y: number; dist: number; isPinching: boolean }>({
+    x: 0,
+    y: 0,
+    dist: 0,
+    isPinching: false,
+  });
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      setIsDragging(true);
-      touchStartRef.current = {
-        x: e.touches[0].clientX - transform.x,
-        y: e.touches[0].clientY - transform.y,
-        dist: 0,
-      };
-    } else if (e.touches.length === 2) {
+    if (e.touches.length === 2) {
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -156,35 +166,43 @@ export const BangladeshMap: React.FC = () => {
         x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - transform.x,
         y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - transform.y,
         dist,
+        isPinching: true,
+      };
+      setIsDragging(true);
+    } else if (e.touches.length === 1 && transform.scale > 1.05) {
+      setIsDragging(true);
+      touchStartRef.current = {
+        x: e.touches[0].clientX - transform.x,
+        y: e.touches[0].clientY - transform.y,
+        dist: 0,
+        isPinching: false,
       };
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1 && isDragging) {
-      setTransform((prev) => ({
-        ...prev,
-        x: e.touches[0].clientX - touchStartRef.current.x,
-        y: e.touches[0].clientY - touchStartRef.current.y,
-      }));
-    } else if (e.touches.length === 2 && touchStartRef.current.dist > 0) {
+    if (e.touches.length === 2 && touchStartRef.current.isPinching && touchStartRef.current.dist > 0) {
       const dist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
       const scaleFactor = dist / touchStartRef.current.dist;
-      setTransform((prev) => ({
-        ...prev,
-        scale: Math.min(Math.max(prev.scale * scaleFactor, 0.9), 4.5),
-      }));
+      const nextScale = Math.min(Math.max(transform.scale * scaleFactor, 1), 4);
+      setTransform((prev) => clampTransform(nextScale, prev.x, prev.y));
       touchStartRef.current.dist = dist;
+    } else if (e.touches.length === 1 && isDragging && transform.scale > 1.05) {
+      const rawX = e.touches[0].clientX - touchStartRef.current.x;
+      const rawY = e.touches[0].clientY - touchStartRef.current.y;
+      setTransform((prev) => clampTransform(prev.scale, rawX, rawY));
     }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
     touchStartRef.current.dist = 0;
+    touchStartRef.current.isPinching = false;
   };
+
 
   // Helper to determine district fill color
   const getDistrictFill = (district: District, isSelected: boolean) => {
@@ -350,9 +368,12 @@ export const BangladeshMap: React.FC = () => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`relative w-full h-[380px] sm:h-[540px] md:h-[680px] lg:h-[760px] select-none cursor-${
-          isDragging ? 'grabbing' : 'grab'
-        } overflow-hidden flex items-center justify-center bg-[#060606]`}
+        className={`relative w-full h-[380px] sm:h-[540px] md:h-[680px] lg:h-[760px] select-none overflow-hidden flex items-center justify-center bg-[#060606] ${
+          transform.scale > 1.05 ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'
+        }`}
+        style={{
+          touchAction: transform.scale > 1.05 ? 'none' : 'pan-y',
+        }}
       >
         <svg
           viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
