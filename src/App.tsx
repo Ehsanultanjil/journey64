@@ -35,39 +35,42 @@ const MainContent: React.FC = () => {
   } = useApp();
 
   return (
-    <main className="space-y-8 sm:space-y-12 pb-16">
-      {activeTab === 'explore' && (
+    <div className="flex flex-col min-h-full">
+      {activeTab === 'explore' ? (
         <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
-          {/* Signature Cinematic Hero Stage with User's Background Photo */}
-          <section className="relative px-4 sm:px-8 lg:px-12 pt-8 sm:pt-14 pb-10 sm:pb-16 border-b border-white/10 overflow-hidden rounded-t-[20px] sm:rounded-t-[32px]">
-            {/* Background Photo & Cinematic Lighting Overlays */}
-            <div className="absolute inset-0 z-0">
+          {/* Top Hero Container (Background Photo spans behind Navbar all the way to top) */}
+          <div className="relative border-b border-white/10 overflow-hidden min-h-[480px] sm:min-h-[560px] flex flex-col justify-between">
+            {/* Background Photo & Atmospheric Lighting Overlays */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
               <img
                 src="/hero-bg.png"
                 alt="Expedition Background"
-                className="w-full h-full object-cover object-center filter brightness-[0.75] contrast-[1.08]"
+                className="w-full h-full object-cover object-center filter brightness-[0.80] contrast-[1.08]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10] via-[#0A0C10]/60 to-black/30" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0C10]/95 via-[#0A0C10]/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10] via-[#0A0C10]/40 to-black/25" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0C10]/95 via-[#0A0C10]/50 to-transparent" />
             </div>
 
-            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-12">
-              {/* Left Headline & Pitch */}
+            {/* Navbar floating directly on top of the hero background image */}
+            <Navbar />
+
+            {/* Hero Text, Headline, and Live Metrics */}
+            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12">
               <div className="max-w-2xl space-y-4 sm:space-y-5">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EA580C]/15 border border-[#EA580C]/30 text-[#EA580C] text-[11px] font-body font-bold uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EA580C]/20 backdrop-blur-md border border-[#EA580C]/40 text-[#EA580C] text-[11px] font-body font-bold uppercase tracking-wider shadow-sm">
                   <Compass className="w-3.5 h-3.5 animate-spin-slow" />
                   ৬৪ জেলা জাতীয় অভিযাত্রা ডায়েরি
                 </div>
 
-                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05]">
+                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05] drop-shadow-md">
                   ৬৪ জেলা ভ্রমণ। <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-stone-200 to-[#EA580C]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-stone-100 to-[#EA580C]">
                     জাতীয় পদচিহ্ন।
                   </span> <br />
                   অনন্ত স্মৃতিকথা।
                 </h1>
 
-                <p className="font-body text-xs sm:text-sm md:text-base text-stone-300 font-light leading-relaxed max-w-lg">
+                <p className="font-body text-xs sm:text-sm md:text-base text-stone-200 font-light leading-relaxed max-w-lg drop-shadow-sm">
                   বাংলাদেশের প্রতিটি জেলা, প্রান্তর ও প্রান্তরে আপনার ভ্রমণের অনন্য পদচিহ্ন চিহ্নিত করুন এবং স্মৃতিগুলো চিরকাল অক্ষত রাখুন।
                 </p>
 
@@ -85,38 +88,38 @@ const MainContent: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Bottom-left Metrics Counter Row (Matching Reference) */}
-                <div className="flex items-center gap-6 sm:gap-10 pt-6 sm:pt-8 border-t border-white/10">
+                {/* Bottom-left Metrics Counter Row */}
+                <div className="flex items-center gap-6 sm:gap-10 pt-6 sm:pt-8 border-t border-white/15">
                   <div>
-                    <p className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-sm">
                       {stats.visitedCount}+
                     </p>
-                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
                       জেলা ভ্রমণ সম্পন্ন
                     </p>
                   </div>
-                  <div className="h-8 w-[1px] bg-white/15" />
+                  <div className="h-8 w-[1px] bg-white/20" />
                   <div>
-                    <p className="font-display text-3xl sm:text-4xl font-bold text-[#EA580C] tracking-tight">
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-[#EA580C] tracking-tight drop-shadow-sm">
                       {stats.percentageExplored}%
                     </p>
-                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
                       সার্বভৌম পদচিহ্ন
                     </p>
                   </div>
-                  <div className="h-8 w-[1px] bg-white/15" />
+                  <div className="h-8 w-[1px] bg-white/20" />
                   <div>
-                    <p className="font-display text-3xl sm:text-4xl font-bold text-amber-400 tracking-tight">
-                      {stats.divisionsExploredCount} <span className="text-sm font-normal text-white/50">/ ৮</span>
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-amber-400 tracking-tight drop-shadow-sm">
+                      {stats.divisionsExploredCount} <span className="text-sm font-normal text-white/60">/ ৮</span>
                     </p>
-                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
                       বিভাগ অন্বেষণ
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </div>
 
           {/* Bangladesh Interactive Map Section */}
           <div className="px-3 sm:px-8 lg:px-12">
@@ -126,7 +129,7 @@ const MainContent: React.FC = () => {
           </div>
 
           {/* 64-District Regional Catalog */}
-          <div className="px-3 sm:px-8 lg:px-12">
+          <div className="px-3 sm:px-8 lg:px-12 pb-16">
             <section className="space-y-4 sm:space-y-6 pt-4 border-t border-white/10">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                 <div>
@@ -229,16 +232,13 @@ const MainContent: React.FC = () => {
             </section>
           </div>
         </div>
-      )}
-
-      {activeTab === 'memories' && (
-        <div className="px-3 sm:px-8 lg:px-12 pt-6">
-          <MemoriesTimelinePage />
-        </div>
-      )}
-      {activeTab === 'settings' && (
-        <div className="px-3 sm:px-8 lg:px-12 pt-6">
-          <SettingsPage />
+      ) : (
+        <div className="flex flex-col flex-1">
+          <Navbar />
+          <div className="px-3 sm:px-8 lg:px-12 pt-6 pb-16 flex-1">
+            {activeTab === 'memories' && <MemoriesTimelinePage />}
+            {activeTab === 'settings' && <SettingsPage />}
+          </div>
         </div>
       )}
 
@@ -248,7 +248,7 @@ const MainContent: React.FC = () => {
       <Completion100Modal />
       <PhotoLightbox />
       <AuthModal isOpen={authModalOpen} onClose={closeAuthModal} />
-    </main>
+    </div>
   );
 };
 
@@ -259,10 +259,7 @@ export default function App() {
       <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#EA580C] selection:text-white transition-colors duration-300">
         {/* Floating Device Container Frame matching Reference */}
         <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-hidden relative flex flex-col min-h-[92vh]">
-          <Navbar />
-          <div className="flex-1">
-            <MainContent />
-          </div>
+          <MainContent />
         </div>
       </div>
     </AppProvider>
