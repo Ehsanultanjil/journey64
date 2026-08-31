@@ -204,7 +204,7 @@ export const BangladeshMap: React.FC = () => {
   };
 
 
-  const isDarkMode = settings.theme === 'dark' || (settings.theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isDarkMode = settings.theme === 'dark';
 
   // Helper to determine district fill color
   const getDistrictFill = (district: District, isSelected: boolean) => {

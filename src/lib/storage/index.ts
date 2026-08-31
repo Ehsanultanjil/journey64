@@ -111,14 +111,19 @@ export const StorageService = {
       const rawVisits = localStorage.getItem(STORAGE_KEYS.VISITS);
       const rawTrips = localStorage.getItem(STORAGE_KEYS.TRIPS);
       const rawProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
-      const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      const parsedSettings = rawSettings ? JSON.parse(rawSettings) : DEFAULT_SETTINGS;
+      const finalSettings = {
+        ...DEFAULT_SETTINGS,
+        ...parsedSettings,
+        theme: parsedSettings.theme === 'dark' ? 'dark' : 'light',
+      };
 
       return {
         userData: rawUserData ? JSON.parse(rawUserData) : {},
         visits: rawVisits ? JSON.parse(rawVisits) : [],
         trips: rawTrips ? JSON.parse(rawTrips) : [],
         profile: rawProfile ? JSON.parse(rawProfile) : DEFAULT_PROFILE,
-        settings: rawSettings ? JSON.parse(rawSettings) : DEFAULT_SETTINGS,
+        settings: finalSettings,
         isDemo: false,
       };
     } catch (err) {

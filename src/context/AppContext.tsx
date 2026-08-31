@@ -245,10 +245,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setVisits(loaded.visits);
     setTrips(loaded.trips);
     setProfile(loaded.profile);
-    setSettings(loaded.settings);
-
     // Apply theme class on mount
-    if (loaded.settings.theme === 'dark' || (loaded.settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (loaded.settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
     } else {
@@ -259,7 +257,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Reactive theme switch
   useEffect(() => {
-    if (settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
     } else {
@@ -299,10 +297,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveSettings(newSettings);
     SupabaseDB.saveSettings(newSettings).catch(() => {});
 
-    if (newSettings.theme === 'dark' || (newSettings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (newSettings.theme === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
   };
 
