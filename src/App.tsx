@@ -4,8 +4,6 @@ import { Navbar } from './components/Navigation/Navbar';
 import { BangladeshMap } from './components/Map/BangladeshMap';
 import { DistrictQuickPanel } from './components/District/DistrictQuickPanel';
 import { MemoriesTimelinePage } from './components/Memories/MemoriesTimelinePage';
-import { TripsPage } from './components/Trips/TripsPage';
-import { ProgressPage } from './components/Progress/ProgressPage';
 import { SettingsPage } from './components/Settings/SettingsPage';
 import { UnlockCelebrationModal } from './components/Modals/UnlockCelebrationModal';
 import { Completion100Modal } from './components/Modals/Completion100Modal';
@@ -28,6 +26,7 @@ const MainContent: React.FC = () => {
     userData,
     visits,
     stats,
+    achievements,
     selectDistrict,
     authModalOpen,
     closeAuthModal,
@@ -36,76 +35,94 @@ const MainContent: React.FC = () => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-28 md:pb-16 space-y-10 sm:space-y-12">
       {activeTab === 'explore' && (
-        <div className="space-y-12 animate-in fade-in duration-300">
-          {/* Bold Typographic Hero Banner */}
-          <div className="relative border-b border-white/10 pb-8 pt-2 overflow-hidden">
-            {/* Giant Architectural Background Watermark */}
-            <div className="absolute right-0 top-0 select-none pointer-events-none opacity-5 flex items-baseline">
-              <span className="font-display text-[16rem] sm:text-[22rem] leading-none text-white">64</span>
-            </div>
-
-            <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="space-y-2 max-w-3xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-body font-black text-[10px] sm:text-xs tracking-[0.3em] uppercase text-[#F27D26]">
-                    Interactive Canvas • Volume 01
-                  </span>
-                  <div className="h-[1px] w-12 bg-white/20" />
-                  <span className="font-body text-[10px] tracking-[0.2em] uppercase text-white/50">
-                    64 Territorial Districts
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                  <h1 className="font-display text-4xl sm:text-6xl md:text-7xl uppercase tracking-tight text-white leading-none">
-                    EXPLORE
-                  </h1>
-                  <span className="font-display text-4xl sm:text-6xl md:text-7xl uppercase tracking-tight text-outline">
-                    BANGLADESH
-                  </span>
-                </div>
-
-                <p className="font-body text-xs sm:text-sm text-stone-300 font-light tracking-wide max-w-2xl pt-1">
-                  Click any district directly on the vector map or catalog below to log visits, record cherished travel memories, and map your personal journey.
+        <div className="space-y-8 sm:space-y-10 animate-in fade-in duration-300">
+          {/* Main Exploration Scorecard (National Footprint) */}
+          <div className="bg-[#0e0e0e] border border-white/15 p-6 sm:p-8 text-white space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+              <div>
+                <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] px-3 py-1 bg-[#F27D26] text-white">
+                  NATIONAL FOOTPRINT
+                </span>
+                <h2 className="font-display text-4xl sm:text-6xl uppercase tracking-tight mt-3">
+                  {stats.visitedCount} <span className="text-white/40">/ 64</span> DISTRICTS
+                </h2>
+                <p className="font-body text-xs sm:text-sm text-stone-300 mt-1 font-light">
+                  You have unlocked <strong className="font-bold text-[#F27D26]">{stats.percentageExplored}%</strong> of Bangladesh's sovereign landmass.
                 </p>
               </div>
 
-              {/* High-Impact Stat Metrics Bar */}
-              <div className="flex items-center gap-6 sm:gap-10 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-8">
+              <div className="flex items-center gap-8 sm:text-right">
                 <div>
-                  <span className="block font-body font-black text-[9px] uppercase tracking-[0.25em] text-[#F27D26] mb-1">
-                    Explored
-                  </span>
-                  <span className="block font-display text-3xl sm:text-4xl text-white leading-none">
-                    {stats.visitedCount}
-                    <span className="text-sm font-sans font-normal text-white/40 ml-1">/ 64</span>
-                  </span>
-                </div>
-
-                <div className="h-10 w-[1px] bg-white/15" />
-
-                <div>
-                  <span className="block font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/40 mb-1">
-                    Completion
-                  </span>
-                  <span className="block font-display text-3xl sm:text-4xl text-[#F27D26] leading-none">
-                    {stats.percentageExplored}%
-                  </span>
-                </div>
-
-                <div className="h-10 w-[1px] bg-white/15" />
-
-                <div>
-                  <span className="block font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/40 mb-1">
-                    Wishlist
-                  </span>
-                  <span className="block font-display text-3xl sm:text-4xl text-white/80 leading-none">
+                  <p className="font-display text-3xl sm:text-4xl text-amber-400">
                     {stats.wantToVisitCount}
-                  </span>
+                  </p>
+                  <p className="font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/50">
+                    WISHLIST
+                  </p>
+                </div>
+                <div>
+                  <p className="font-display text-3xl sm:text-4xl text-white/30">
+                    {stats.notVisitedCount}
+                  </p>
+                  <p className="font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/50">
+                    UNEXPLORED
+                  </p>
                 </div>
               </div>
             </div>
+
+            {/* Big Progress Bar */}
+            <div className="space-y-2 pt-2">
+              <div className="h-3 w-full bg-white/10 overflow-hidden">
+                <div
+                  style={{ width: `${stats.percentageExplored}%` }}
+                  className="h-full bg-[#F27D26] transition-all duration-700 ease-out"
+                />
+              </div>
+              <div className="flex items-center justify-between font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/40">
+                <span>0 DISTRICTS</span>
+                <span>32 HALFWAY</span>
+                <span>64 FULL SOVEREIGNTY</span>
+              </div>
+            </div>
+
+            {/* Metric Highlights Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10">
+              <div className="p-3 bg-white/5 border border-white/5">
+                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
+                  MEMORIES
+                </span>
+                <span className="font-display text-2xl text-white mt-1 block">
+                  {stats.totalMemories}
+                </span>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5">
+                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
+                  PHOTOS SAVED
+                </span>
+                <span className="font-display text-2xl text-white mt-1 block">
+                  {stats.totalPhotos}
+                </span>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5">
+                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
+                  DIVISIONS
+                </span>
+                <span className="font-display text-2xl text-white mt-1 block">
+                  {stats.divisionsExploredCount} <span className="text-xs text-white/40">/ 8</span>
+                </span>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5">
+                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-[#F27D26]">
+                  HONORS UNLOCKED
+                </span>
+                <span className="font-display text-2xl text-[#F27D26] mt-1 block">
+                  {achievements.filter(a => a.isUnlocked).length} <span className="text-xs text-white/40">/ {achievements.length}</span>
+                </span>
+              </div>
+            </div>
           </div>
+
 
           {/* Bangladesh Interactive Map Section */}
           <section aria-label="Interactive Map">
@@ -230,8 +247,6 @@ const MainContent: React.FC = () => {
       )}
 
       {activeTab === 'memories' && <MemoriesTimelinePage />}
-      {activeTab === 'trips' && <TripsPage />}
-      {activeTab === 'progress' && <ProgressPage />}
       {activeTab === 'settings' && <SettingsPage />}
 
       {/* Interactive Global Modals */}

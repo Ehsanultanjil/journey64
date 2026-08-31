@@ -122,4 +122,4 @@ export interface TravelStats {
   latestVisitedDistrict?: { id: string; name: string; date: string; photoUrl?: string };
 }
 
-export type ActiveTab = 'explore' | 'memories' | 'trips' | 'progress' | 'settings';
+export type ActiveTab = 'explore' | 'memories' | 'settings';

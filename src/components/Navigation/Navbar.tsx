@@ -29,7 +29,6 @@ export const Navbar: React.FC = () => {
 
   const handleTabChange = (tab: ActiveTab) => {
     if (tab !== 'memories') openDistrictJournal(null);
-    if (tab !== 'trips') openTripDetail(null);
     setActiveTab(tab);
   };
 
@@ -41,9 +40,6 @@ export const Navbar: React.FC = () => {
   const navItems: { key: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { key: 'explore', label: 'Explore Map', icon: Map },
     { key: 'memories', label: 'Memories', icon: BookOpen },
-    { key: 'trips', label: 'Road Trips', icon: Car },
-    { key: 'progress', label: 'Progress', icon: Trophy },
-    { key: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
@@ -73,8 +69,8 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Center Navigation Tabs (Desktop / Tablet) */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 font-body text-[11px] font-black tracking-[0.2em] uppercase">
+          {/* Center Navigation Tabs (Desktop / Tablet) - 2 Main Pages */}
+          <nav className="hidden md:flex items-center gap-8 lg:gap-10 font-body text-xs font-black tracking-[0.2em] uppercase">
             {navItems.map((item) => {
               const isActive = activeTab === item.key;
               return (
@@ -94,13 +90,13 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Live Stats Pill & Theme Toggle */}
+          {/* Right Controls: Footprint meter, Supabase pill, Auth & Settings */}
           <div className="flex items-center gap-3">
-            {/* Quick Live Footprint Meter in Bold Typography Style */}
+            {/* Quick Live Footprint Meter */}
             <button
-              onClick={() => handleTabChange('progress')}
+              onClick={() => handleTabChange('explore')}
               className="flex items-center gap-3 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/15 transition-all cursor-pointer group"
-              title="Click to view full progress"
+              title="64-District Footprint"
             >
               <div className="text-right">
                 <span className="block font-body font-black text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[#F27D26]">
@@ -119,7 +115,7 @@ export const Navbar: React.FC = () => {
             {/* Supabase Cloud Indicator */}
             <button
               onClick={() => handleTabChange('settings')}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-mono transition-colors text-white/70 hover:text-white"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-mono transition-colors text-white/70 hover:text-white"
               title={cloudSync.message || 'Supabase Cloud Database'}
             >
               <span
@@ -164,6 +160,18 @@ export const Navbar: React.FC = () => {
               </button>
             )}
 
+            {/* Settings Button */}
+            <button
+              onClick={() => handleTabChange('settings')}
+              className={`p-2.5 bg-white/5 hover:bg-white/15 border transition-colors ${
+                activeTab === 'settings' ? 'border-[#F27D26] text-[#F27D26]' : 'border-white/10 text-white'
+              }`}
+              aria-label="Settings"
+              title="Settings & Cloud"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -181,7 +189,7 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom,0.5rem))]">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -197,15 +205,29 @@ export const Navbar: React.FC = () => {
                     : 'text-white/50 hover:text-white'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="font-body text-[9px] font-black uppercase tracking-wider leading-none">
-                  {item.label.split(' ')[0]}
+                <Icon className="w-5 h-5" />
+                <span className="font-body text-[10px] font-black uppercase tracking-wider leading-none">
+                  {item.label}
                 </span>
               </button>
             );
           })}
+          <button
+            onClick={() => handleTabChange('settings')}
+            className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-1 py-1 px-1 transition-all cursor-pointer ${
+              activeTab === 'settings'
+                ? 'text-[#F27D26] font-black scale-105'
+                : 'text-white/50 hover:text-white'
+            }`}
+          >
+            <Settings className="w-5 h-5" />
+            <span className="font-body text-[10px] font-black uppercase tracking-wider leading-none">
+              Settings
+            </span>
+          </button>
         </div>
       </nav>
     </header>
   );
 };
+
