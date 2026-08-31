@@ -2,12 +2,11 @@ import { DistrictUserData, Visit, Trip, UserProfile, Photo } from '../../types';
 import { DEMO_USER_DATA, DEMO_VISITS, DEMO_TRIPS } from '../../data/demoData';
 
 const STORAGE_KEYS = {
-  USER_DATA: 'my_bangladesh_user_data_v1',
-  VISITS: 'my_bangladesh_visits_v1',
-  TRIPS: 'my_bangladesh_trips_v1',
-  PROFILE: 'my_bangladesh_profile_v1',
-  DEMO_INITIALIZED: 'my_bangladesh_demo_initialized_v1',
-  SETTINGS: 'my_bangladesh_settings_v1',
+  USER_DATA: 'journey64_user_data_v2',
+  VISITS: 'journey64_visits_v2',
+  TRIPS: 'journey64_trips_v2',
+  PROFILE: 'journey64_profile_v2',
+  SETTINGS: 'journey64_settings_v2',
 };
 
 export interface AppSettings {
@@ -30,7 +29,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   name: 'Ehsanul Tanjil',
   displayName: 'Ehsanul Tanjil',
   bio: 'Explorer of Bangladesh — one district at a time.',
-  joinedDate: '2023-01-01',
+  joinedDate: '2024-01-01',
 };
 
 // Image compression helper using HTML5 Canvas
@@ -108,27 +107,6 @@ export const StorageService = {
     isDemo: boolean;
   } {
     try {
-      const initialized = localStorage.getItem(STORAGE_KEYS.DEMO_INITIALIZED);
-      
-      // If first run, initialize with demo mode so user sees the rich application right away
-      if (!initialized) {
-        this.saveUserData(DEMO_USER_DATA);
-        this.saveVisits(DEMO_VISITS);
-        this.saveTrips(DEMO_TRIPS);
-        this.saveProfile(DEFAULT_PROFILE);
-        this.saveSettings(DEFAULT_SETTINGS);
-        localStorage.setItem(STORAGE_KEYS.DEMO_INITIALIZED, 'true');
-
-        return {
-          userData: DEMO_USER_DATA,
-          visits: DEMO_VISITS,
-          trips: DEMO_TRIPS,
-          profile: DEFAULT_PROFILE,
-          settings: DEFAULT_SETTINGS,
-          isDemo: true,
-        };
-      }
-
       const rawUserData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
       const rawVisits = localStorage.getItem(STORAGE_KEYS.VISITS);
       const rawTrips = localStorage.getItem(STORAGE_KEYS.TRIPS);
@@ -146,12 +124,12 @@ export const StorageService = {
     } catch (err) {
       console.error('Failed to load from storage:', err);
       return {
-        userData: DEMO_USER_DATA,
-        visits: DEMO_VISITS,
-        trips: DEMO_TRIPS,
+        userData: {},
+        visits: [],
+        trips: [],
         profile: DEFAULT_PROFILE,
         settings: DEFAULT_SETTINGS,
-        isDemo: true,
+        isDemo: false,
       };
     }
   },
