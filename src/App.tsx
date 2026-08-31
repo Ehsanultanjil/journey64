@@ -52,11 +52,18 @@ const MainContent: React.FC = () => {
     <main className="space-y-8 sm:space-y-12 pb-16">
       {activeTab === 'explore' && (
         <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
-          {/* Signature Cinematic Hero Stage (Matching Reference UI) */}
-          <section className="relative px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12 bg-gradient-to-b from-[#141720] via-[#0B0D12] to-[#07080A] border-b border-white/10 overflow-hidden">
-            {/* Ambient Background Glow Highlights */}
-            <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#EA580C]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-10 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+          {/* Signature Cinematic Hero Stage with User's Background Photo */}
+          <section className="relative px-4 sm:px-8 lg:px-12 pt-8 sm:pt-14 pb-10 sm:pb-16 border-b border-white/10 overflow-hidden rounded-t-[20px] sm:rounded-t-[32px]">
+            {/* Background Photo & Cinematic Lighting Overlays */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="/hero-bg.png"
+                alt="Expedition Background"
+                className="w-full h-full object-cover object-center filter brightness-[0.75] contrast-[1.08]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10] via-[#0A0C10]/60 to-black/30" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0C10]/95 via-[#0A0C10]/60 to-transparent" />
+            </div>
 
             <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-12">
               {/* Left Headline & Pitch */}
