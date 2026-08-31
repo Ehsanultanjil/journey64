@@ -44,25 +44,25 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-[#050505]/95 backdrop-blur-md border-b border-white/10 text-white transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 sm:h-20 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-15 sm:h-20 gap-2 sm:gap-4">
           {/* Logo & Brand Identity */}
           <div
             onClick={() => handleTabChange('explore')}
-            className="flex items-center gap-3.5 cursor-pointer group shrink-0"
+            className="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer group shrink-0"
           >
-            <div className="w-11 h-11 bg-white text-black flex items-center justify-center group-hover:bg-[#F27D26] group-hover:text-white transition-colors duration-300 shadow-md">
-              <Compass className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-white text-black flex items-center justify-center group-hover:bg-[#F27D26] group-hover:text-white transition-colors duration-300 shadow-md">
+              <Compass className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
             </div>
             <div className="flex flex-col">
-              <span className="font-body font-bold text-[10px] tracking-[0.2em] uppercase text-[#F27D26] leading-none mb-1">
+              <span className="font-body font-bold text-[8px] sm:text-[10px] tracking-wider uppercase text-[#F27D26] leading-none mb-0.5 sm:mb-1">
                 ৬৪ জেলা ভ্রমণের ডায়েরি
               </span>
-              <div className="flex items-baseline gap-2">
-                <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase leading-none text-white">
+              <div className="flex items-baseline gap-1.5 sm:gap-2">
+                <h1 className="font-display text-xl sm:text-3xl font-bold uppercase leading-none text-white">
                   আমার বাংলাদেশ
                 </h1>
-                <span className="text-xs text-white/50 hidden sm:inline font-mono">
+                <span className="text-[10px] sm:text-xs text-white/50 hidden sm:inline font-mono">
                   Journey64
                 </span>
               </div>
@@ -90,24 +90,24 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Controls: Footprint meter, Supabase pill, Auth & Settings */}
-          <div className="flex items-center gap-3">
-            {/* Quick Live Footprint Meter */}
+          {/* Right Controls */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Quick Live Footprint Meter (Hidden on small mobile to save space) */}
             <button
               onClick={() => handleTabChange('explore')}
-              className="flex items-center gap-3 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/15 transition-all cursor-pointer group"
+              className="hidden sm:flex items-center gap-3 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-white/5 hover:bg-white/10 border border-white/15 transition-all cursor-pointer group"
               title="৬৪ জেলা পদচিহ্ন"
             >
               <div className="text-right">
-                <span className="block font-body font-bold text-[9px] uppercase tracking-wider text-[#F27D26]">
+                <span className="block font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider text-[#F27D26]">
                   পদচিহ্ন
                 </span>
-                <span className="block font-display text-base sm:text-lg leading-none text-white tracking-wide">
-                  {stats.visitedCount} <span className="text-white/40 text-xs font-sans">/ ৬৪</span>
+                <span className="block font-display text-sm sm:text-base leading-none text-white tracking-wide">
+                  {stats.visitedCount} <span className="text-white/40 text-[10px] sm:text-xs font-sans">/ ৬৪</span>
                 </span>
               </div>
-              <div className="h-6 w-[1px] bg-white/20" />
-              <span className="font-display text-sm text-[#F27D26] font-bold">
+              <div className="h-5 sm:h-6 w-[1px] bg-white/20" />
+              <span className="font-display text-xs sm:text-sm text-[#F27D26] font-bold">
                 {stats.percentageExplored}%
               </span>
             </button>
@@ -130,10 +130,10 @@ export const Navbar: React.FC = () => {
 
             {/* Auth / Profile Button */}
             {authUser ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   onClick={() => handleTabChange('settings')}
-                  className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-2 py-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-colors cursor-pointer"
                   title={`লগইনকৃত: ${authUser.email}`}
                 >
                   <div className="w-5 h-5 bg-[#F27D26] text-white flex items-center justify-center font-bold text-xs uppercase">
@@ -154,7 +154,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="px-3.5 py-1.5 bg-[#F27D26] hover:bg-[#d96615] text-white font-body text-xs font-bold transition-all cursor-pointer shadow-sm"
+                className="px-2.5 sm:px-3.5 py-1.5 bg-[#F27D26] hover:bg-[#d96615] text-white font-body text-xs font-bold transition-all cursor-pointer shadow-sm"
               >
                 লগইন
               </button>
@@ -163,7 +163,7 @@ export const Navbar: React.FC = () => {
             {/* Settings Button */}
             <button
               onClick={() => handleTabChange('settings')}
-              className={`p-2.5 bg-white/5 hover:bg-white/15 border transition-colors ${
+              className={`p-2 sm:p-2.5 bg-white/5 hover:bg-white/15 border transition-colors cursor-pointer ${
                 activeTab === 'settings' ? 'border-[#F27D26] text-[#F27D26]' : 'border-white/10 text-white'
               }`}
               aria-label="সেটিংস"
@@ -175,7 +175,7 @@ export const Navbar: React.FC = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2.5 bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-colors"
+              className="p-2 sm:p-2.5 bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-colors cursor-pointer"
               aria-label="থিম পরিবর্তন"
             >
               {settings.theme === 'dark' ? (

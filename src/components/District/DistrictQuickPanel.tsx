@@ -73,10 +73,10 @@ export const DistrictQuickPanel: React.FC = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 40, scale: 0.95 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg bg-[#0c0c0c] text-white border border-white/20 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10"
+          className="relative w-full max-w-lg bg-[#0c0c0c] text-white border-t sm:border border-white/20 rounded-t-2xl sm:rounded-none shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col z-10"
         >
           {/* Cover Photo Header or Gradient Banner */}
-          <div className="relative h-48 sm:h-56 w-full bg-[#161616] overflow-hidden shrink-0 border-b border-white/10">
+          <div className="relative h-40 sm:h-56 w-full bg-[#161616] overflow-hidden shrink-0 border-b border-white/10">
             {coverPhoto ? (
               <img
                 src={coverPhoto}
@@ -84,10 +84,10 @@ export const DistrictQuickPanel: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1c120c] via-[#111111] to-[#050505] flex items-center justify-center p-6 text-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#1c120c] via-[#111111] to-[#050505] flex items-center justify-center p-4 sm:p-6 text-center">
                 <div>
-                  <Compass className="w-14 h-14 text-[#F27D26]/40 mx-auto mb-2" />
-                  <p className="font-body font-black text-[10px] text-white/50 tracking-[0.3em] uppercase">
+                  <Compass className="w-10 h-10 sm:w-14 sm:h-14 text-[#F27D26]/40 mx-auto mb-1 sm:mb-2" />
+                  <p className="font-body font-bold text-[9px] sm:text-[10px] text-white/50 tracking-wider uppercase">
                     {selectedDistrict.division} DIVISION
                   </p>
                 </div>
@@ -102,7 +102,7 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="quick-panel-fav-btn"
                 onClick={() => toggleDistrictFavorite(districtId)}
-                className={`p-2.5 transition-all ${
+                className={`p-2 sm:p-2.5 transition-all ${
                   isFavorite
                     ? 'bg-[#F27D26] text-white scale-105 shadow-md'
                     : 'bg-black/60 text-white/80 hover:bg-black'
@@ -115,7 +115,7 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="quick-panel-close-btn"
                 onClick={() => selectDistrict(null)}
-                className="p-2.5 bg-black/60 hover:bg-[#F27D26] text-white transition-colors"
+                className="p-2 sm:p-2.5 bg-black/60 hover:bg-[#F27D26] text-white transition-colors"
                 aria-label="Close panel"
               >
                 <X className="w-4 h-4 stroke-[2.5]" />
@@ -123,33 +123,33 @@ export const DistrictQuickPanel: React.FC = () => {
             </div>
 
             {/* District Titles on Cover */}
-            <div className="absolute bottom-4 left-5 right-5 text-white">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-body font-black text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 bg-[#F27D26] text-white">
+            <div className="absolute bottom-3 left-4 right-4 sm:bottom-4 sm:left-5 sm:right-5 text-white">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#F27D26] text-white">
                   {selectedDistrict.division} DIVISION
                 </span>
                 {selectedDistrict.isCoastal && (
-                  <span className="font-body font-black text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 bg-white/20 text-white backdrop-blur-md">
-                    COASTAL
+                  <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-white/20 text-white backdrop-blur-md">
+                    উপকূলীয়
                   </span>
                 )}
                 {selectedDistrict.isHill && (
-                  <span className="font-body font-black text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 bg-amber-500 text-black">
-                    HILL TRACT
+                  <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-amber-500 text-black">
+                    পার্বত্য
                   </span>
                 )}
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl uppercase tracking-wide mt-1.5 flex items-baseline gap-3">
-                {selectedDistrict.name}
-                <span className="font-bn text-base sm:text-lg font-semibold text-white/60">
-                  {selectedDistrict.bn_name}
+              <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-wide mt-1 flex items-baseline gap-2 sm:gap-3">
+                {selectedDistrict.bn_name}
+                <span className="font-sans text-xs sm:text-base font-semibold text-white/60">
+                  ({selectedDistrict.name})
                 </span>
               </h2>
             </div>
           </div>
 
           {/* Panel Content Body */}
-          <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
+          <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6">
             {/* Tagline / Highlights */}
             {selectedDistrict.tagline && (
               <p className="text-xs sm:text-sm text-stone-300 font-light tracking-wide italic border-l-2 border-[#F27D26] pl-3 py-0.5">

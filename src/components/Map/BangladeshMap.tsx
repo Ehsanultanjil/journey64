@@ -233,16 +233,16 @@ export const BangladeshMap: React.FC = () => {
   return (
     <div id="map-container" className="relative w-full flex flex-col bg-[#0a0a0a] border border-white/15 overflow-hidden shadow-2xl">
       {/* Top Map Controls Bar */}
-      <div className="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-[#050505]/90 backdrop-blur-md z-10">
+      <div className="p-2.5 sm:p-4 border-b border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-[#050505]/90 backdrop-blur-md z-10">
         {/* Search Input */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+        <div className="relative w-full sm:max-w-xs md:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             type="text"
             placeholder="জেলা খুঁজুন... (যেমন: ঢাকা, কক্সবাজার)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-8 py-2.5 text-xs font-body font-semibold tracking-wide bg-white/5 border border-white/15 text-white placeholder-white/40 focus:outline-none focus:border-[#F27D26] focus:ring-1 focus:ring-[#F27D26]"
+            className="w-full pl-9 pr-8 py-2 text-xs font-body font-semibold tracking-wide bg-white/5 border border-white/15 text-white placeholder-white/40 focus:outline-none focus:border-[#F27D26] focus:ring-1 focus:ring-[#F27D26]"
           />
           {searchQuery && (
             <button
@@ -306,14 +306,14 @@ export const BangladeshMap: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Division & Status Filters */}
-        <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar max-w-full">
+        {/* Division & Status Filters (Side by side on mobile) */}
+        <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
           {/* Division Selector */}
           <div className="relative">
             <select
               value={divisionFilter}
               onChange={(e) => setDivisionFilter(e.target.value)}
-              className="text-xs font-body font-bold bg-white/5 border border-white/15 px-3 py-2 text-white focus:outline-none focus:border-[#F27D26] cursor-pointer"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-white/5 border border-white/15 px-2.5 py-2 text-white focus:outline-none focus:border-[#F27D26] cursor-pointer truncate"
             >
               <option value="all" className="bg-[#111] text-white">সকল বিভাগ (৮টি)</option>
               {DIVISIONS.map((div) => (
@@ -329,7 +329,7 @@ export const BangladeshMap: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs font-body font-bold bg-white/5 border border-white/15 px-3 py-2 text-white focus:outline-none focus:border-[#F27D26] cursor-pointer"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-white/5 border border-white/15 px-2.5 py-2 text-white focus:outline-none focus:border-[#F27D26] cursor-pointer truncate"
             >
               <option value="all" className="bg-[#111] text-white">সকল স্থিতি (৬৪)</option>
               <option value="visited" className="bg-[#111] text-[#F27D26]">ঘুরেছি</option>
@@ -350,7 +350,7 @@ export const BangladeshMap: React.FC = () => {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className={`relative w-full h-[480px] sm:h-[600px] md:h-[700px] lg:h-[760px] select-none cursor-${
+        className={`relative w-full h-[380px] sm:h-[540px] md:h-[680px] lg:h-[760px] select-none cursor-${
           isDragging ? 'grabbing' : 'grab'
         } overflow-hidden flex items-center justify-center bg-[#060606]`}
       >
@@ -568,29 +568,29 @@ export const BangladeshMap: React.FC = () => {
       </div>
 
       {/* Map Legend Bar in Bangla */}
-      <div className="px-5 py-4 border-t border-white/10 bg-[#050505] flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-[#F27D26] shrink-0" />
-            <span className="font-body text-xs font-bold text-white">
+      <div className="px-3 sm:px-5 py-3 sm:py-4 border-t border-white/10 bg-[#050505] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#F27D26] shrink-0" />
+            <span className="font-body text-[11px] sm:text-xs font-semibold text-white">
               ভ্রমণ সম্পন্ন ({DISTRICTS.filter((d) => userData[d.id]?.status === 'visited').length})
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-amber-400 shrink-0" />
-            <span className="font-body text-xs font-bold text-white/80">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-amber-400 shrink-0" />
+            <span className="font-body text-[11px] sm:text-xs font-semibold text-white/80">
               ইচ্ছাতালিকা ({DISTRICTS.filter((d) => userData[d.id]?.status === 'want_to_visit').length})
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-white/20 shrink-0" />
-            <span className="font-body text-xs font-bold text-white/50">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white/20 shrink-0" />
+            <span className="font-body text-[11px] sm:text-xs font-semibold text-white/50">
               বাকি আছে ({64 - DISTRICTS.filter((d) => userData[d.id]?.status === 'visited' || userData[d.id]?.status === 'want_to_visit').length})
             </span>
           </div>
         </div>
 
-        <div className="font-body font-bold text-xs text-[#F27D26]">
+        <div className="font-body font-bold text-[11px] sm:text-xs text-[#F27D26]">
           ৬৪ জেলা সম্পূর্ণ করতে আর {64 - DISTRICTS.filter((d) => userData[d.id]?.status === 'visited').length}টি জেলা বাকি
         </div>
       </div>
