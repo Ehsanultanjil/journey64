@@ -157,48 +157,48 @@ export const DistrictQuickPanel: React.FC = () => {
               </p>
             )}
 
-            {/* Status Selector Bar (Bold Typography) */}
+            {/* Status Selector Bar in Bangla */}
             <div className="space-y-1.5">
-              <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/50 block">
-                TERRITORY STATUS
+              <span className="font-body font-bold text-[10px] uppercase tracking-wider text-white/50 block">
+                ভ্রমণ স্থিতি নির্বাচন
               </span>
               <div className="bg-white/5 p-1 flex items-center gap-1 border border-white/10">
                 <button
                   id="status-btn-visited"
                   onClick={() => handleStatusChange('visited')}
-                  className={`flex-1 py-2.5 px-3 font-body text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 transition-all ${
+                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'visited'
                       ? 'bg-[#F27D26] text-white shadow-md'
                       : 'text-white/60 hover:text-white'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  EXPLORED
+                  ঘুরেছি
                 </button>
 
                 <button
                   id="status-btn-want"
                   onClick={() => handleStatusChange('want_to_visit')}
-                  className={`flex-1 py-2.5 px-3 font-body text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 transition-all ${
+                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'want_to_visit'
                       ? 'bg-amber-400 text-black shadow-md'
                       : 'text-white/60 hover:text-white'
                   }`}
                 >
                   <Bookmark className="w-3.5 h-3.5" />
-                  WISHLIST
+                  যেতে চাই
                 </button>
 
                 <button
                   id="status-btn-not"
                   onClick={() => handleStatusChange('not_visited')}
-                  className={`flex-1 py-2.5 px-3 font-body text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 transition-all ${
+                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'not_visited'
                       ? 'bg-white/20 text-white shadow-md'
                       : 'text-white/40 hover:text-white'
                   }`}
                 >
-                  UNEXPLORED
+                  বাকি আছে
                 </button>
               </div>
             </div>
@@ -209,34 +209,34 @@ export const DistrictQuickPanel: React.FC = () => {
                 {/* Stats row: Visit Date, Photos Count, Rating */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white/5 p-3.5 border border-white/10">
-                    <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-[#F27D26] block mb-1">
-                      FIRST RECORDED
+                    <span className="font-body font-bold text-[10px] tracking-wider text-[#F27D26] block mb-1">
+                      প্রথম ভ্রমণ
                     </span>
-                    <p className="font-display text-lg tracking-wide uppercase text-white">
+                    <p className="font-body text-base font-semibold text-white">
                       {visitDate
-                        ? new Date(visitDate).toLocaleDateString('en-GB', {
+                        ? new Date(visitDate).toLocaleDateString('bn-BD', {
                             day: 'numeric',
-                            month: 'short',
+                            month: 'long',
                             year: 'numeric',
                           })
-                        : 'RECORDED'}
+                        : 'সংরক্ষিত'}
                     </p>
                   </div>
 
                   <div className="bg-white/5 p-3.5 border border-white/10">
-                    <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-[#F27D26] block mb-1">
-                      MEMORIES SAVED
+                    <span className="font-body font-bold text-[10px] tracking-wider text-[#F27D26] block mb-1">
+                      সংরক্ষিত ছবি
                     </span>
-                    <p className="font-display text-lg tracking-wide uppercase text-white">
-                      {totalPhotos} {totalPhotos === 1 ? 'PHOTO' : 'PHOTOS'}
+                    <p className="font-body text-base font-semibold text-white">
+                      {totalPhotos}টি ছবি
                     </p>
                   </div>
                 </div>
 
                 {/* Rating row */}
                 <div className="flex items-center justify-between p-3.5 bg-white/5 border border-white/10">
-                  <span className="font-body font-black text-[10px] uppercase tracking-[0.2em] text-white">
-                    RATING
+                  <span className="font-body font-bold text-xs text-white">
+                    অভিজ্ঞতা রেটিং
                   </span>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -262,11 +262,11 @@ export const DistrictQuickPanel: React.FC = () => {
                     selectDistrict(null);
                     openDistrictJournal(districtId);
                   }}
-                  className="w-full py-4 px-6 bg-white text-black hover:bg-[#F27D26] hover:text-white font-body font-black text-xs uppercase tracking-[0.25em] flex items-center justify-between transition-colors cursor-pointer shadow-lg"
+                  className="w-full py-3.5 px-6 bg-white text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-sm flex items-center justify-between transition-colors cursor-pointer shadow-lg"
                 >
                   <span className="flex items-center gap-2.5">
                     <BookOpen className="w-4 h-4" />
-                    OPEN MEMORY JOURNAL & ALBUM
+                    স্মৃতি ও ফটো অ্যালবাম খুলুন
                   </span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
@@ -279,21 +279,21 @@ export const DistrictQuickPanel: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <Bookmark className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-body font-black text-[11px] uppercase tracking-[0.2em] text-amber-400">
-                      ON YOUR EXPLORATION WISHLIST
+                    <h4 className="font-body font-bold text-xs text-amber-400">
+                      আপনার ভ্রমণ ইচ্ছাতালিকায় সংরক্ষিত
                     </h4>
                     <p className="font-body text-xs text-stone-300 mt-1 font-light">
-                      Highlighted in gold on your 64-district territorial map.
+                      মানচিত্রে সোনালী রঙে হাইলাইট করা হয়েছে।
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => handleStatusChange('visited')}
-                  className="w-full py-3 px-4 bg-amber-400 text-black hover:bg-[#F27D26] hover:text-white font-body font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3 px-4 bg-amber-400 text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  MARK AS EXPLORED
+                  ভ্রমণ সম্পন্ন হিসেবে চিহ্নিত করুন
                 </button>
               </div>
             )}
@@ -302,26 +302,27 @@ export const DistrictQuickPanel: React.FC = () => {
             {currentStatus === 'not_visited' && (
               <div className="p-4 bg-white/5 border border-white/10 space-y-3">
                 <p className="font-body text-xs text-stone-300 font-light">
-                  Have you traveled through {selectedDistrict.name}? Record it to unlock badges and preserve photographs.
+                  আপনি কি {selectedDistrict.bn_name} জেলায় ভ্রমণ করেছেন? ভ্রমণ চিহ্নিত করে স্মৃতি ও ছবি যোগ করুন।
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleStatusChange('visited')}
-                    className="flex-1 py-3 px-4 bg-[#F27D26] text-white hover:bg-white hover:text-black font-body font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="flex-1 py-3 px-4 bg-[#F27D26] text-white hover:bg-white hover:text-black font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    EXPLORED
+                    ঘুরেছি
                   </button>
                   <button
                     onClick={() => handleStatusChange('want_to_visit')}
-                    className="py-3 px-4 bg-white/10 hover:bg-amber-400 hover:text-black text-white font-body font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="py-3 px-4 bg-white/10 hover:bg-amber-400 hover:text-black text-white font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Bookmark className="w-3.5 h-3.5" />
-                    WISHLIST
+                    যেতে চাই
                   </button>
                 </div>
               </div>
             )}
+
 
             {/* Famous spots chips */}
             {selectedDistrict.famousSpots && selectedDistrict.famousSpots.length > 0 && (

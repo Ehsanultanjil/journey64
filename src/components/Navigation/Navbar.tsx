@@ -38,8 +38,8 @@ export const Navbar: React.FC = () => {
   };
 
   const navItems: { key: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { key: 'explore', label: 'Explore Map', icon: Map },
-    { key: 'memories', label: 'Memories', icon: BookOpen },
+    { key: 'explore', label: 'মানচিত্র এক্সপ্লোর', icon: Map },
+    { key: 'memories', label: 'স্মৃতি ও ডায়েরি', icon: BookOpen },
   ];
 
   return (
@@ -55,22 +55,22 @@ export const Navbar: React.FC = () => {
               <Compass className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div className="flex flex-col">
-              <span className="font-body font-black text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-[#F27D26] leading-none mb-1">
-                Travel Journal • 64 Districts
+              <span className="font-body font-bold text-[10px] tracking-[0.2em] uppercase text-[#F27D26] leading-none mb-1">
+                ৬৪ জেলা ভ্রমণের ডায়েরি
               </span>
               <div className="flex items-baseline gap-2">
-                <h1 className="font-display text-2xl sm:text-3xl tracking-wide uppercase leading-none text-white">
-                  MY BANGLADESH
-                </h1>
-                <span className="font-bn text-xs text-white/50 hidden sm:inline font-semibold">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase leading-none text-white">
                   আমার বাংলাদেশ
+                </h1>
+                <span className="text-xs text-white/50 hidden sm:inline font-mono">
+                  Journey64
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Center Navigation Tabs (Desktop / Tablet) - 2 Main Pages */}
-          <nav className="hidden md:flex items-center gap-8 lg:gap-10 font-body text-xs font-black tracking-[0.2em] uppercase">
+          {/* Center Navigation Tabs (Desktop / Tablet) - 2 Main Pages in Bangla */}
+          <nav className="hidden md:flex items-center gap-8 lg:gap-10 font-body text-sm font-bold tracking-wide">
             {navItems.map((item) => {
               const isActive = activeTab === item.key;
               return (
@@ -78,10 +78,10 @@ export const Navbar: React.FC = () => {
                   key={item.key}
                   id={`nav-tab-${item.key}`}
                   onClick={() => handleTabChange(item.key)}
-                  className={`pb-1.5 transition-all duration-200 uppercase tracking-[0.2em] cursor-pointer ${
+                  className={`pb-1.5 transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'text-[#F27D26] border-b-2 border-[#F27D26]'
-                      : 'text-white/60 hover:text-white border-b-2 border-transparent'
+                      ? 'text-[#F27D26] border-b-2 border-[#F27D26] font-bold'
+                      : 'text-white/70 hover:text-white border-b-2 border-transparent'
                   }`}
                 >
                   {item.label}
@@ -96,18 +96,18 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => handleTabChange('explore')}
               className="flex items-center gap-3 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/15 transition-all cursor-pointer group"
-              title="64-District Footprint"
+              title="৬৪ জেলা পদচিহ্ন"
             >
               <div className="text-right">
-                <span className="block font-body font-black text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[#F27D26]">
-                  Footprint
+                <span className="block font-body font-bold text-[9px] uppercase tracking-wider text-[#F27D26]">
+                  পদচিহ্ন
                 </span>
                 <span className="block font-display text-base sm:text-lg leading-none text-white tracking-wide">
-                  {stats.visitedCount} <span className="text-white/40 text-xs font-sans">/ 64</span>
+                  {stats.visitedCount} <span className="text-white/40 text-xs font-sans">/ ৬৪</span>
                 </span>
               </div>
               <div className="h-6 w-[1px] bg-white/20" />
-              <span className="font-display text-sm text-[#F27D26]">
+              <span className="font-display text-sm text-[#F27D26] font-bold">
                 {stats.percentageExplored}%
               </span>
             </button>
@@ -116,15 +116,15 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => handleTabChange('settings')}
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-mono transition-colors text-white/70 hover:text-white"
-              title={cloudSync.message || 'Supabase Cloud Database'}
+              title={cloudSync.message || 'Supabase ক্লাউড ডাটাবেজ'}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
                   cloudSync.connected ? 'bg-[#3ECF8E] animate-pulse' : 'bg-yellow-400'
                 }`}
               />
-              <span className="font-display uppercase tracking-wider text-[9px]">
-                {cloudSync.syncing ? 'SYNCING' : cloudSync.connected ? 'CLOUD ON' : 'DB READY'}
+              <span className="font-body uppercase tracking-wider text-[10px] font-bold">
+                {cloudSync.syncing ? 'সিঙ্ক হচ্ছে' : cloudSync.connected ? 'ক্লাউড সক্রিয়' : 'ক্লাউড প্রস্তুত'}
               </span>
             </button>
 
@@ -134,29 +134,29 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => handleTabChange('settings')}
                   className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-colors cursor-pointer"
-                  title={`Logged in as ${authUser.email}`}
+                  title={`লগইনকৃত: ${authUser.email}`}
                 >
                   <div className="w-5 h-5 bg-[#F27D26] text-white flex items-center justify-center font-bold text-xs uppercase">
                     {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
                   </div>
-                  <span className="hidden md:inline font-display text-xs uppercase tracking-wider">
+                  <span className="hidden md:inline font-body text-xs font-semibold">
                     {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}
                   </span>
                 </button>
                 <button
                   onClick={signOut}
-                  className="hidden md:inline-flex text-[10px] font-mono text-stone-400 hover:text-white underline cursor-pointer"
-                  title="Sign Out"
+                  className="hidden md:inline-flex text-xs font-body text-stone-400 hover:text-white underline cursor-pointer"
+                  title="লগআউট"
                 >
-                  Sign Out
+                  লগআউট
                 </button>
               </div>
             ) : (
               <button
                 onClick={openAuthModal}
-                className="px-3 py-1.5 bg-[#F27D26] hover:bg-[#d96615] text-white font-display text-xs uppercase tracking-wider font-bold transition-all cursor-pointer shadow-sm"
+                className="px-3.5 py-1.5 bg-[#F27D26] hover:bg-[#d96615] text-white font-body text-xs font-bold transition-all cursor-pointer shadow-sm"
               >
-                Log In
+                লগইন
               </button>
             )}
 
@@ -166,8 +166,8 @@ export const Navbar: React.FC = () => {
               className={`p-2.5 bg-white/5 hover:bg-white/15 border transition-colors ${
                 activeTab === 'settings' ? 'border-[#F27D26] text-[#F27D26]' : 'border-white/10 text-white'
               }`}
-              aria-label="Settings"
-              title="Settings & Cloud"
+              aria-label="সেটিংস"
+              title="সেটিংস ও ক্লাউড"
             >
               <Settings className="w-4 h-4" />
             </button>
@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
             <button
               onClick={toggleTheme}
               className="p-2.5 bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-colors"
-              aria-label="Toggle Theme"
+              aria-label="থিম পরিবর্তন"
             >
               {settings.theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-[#F27D26]" />
@@ -201,12 +201,12 @@ export const Navbar: React.FC = () => {
                 onClick={() => handleTabChange(item.key)}
                 className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-1 py-1 px-1 transition-all cursor-pointer ${
                   isActive
-                    ? 'text-[#F27D26] font-black scale-105'
+                    ? 'text-[#F27D26] font-bold scale-105'
                     : 'text-white/50 hover:text-white'
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                <span className="font-body text-[10px] font-black uppercase tracking-wider leading-none">
+                <span className="font-body text-[11px] font-bold leading-none">
                   {item.label}
                 </span>
               </button>
@@ -216,13 +216,13 @@ export const Navbar: React.FC = () => {
             onClick={() => handleTabChange('settings')}
             className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-1 py-1 px-1 transition-all cursor-pointer ${
               activeTab === 'settings'
-                ? 'text-[#F27D26] font-black scale-105'
+                ? 'text-[#F27D26] font-bold scale-105'
                 : 'text-white/50 hover:text-white'
             }`}
           >
             <Settings className="w-5 h-5" />
-            <span className="font-body text-[10px] font-black uppercase tracking-wider leading-none">
-              Settings
+            <span className="font-body text-[11px] font-bold leading-none">
+              সেটিংস
             </span>
           </button>
         </div>
@@ -230,4 +230,5 @@ export const Navbar: React.FC = () => {
     </header>
   );
 };
+
 

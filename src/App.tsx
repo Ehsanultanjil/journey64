@@ -36,36 +36,36 @@ const MainContent: React.FC = () => {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-28 md:pb-16 space-y-10 sm:space-y-12">
       {activeTab === 'explore' && (
         <div className="space-y-8 sm:space-y-10 animate-in fade-in duration-300">
-          {/* Main Exploration Scorecard (National Footprint) */}
+          {/* Main Exploration Scorecard (National Footprint) in Bangla */}
           <div className="bg-[#0e0e0e] border border-white/15 p-6 sm:p-8 text-white space-y-6 shadow-2xl">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
               <div>
-                <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] px-3 py-1 bg-[#F27D26] text-white">
-                  NATIONAL FOOTPRINT
+                <span className="font-body font-bold text-[10px] tracking-wider px-3 py-1 bg-[#F27D26] text-white">
+                  জাতীয় পদচিহ্ন
                 </span>
-                <h2 className="font-display text-4xl sm:text-6xl uppercase tracking-tight mt-3">
-                  {stats.visitedCount} <span className="text-white/40">/ 64</span> DISTRICTS
+                <h2 className="font-display text-4xl sm:text-6xl font-bold tracking-tight mt-3">
+                  {stats.visitedCount} <span className="text-white/40 font-normal text-2xl sm:text-4xl">/ ৬৪</span> জেলা
                 </h2>
                 <p className="font-body text-xs sm:text-sm text-stone-300 mt-1 font-light">
-                  You have unlocked <strong className="font-bold text-[#F27D26]">{stats.percentageExplored}%</strong> of Bangladesh's sovereign landmass.
+                  আপনি বাংলাদেশের মোট ভূমির <strong className="font-bold text-[#F27D26]">{stats.percentageExplored}%</strong> অন্বেষণ করেছেন।
                 </p>
               </div>
 
               <div className="flex items-center gap-8 sm:text-right">
                 <div>
-                  <p className="font-display text-3xl sm:text-4xl text-amber-400">
+                  <p className="font-display text-3xl sm:text-4xl font-bold text-amber-400">
                     {stats.wantToVisitCount}
                   </p>
-                  <p className="font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/50">
-                    WISHLIST
+                  <p className="font-body font-bold text-[10px] uppercase tracking-wider text-white/50">
+                    ইচ্ছাতালিকা
                   </p>
                 </div>
                 <div>
-                  <p className="font-display text-3xl sm:text-4xl text-white/30">
+                  <p className="font-display text-3xl sm:text-4xl font-bold text-white/30">
                     {stats.notVisitedCount}
                   </p>
-                  <p className="font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/50">
-                    UNEXPLORED
+                  <p className="font-body font-bold text-[10px] uppercase tracking-wider text-white/50">
+                    বাকি আছে
                   </p>
                 </div>
               </div>
@@ -79,69 +79,68 @@ const MainContent: React.FC = () => {
                   className="h-full bg-[#F27D26] transition-all duration-700 ease-out"
                 />
               </div>
-              <div className="flex items-center justify-between font-body font-black text-[9px] uppercase tracking-[0.2em] text-white/40">
-                <span>0 DISTRICTS</span>
-                <span>32 HALFWAY</span>
-                <span>64 FULL SOVEREIGNTY</span>
+              <div className="flex items-center justify-between font-body font-bold text-[10px] uppercase tracking-wider text-white/40">
+                <span>০ জেলা</span>
+                <span>৩২ অর্ধেক</span>
+                <span>৬৪ পূর্ণ সার্বভৌমত্ব</span>
               </div>
             </div>
 
             {/* Metric Highlights Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10">
-              <div className="p-3 bg-white/5 border border-white/5">
-                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
-                  MEMORIES
+              <div className="p-3.5 bg-white/5 border border-white/5">
+                <span className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-400">
+                  স্মৃতিকথা
                 </span>
-                <span className="font-display text-2xl text-white mt-1 block">
+                <span className="font-display text-2xl font-bold text-white mt-1 block">
                   {stats.totalMemories}
                 </span>
               </div>
-              <div className="p-3 bg-white/5 border border-white/5">
-                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
-                  PHOTOS SAVED
+              <div className="p-3.5 bg-white/5 border border-white/5">
+                <span className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-400">
+                  সংরক্ষিত ছবি
                 </span>
-                <span className="font-display text-2xl text-white mt-1 block">
+                <span className="font-display text-2xl font-bold text-white mt-1 block">
                   {stats.totalPhotos}
                 </span>
               </div>
-              <div className="p-3 bg-white/5 border border-white/5">
-                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-stone-400">
-                  DIVISIONS
+              <div className="p-3.5 bg-white/5 border border-white/5">
+                <span className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-400">
+                  বিভাগ অন্বেষণ
                 </span>
-                <span className="font-display text-2xl text-white mt-1 block">
-                  {stats.divisionsExploredCount} <span className="text-xs text-white/40">/ 8</span>
+                <span className="font-display text-2xl font-bold text-white mt-1 block">
+                  {stats.divisionsExploredCount} <span className="text-xs text-white/40 font-normal">/ ৮</span>
                 </span>
               </div>
-              <div className="p-3 bg-white/5 border border-white/5">
-                <span className="block font-body font-black text-[9px] uppercase tracking-[0.2em] text-[#F27D26]">
-                  HONORS UNLOCKED
+              <div className="p-3.5 bg-white/5 border border-white/5">
+                <span className="block font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26]">
+                  অর্জিত সম্মাননা
                 </span>
-                <span className="font-display text-2xl text-[#F27D26] mt-1 block">
-                  {achievements.filter(a => a.isUnlocked).length} <span className="text-xs text-white/40">/ {achievements.length}</span>
+                <span className="font-display text-2xl font-bold text-[#F27D26] mt-1 block">
+                  {achievements.filter(a => a.isUnlocked).length} <span className="text-xs text-white/40 font-normal">/ {achievements.length}</span>
                 </span>
               </div>
             </div>
           </div>
 
-
           {/* Bangladesh Interactive Map Section */}
-          <section aria-label="Interactive Map">
+          <section aria-label="ইন্টারেক্টিভ মানচিত্র">
             <BangladeshMap />
           </section>
 
-          {/* 64-District Catalog & Quick Selector (Bold Typography Layout) */}
+          {/* 64-District Catalog & Quick Selector (Bengali Layout) */}
           <section className="space-y-6 pt-4 border-t border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
-                <span className="font-body font-black text-[9px] uppercase tracking-[0.3em] text-[#F27D26]">
-                  Territorial Index
+                <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26]">
+                  আঞ্চলিক সূচি
                 </span>
-                <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white mt-1">
-                  ALL 64 DISTRICTS BY DIVISION
+                <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-wide text-white mt-1">
+                  বিভাগ অনুযায়ী ৬৪ জেলা
                 </h2>
               </div>
               <p className="font-body text-xs text-stone-400 max-w-sm font-light">
-                Browse divisions and mark districts to instantly unlock memories and badges.
+                বিভাগ নির্বাচন করে জেলাগুলোতে ক্লিক করুন এবং ভ্রমণ স্থিতি চিহ্নিত করুন।
               </p>
             </div>
 
@@ -159,70 +158,57 @@ const MainContent: React.FC = () => {
                     className="bg-[#0f0f0f] border border-white/10 hover:border-white/20 transition-all p-5 flex flex-col justify-between space-y-4 relative group"
                   >
                     <div>
-                      {/* Division Header with bold typography */}
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/40">
-                            DIV 0{idx + 1}
-                          </span>
-                          <h3 className="font-display text-xl uppercase tracking-wide text-white group-hover:text-[#F27D26] transition-colors">
-                            {div.name}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5"
+                            style={{ backgroundColor: div.color }}
+                          />
+                          <h3 className="font-display text-xl font-bold text-white">
+                            {div.bn_name} বিভাগ
                           </h3>
                         </div>
-                        <div className="text-right">
-                          <span className="font-display text-lg text-[#F27D26]">
-                            {visitedCount}
-                            <span className="text-white/40 text-xs font-sans">/{div.districtsCount}</span>
-                          </span>
-                        </div>
+                        <span className="font-body text-xs font-bold text-stone-400">
+                          {visitedCount} / {div.districtsCount}
+                        </span>
                       </div>
 
-                      {/* Minimalist divider & Progress bar */}
-                      <div className="h-[2px] w-full bg-white/10 overflow-hidden mb-3">
+                      <div className="h-1.5 w-full bg-white/10 mt-2.5 overflow-hidden">
                         <div
-                          className="h-full bg-[#F27D26] transition-all duration-300"
-                          style={{ width: `${percent}%` }}
+                          className="h-full transition-all duration-300"
+                          style={{
+                            width: `${percent}%`,
+                            backgroundColor: div.color,
+                          }}
                         />
                       </div>
                     </div>
 
-                    {/* Districts List */}
-                    <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 gap-1.5 pt-2">
                       {divDistricts.map((district) => {
                         const status = userData[district.id]?.status || 'not_visited';
-                        const districtVisits = visits.filter(
-                          (v) => v.districtId === district.id
-                        );
-                        const photoCount = districtVisits.reduce(
-                          (acc, v) => acc + (v.photos?.length || 0),
-                          0
-                        );
+                        const photoCount = visits
+                          .filter((v) => v.districtId === district.id)
+                          .reduce((acc, v) => acc + (v.photos?.length || 0), 0);
 
                         return (
                           <button
                             key={district.id}
-                            id={`district-list-item-${district.id}`}
                             onClick={() => selectDistrict(district.id)}
-                            className="w-full py-1.5 px-2 text-left flex items-center justify-between text-xs hover:bg-white/10 transition-colors group/item"
+                            className={`px-2 py-1.5 text-left text-xs transition-all flex items-center justify-between border cursor-pointer ${
+                              status === 'visited'
+                                ? 'bg-white/10 text-white font-bold border-white/20'
+                                : status === 'want_to_visit'
+                                ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                                : 'bg-transparent text-stone-400 hover:text-white hover:bg-white/5 border-white/5'
+                            }`}
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span
-                                className={`w-1.5 h-1.5 shrink-0 ${
-                                  status === 'visited'
-                                    ? 'bg-[#F27D26]'
-                                    : status === 'want_to_visit'
-                                    ? 'bg-amber-400'
-                                    : 'bg-white/20'
-                                }`}
-                              />
-                              <span className="font-body font-medium text-stone-200 truncate group-hover/item:text-white">
-                                {district.name}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="truncate font-body font-semibold">
+                              {district.bn_name}
+                            </span>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
                               {photoCount > 0 && (
-                                <span className="font-body text-[10px] text-white/50 flex items-center gap-0.5 font-bold">
+                                <span className="text-[10px] text-white/50 flex items-center gap-0.5">
                                   <Camera className="w-2.5 h-2.5" />
                                   {photoCount}
                                 </span>
