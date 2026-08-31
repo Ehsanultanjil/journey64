@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navigation/Navbar';
 import { BangladeshMap } from './components/Map/BangladeshMap';
@@ -17,7 +17,9 @@ import {
   Bookmark,
   Camera,
   Compass,
-  ArrowUpRight,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 
 const MainContent: React.FC = () => {
@@ -32,208 +34,257 @@ const MainContent: React.FC = () => {
     closeAuthModal,
   } = useApp();
 
+  const [activeDistrictIndex, setActiveDistrictIndex] = useState(0);
+
+  const handlePrevDistrict = () => {
+    const nextIdx = (activeDistrictIndex - 1 + DISTRICTS.length) % DISTRICTS.length;
+    setActiveDistrictIndex(nextIdx);
+    selectDistrict(DISTRICTS[nextIdx].id);
+  };
+
+  const handleNextDistrict = () => {
+    const nextIdx = (activeDistrictIndex + 1) % DISTRICTS.length;
+    setActiveDistrictIndex(nextIdx);
+    selectDistrict(DISTRICTS[nextIdx].id);
+  };
+
   return (
-    <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-10 pb-24 md:pb-16 space-y-6 sm:space-y-10">
+    <main className="space-y-8 sm:space-y-12 pb-16">
       {activeTab === 'explore' && (
-        <div className="space-y-6 sm:space-y-10 animate-in fade-in duration-300">
-          {/* Main Exploration Scorecard (National Footprint) with Luxury Tour Styling */}
-          <div className="bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/15 p-4 sm:p-8 text-stone-900 dark:text-white space-y-5 sm:space-y-6 shadow-xl shadow-stone-200/50 dark:shadow-2xl transition-colors">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
-              <div>
-                <span className="font-body font-bold text-[9px] sm:text-[10px] tracking-wider px-2.5 py-0.5 sm:px-3 sm:py-1 bg-[#F27D26] text-white">
-                  জাতীয় পদচিহ্ন
-                </span>
-                <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mt-2 sm:mt-3 text-stone-900 dark:text-white">
-                  {stats.visitedCount} <span className="text-stone-400 dark:text-white/40 font-normal text-xl sm:text-3xl md:text-4xl">/ ৬৪</span> জেলা
-                </h2>
-                <p className="font-body text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-1 font-light">
-                  আপনি বাংলাদেশের মোট ভূমির <strong className="font-bold text-[#F27D26]">{stats.percentageExplored}%</strong> অন্বেষণ করেছেন।
+        <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
+          {/* Signature Cinematic Hero Stage (Matching Reference UI) */}
+          <section className="relative px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12 bg-gradient-to-b from-[#141720] via-[#0B0D12] to-[#07080A] border-b border-white/10 overflow-hidden">
+            {/* Ambient Background Glow Highlights */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#EA580C]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-10 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 sm:gap-12">
+              {/* Left Headline & Pitch */}
+              <div className="max-w-2xl space-y-4 sm:space-y-5">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EA580C]/15 border border-[#EA580C]/30 text-[#EA580C] text-[11px] font-body font-bold uppercase tracking-wider">
+                  <Compass className="w-3.5 h-3.5 animate-spin-slow" />
+                  ৬৪ জেলা জাতীয় অভিযাত্রা ডায়েরি
+                </div>
+
+                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05]">
+                  ৬৪ জেলা ভ্রমণ। <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-stone-200 to-[#EA580C]">
+                    জাতীয় পদচিহ্ন।
+                  </span> <br />
+                  অনন্ত স্মৃতিকথা।
+                </h1>
+
+                <p className="font-body text-xs sm:text-sm md:text-base text-stone-300 font-light leading-relaxed max-w-lg">
+                  বাংলাদেশের প্রতিটি জেলা, প্রান্তর ও প্রান্তরে আপনার ভ্রমণের অনন্য পদচিহ্ন চিহ্নিত করুন এবং স্মৃতিগুলো চিরকাল অক্ষত রাখুন।
+                </p>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="px-5 py-3 bg-white hover:bg-stone-100 text-stone-950 font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2.5 shadow-xl hover:scale-105 transition-all cursor-pointer"
+                  >
+                    <span>মানচিত্র অন্বেষণ করুন</span>
+                    <div className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center">
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </button>
+                </div>
+
+                {/* Bottom-left Metrics Counter Row (Matching Reference) */}
+                <div className="flex items-center gap-6 sm:gap-10 pt-6 sm:pt-8 border-t border-white/10">
+                  <div>
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                      {stats.visitedCount}+
+                    </p>
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                      জেলা ভ্রমণ সম্পন্ন
+                    </p>
+                  </div>
+                  <div className="h-8 w-[1px] bg-white/15" />
+                  <div>
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-[#EA580C] tracking-tight">
+                      {stats.percentageExplored}%
+                    </p>
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                      সার্বভৌম পদচিহ্ন
+                    </p>
+                  </div>
+                  <div className="h-8 w-[1px] bg-white/15" />
+                  <div>
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-amber-400 tracking-tight">
+                      {stats.divisionsExploredCount} <span className="text-sm font-normal text-white/50">/ ৮</span>
+                    </p>
+                    <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-400 font-semibold">
+                      বিভাগ অন্বেষণ
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom-Right Notched Dock Component (Matching Reference) */}
+              <div className="bg-white text-stone-950 px-5 py-3 rounded-2xl sm:rounded-tl-2xl sm:rounded-br-none shadow-2xl flex items-center gap-3.5 border border-stone-200/60 self-stretch sm:self-auto justify-between sm:justify-start">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handlePrevDistrict}
+                    aria-label="আগের জেলা"
+                    className="w-8 h-8 rounded-full bg-stone-900 hover:bg-[#EA580C] text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleNextDistrict}
+                    aria-label="পরের জেলা"
+                    className="w-8 h-8 rounded-full bg-stone-900 hover:bg-[#EA580C] text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="hidden sm:block h-1.5 w-20 bg-stone-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#EA580C] transition-all duration-300"
+                    style={{ width: `${((activeDistrictIndex + 1) / 64) * 100}%` }}
+                  />
+                </div>
+
+                <div className="text-right sm:text-left">
+                  <span className="font-mono text-xs font-bold text-stone-900 block leading-tight">
+                    {String(activeDistrictIndex + 1).padStart(2, '0')}{' '}
+                    <span className="text-stone-400 font-normal">/ ৬৪</span>
+                  </span>
+                  <span className="font-body text-[10px] font-bold text-[#EA580C] block leading-none truncate max-w-[100px]">
+                    {DISTRICTS[activeDistrictIndex]?.bn_name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Bangladesh Interactive Map Section */}
+          <div className="px-3 sm:px-8 lg:px-12">
+            <section aria-label="ইন্টারেক্টিভ মানচিত্র">
+              <BangladeshMap />
+            </section>
+          </div>
+
+          {/* 64-District Regional Catalog */}
+          <div className="px-3 sm:px-8 lg:px-12">
+            <section className="space-y-4 sm:space-y-6 pt-4 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
+                <div>
+                  <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#EA580C]">
+                    আঞ্চলিক সূচি
+                  </span>
+                  <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-white mt-0.5 sm:mt-1">
+                    বিভাগ অনুযায়ী ৬৪ জেলা
+                  </h2>
+                </div>
+                <p className="font-body text-xs text-stone-400 max-w-sm font-light">
+                  বিভাগ নির্বাচন করে জেলাগুলোতে ক্লিক করুন এবং ভ্রমণ স্থিতি চিহ্নিত করুন।
                 </p>
               </div>
 
-              <div className="flex items-center gap-6 sm:gap-8 sm:text-right">
-                <div>
-                  <p className="font-display text-2xl sm:text-4xl font-bold text-amber-600 dark:text-amber-400">
-                    {stats.wantToVisitCount}
-                  </p>
-                  <p className="font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-white/50">
-                    ইচ্ছাতালিকা
-                  </p>
-                </div>
-                <div>
-                  <p className="font-display text-2xl sm:text-4xl font-bold text-stone-300 dark:text-white/30">
-                    {stats.notVisitedCount}
-                  </p>
-                  <p className="font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-white/50">
-                    বাকি আছে
-                  </p>
-                </div>
-              </div>
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+                {DIVISIONS.map((div) => {
+                  const divDistricts = DISTRICTS.filter((d) => d.division === div.name);
+                  const visitedCount = divDistricts.filter(
+                    (d) => userData[d.id]?.status === 'visited'
+                  ).length;
+                  const percent = Math.round((visitedCount / div.districtsCount) * 100);
 
-            {/* Big Progress Bar */}
-            <div className="space-y-1.5 sm:space-y-2 pt-1">
-              <div className="h-2.5 sm:h-3 w-full bg-stone-100 dark:bg-white/10 overflow-hidden border border-stone-200/60 dark:border-transparent">
-                <div
-                  style={{ width: `${stats.percentageExplored}%` }}
-                  className="h-full bg-[#F27D26] transition-all duration-700 ease-out"
-                />
-              </div>
-              <div className="flex items-center justify-between font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-white/40">
-                <span>০ জেলা</span>
-                <span>৩২ অর্ধেক</span>
-                <span>৬৪ পূর্ণ সার্বভৌমত্ব</span>
-              </div>
-            </div>
-
-            {/* Metric Highlights Row (2x2 grid on mobile) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 pt-3 sm:pt-4 border-t border-stone-200/80 dark:border-white/10">
-              <div className="p-2.5 sm:p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
-                <span className="block font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  স্মৃতিকথা
-                </span>
-                <span className="font-display text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mt-0.5 block">
-                  {stats.totalMemories}
-                </span>
-              </div>
-              <div className="p-2.5 sm:p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
-                <span className="block font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  সংরক্ষিত ছবি
-                </span>
-                <span className="font-display text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mt-0.5 block">
-                  {stats.totalPhotos}
-                </span>
-              </div>
-              <div className="p-2.5 sm:p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
-                <span className="block font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  বিভাগ অন্বেষণ
-                </span>
-                <span className="font-display text-xl sm:text-2xl font-bold text-stone-900 dark:text-white mt-0.5 block">
-                  {stats.divisionsExploredCount} <span className="text-[10px] sm:text-xs text-stone-400 dark:text-white/40 font-normal">/ ৮</span>
-                </span>
-              </div>
-              <div className="p-2.5 sm:p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
-                <span className="block font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-[#F27D26]">
-                  অর্জিত সম্মাননা
-                </span>
-                <span className="font-display text-xl sm:text-2xl font-bold text-[#F27D26] mt-0.5 block">
-                  {achievements.filter(a => a.isUnlocked).length} <span className="text-[10px] sm:text-xs text-stone-400 dark:text-white/40 font-normal">/ {achievements.length}</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bangladesh Interactive Map Section */}
-          <section aria-label="ইন্টারেক্টিভ মানচিত্র">
-            <BangladeshMap />
-          </section>
-
-          {/* 64-District Catalog & Quick Selector (Bengali Layout) */}
-          <section className="space-y-4 sm:space-y-6 pt-4 border-t border-stone-200/80 dark:border-white/10">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
-              <div>
-                <span className="font-body font-bold text-[9px] sm:text-[10px] uppercase tracking-wider text-[#F27D26]">
-                  আঞ্চলিক সূচি
-                </span>
-                <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                  বিভাগ অনুযায়ী ৬৪ জেলা
-                </h2>
-              </div>
-              <p className="font-body text-xs text-stone-500 dark:text-stone-400 max-w-sm font-light">
-                বিভাগ নির্বাচন করে জেলাগুলোতে ক্লিক করুন এবং ভ্রমণ স্থিতি চিহ্নিত করুন।
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-              {DIVISIONS.map((div) => {
-                const divDistricts = DISTRICTS.filter((d) => d.division === div.name);
-                const visitedCount = divDistricts.filter(
-                  (d) => userData[d.id]?.status === 'visited'
-                ).length;
-                const percent = Math.round((visitedCount / div.districtsCount) * 100);
-
-                return (
-                  <div
-                    key={div.name}
-                    className="bg-white dark:bg-[#0f0f0f] border border-stone-200/80 dark:border-white/10 hover:border-stone-400 dark:hover:border-white/20 transition-all p-3.5 sm:p-5 flex flex-col justify-between space-y-3 sm:space-y-4 relative group shadow-xs dark:shadow-none"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="w-2.5 h-2.5"
-                            style={{ backgroundColor: div.color }}
-                          />
-                          <h3 className="font-display text-lg sm:text-xl font-bold text-stone-900 dark:text-white">
-                            {div.bn_name} বিভাগ
-                          </h3>
+                  return (
+                    <div
+                      key={div.name}
+                      className="bg-[#12141A]/90 border border-white/10 hover:border-white/20 transition-all p-3.5 sm:p-5 flex flex-col justify-between space-y-3 sm:space-y-4 relative group shadow-sm rounded-2xl"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full"
+                              style={{ backgroundColor: div.color }}
+                            />
+                            <h3 className="font-display text-lg sm:text-xl font-bold text-white">
+                              {div.bn_name} বিভাগ
+                            </h3>
+                          </div>
+                          <span className="font-body text-xs font-bold text-stone-400">
+                            {visitedCount} / {div.districtsCount}
+                          </span>
                         </div>
-                        <span className="font-body text-xs font-bold text-stone-500 dark:text-stone-400">
-                          {visitedCount} / {div.districtsCount}
-                        </span>
+
+                        <div className="h-1.5 w-full bg-white/10 mt-2 sm:mt-2.5 overflow-hidden rounded-full">
+                          <div
+                            className="h-full transition-all duration-300 rounded-full"
+                            style={{
+                              width: `${percent}%`,
+                              backgroundColor: div.color,
+                            }}
+                          />
+                        </div>
                       </div>
 
-                      <div className="h-1.5 w-full bg-stone-100 dark:bg-white/10 mt-2 sm:mt-2.5 overflow-hidden">
-                        <div
-                          className="h-full transition-all duration-300"
-                          style={{
-                            width: `${percent}%`,
-                            backgroundColor: div.color,
-                          }}
-                        />
+                      <div className="grid grid-cols-2 gap-1.5 pt-1 sm:pt-2">
+                        {divDistricts.map((district) => {
+                          const status = userData[district.id]?.status || 'not_visited';
+                          const photoCount = visits
+                            .filter((v) => v.districtId === district.id)
+                            .reduce((acc, v) => acc + (v.photos?.length || 0), 0);
+
+                          return (
+                            <button
+                              key={district.id}
+                              onClick={() => selectDistrict(district.id)}
+                              className={`px-2 py-2 text-left text-xs transition-all flex items-center justify-between rounded-xl border cursor-pointer ${
+                                status === 'visited'
+                                  ? 'bg-[#EA580C]/15 text-[#EA580C] font-bold border-[#EA580C]/40'
+                                  : status === 'want_to_visit'
+                                  ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                                  : 'bg-white/5 text-stone-400 hover:text-white hover:bg-white/10 border-white/5'
+                              }`}
+                            >
+                              <span className="truncate font-body font-semibold">
+                                {district.bn_name}
+                              </span>
+                              <div className="flex items-center gap-1 shrink-0 ml-1">
+                                {photoCount > 0 && (
+                                  <span className="text-[10px] text-white/50 flex items-center gap-0.5">
+                                    <Camera className="w-2.5 h-2.5" />
+                                    {photoCount}
+                                  </span>
+                                )}
+                                {status === 'visited' && (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-[#EA580C]" />
+                                )}
+                                {status === 'want_to_visit' && (
+                                  <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 sm:pt-2">
-                      {divDistricts.map((district) => {
-                        const status = userData[district.id]?.status || 'not_visited';
-                        const photoCount = visits
-                          .filter((v) => v.districtId === district.id)
-                          .reduce((acc, v) => acc + (v.photos?.length || 0), 0);
-
-                        return (
-                          <button
-                            key={district.id}
-                            onClick={() => selectDistrict(district.id)}
-                            className={`px-2 py-2 text-left text-xs transition-all flex items-center justify-between border cursor-pointer ${
-                              status === 'visited'
-                                ? 'bg-[#F27D26]/10 text-[#EA580C] dark:bg-white/10 dark:text-white font-bold border-[#F27D26]/40 dark:border-white/20'
-                                : status === 'want_to_visit'
-                                ? 'bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300 border-amber-300 dark:border-amber-500/30'
-                                : 'bg-stone-50/50 text-stone-600 dark:bg-transparent dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 border-stone-200/60 dark:border-white/5'
-                            }`}
-                          >
-                            <span className="truncate font-body font-semibold">
-                              {district.bn_name}
-                            </span>
-                            <div className="flex items-center gap-1 shrink-0 ml-1">
-                              {photoCount > 0 && (
-                                <span className="text-[10px] text-stone-500 dark:text-white/50 flex items-center gap-0.5">
-                                  <Camera className="w-2.5 h-2.5" />
-                                  {photoCount}
-                                </span>
-                              )}
-                              {status === 'visited' && (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-[#F27D26]" />
-                              )}
-                              {status === 'want_to_visit' && (
-                                <Bookmark className="w-3.5 h-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
         </div>
       )}
 
-      {activeTab === 'memories' && <MemoriesTimelinePage />}
-      {activeTab === 'settings' && <SettingsPage />}
+      {activeTab === 'memories' && (
+        <div className="px-3 sm:px-8 lg:px-12 pt-6">
+          <MemoriesTimelinePage />
+        </div>
+      )}
+      {activeTab === 'settings' && (
+        <div className="px-3 sm:px-8 lg:px-12 pt-6">
+          <SettingsPage />
+        </div>
+      )}
 
       {/* Interactive Global Modals */}
       <DistrictQuickPanel />
@@ -248,10 +299,14 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#050505] text-stone-900 dark:text-stone-100 flex flex-col font-sans selection:bg-[#F27D26] selection:text-white transition-colors duration-200">
-        <Navbar />
-        <div className="flex-1">
-          <MainContent />
+      {/* Outer Viewport Canvas (Neutral Grey) */}
+      <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#EA580C] selection:text-white transition-colors duration-300">
+        {/* Floating Device Container Frame matching Reference */}
+        <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-hidden relative flex flex-col min-h-[92vh]">
+          <Navbar />
+          <div className="flex-1">
+            <MainContent />
+          </div>
         </div>
       </div>
     </AppProvider>
