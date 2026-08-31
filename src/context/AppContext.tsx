@@ -25,7 +25,9 @@ import {
   calculateDivisionStats,
   evaluateAchievements,
 } from '../lib/stats';
+import { User } from '@supabase/supabase-js';
 import { checkSupabaseConnection } from '../lib/supabase/client';
+import { SupabaseAuth } from '../lib/supabase/auth';
 import { SupabaseDB } from '../lib/supabase/db';
 
 interface UnlockNotification {
@@ -52,12 +54,19 @@ export interface CloudSyncState {
 interface AppContextType {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
+  authUser: User | null;
+  authModalOpen: boolean;
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
+  signOut: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
   userData: Record<string, DistrictUserData>;
   visits: Visit[];
   trips: Trip[];
   profile: UserProfile;
   settings: AppSettings;
   stats: TravelStats;
+
   divisionStats: DivisionStat[];
   achievements: Achievement[];
   cloudSync: CloudSyncState;
@@ -109,6 +118,9 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('explore');
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+
   const [userData, setUserData] = useState<Record<string, DistrictUserData>>({});
   const [visits, setVisits] = useState<Visit[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -134,6 +146,43 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncing: false,
     message: 'Checking Supabase connection...',
   });
+
+  // Track Supabase Auth session changes
+  useEffect(() => {
+    SupabaseAuth.getUser().then((user) => {
+      setAuthUser(user);
+      if (user) {
+        const uName = user.user_metadata?.display_name || user.user_metadata?.name || user.email?.split('@')[0];
+        if (uName) {
+          setProfile((prev) => ({
+            ...prev,
+            name: uName,
+            displayName: uName,
+          }));
+        }
+      }
+    });
+
+    const { data: authListener } = SupabaseAuth.onAuthStateChange(async (event, session) => {
+      const user = session?.user || null;
+      setAuthUser(user);
+      if (user) {
+        const uName = user.user_metadata?.display_name || user.user_metadata?.name || user.email?.split('@')[0];
+        if (uName) {
+          setProfile((prev) => ({
+            ...prev,
+            name: uName,
+            displayName: uName,
+          }));
+        }
+      }
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
+
 
   // Verify Supabase connection on startup & auto-pull real cloud data if local is empty
   useEffect(() => {
@@ -846,11 +895,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const openAuthModal = () => setAuthModalOpen(true);
+  const closeAuthModal = () => setAuthModalOpen(false);
+
+  const signOut = async () => {
+    await SupabaseAuth.signOut();
+    setAuthUser(null);
+    setCloudSync((prev) => ({
+      ...prev,
+      message: 'Signed out of Supabase account',
+    }));
+  };
+
+  const refreshAuth = async () => {
+    const user = await SupabaseAuth.getUser();
+    setAuthUser(user);
+    if (user) {
+      const uName = user.user_metadata?.display_name || user.user_metadata?.name || user.email?.split('@')[0];
+      if (uName) {
+        setProfile((prev) => ({
+          ...prev,
+          name: uName,
+          displayName: uName,
+        }));
+      }
+      await pullFromCloud();
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
         activeTab,
         setActiveTab,
+        authUser,
+        authModalOpen,
+        openAuthModal,
+        closeAuthModal,
+        signOut,
+        refreshAuth,
         userData,
         visits,
         trips,

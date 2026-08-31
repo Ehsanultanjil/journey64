@@ -10,6 +10,7 @@ import { SettingsPage } from './components/Settings/SettingsPage';
 import { UnlockCelebrationModal } from './components/Modals/UnlockCelebrationModal';
 import { Completion100Modal } from './components/Modals/Completion100Modal';
 import { PhotoLightbox } from './components/Modals/PhotoLightbox';
+import { AuthModal } from './components/Auth/AuthModal';
 import { DISTRICTS } from './data/districts';
 import { DIVISIONS } from './data/divisions';
 import {
@@ -28,6 +29,8 @@ const MainContent: React.FC = () => {
     visits,
     stats,
     selectDistrict,
+    authModalOpen,
+    closeAuthModal,
   } = useApp();
 
   return (
@@ -236,6 +239,7 @@ const MainContent: React.FC = () => {
       <UnlockCelebrationModal />
       <Completion100Modal />
       <PhotoLightbox />
+      <AuthModal isOpen={authModalOpen} onClose={closeAuthModal} />
     </main>
   );
 };

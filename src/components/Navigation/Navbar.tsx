@@ -19,6 +19,9 @@ export const Navbar: React.FC = () => {
     stats,
     settings,
     cloudSync,
+    authUser,
+    openAuthModal,
+    signOut,
     updateSettings,
     openDistrictJournal,
     openTripDetail,
@@ -128,6 +131,38 @@ export const Navbar: React.FC = () => {
                 {cloudSync.syncing ? 'SYNCING' : cloudSync.connected ? 'CLOUD ON' : 'DB READY'}
               </span>
             </button>
+
+            {/* Auth / Profile Button */}
+            {authUser ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleTabChange('settings')}
+                  className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white transition-colors cursor-pointer"
+                  title={`Logged in as ${authUser.email}`}
+                >
+                  <div className="w-5 h-5 bg-[#F27D26] text-white flex items-center justify-center font-bold text-xs uppercase">
+                    {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
+                  </div>
+                  <span className="hidden md:inline font-display text-xs uppercase tracking-wider">
+                    {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}
+                  </span>
+                </button>
+                <button
+                  onClick={signOut}
+                  className="hidden md:inline-flex text-[10px] font-mono text-stone-400 hover:text-white underline cursor-pointer"
+                  title="Sign Out"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={openAuthModal}
+                className="px-3 py-1.5 bg-[#F27D26] hover:bg-[#d96615] text-white font-display text-xs uppercase tracking-wider font-bold transition-all cursor-pointer shadow-sm"
+              >
+                Log In
+              </button>
+            )}
 
             {/* Theme Toggle */}
             <button

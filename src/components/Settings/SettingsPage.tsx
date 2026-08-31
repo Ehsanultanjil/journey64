@@ -31,6 +31,9 @@ export const SettingsPage: React.FC = () => {
   const {
     profile,
     settings,
+    authUser,
+    openAuthModal,
+    signOut,
     cloudSync,
     pushToCloud,
     pullFromCloud,
@@ -308,6 +311,40 @@ export const SettingsPage: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* User Auth Account Banner */}
+        <div className="p-4 bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#F27D26] text-white flex items-center justify-center font-bold text-sm">
+              {authUser ? (authUser.user_metadata?.display_name || authUser.email || 'U')[0].toUpperCase() : <User className="w-5 h-5" />}
+            </div>
+            <div>
+              <p className="font-display text-sm uppercase text-white tracking-wider">
+                {authUser ? authUser.user_metadata?.display_name || 'Authenticated Explorer' : 'Guest / Offline Session'}
+              </p>
+              <p className="font-mono text-xs text-stone-400">
+                {authUser ? authUser.email : 'Log in to securely link your travels to your personal account'}
+              </p>
+            </div>
+          </div>
+          <div>
+            {authUser ? (
+              <button
+                onClick={signOut}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-display text-xs uppercase tracking-wider border border-white/20 transition-colors cursor-pointer"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <button
+                onClick={openAuthModal}
+                className="px-5 py-2 bg-[#F27D26] hover:bg-[#d96615] text-white font-display text-xs uppercase tracking-wider font-bold transition-all shadow-md cursor-pointer"
+              >
+                Log In / Sign Up
+              </button>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
