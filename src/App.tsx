@@ -34,20 +34,6 @@ const MainContent: React.FC = () => {
     closeAuthModal,
   } = useApp();
 
-  const [activeDistrictIndex, setActiveDistrictIndex] = useState(0);
-
-  const handlePrevDistrict = () => {
-    const nextIdx = (activeDistrictIndex - 1 + DISTRICTS.length) % DISTRICTS.length;
-    setActiveDistrictIndex(nextIdx);
-    selectDistrict(DISTRICTS[nextIdx].id);
-  };
-
-  const handleNextDistrict = () => {
-    const nextIdx = (activeDistrictIndex + 1) % DISTRICTS.length;
-    setActiveDistrictIndex(nextIdx);
-    selectDistrict(DISTRICTS[nextIdx].id);
-  };
-
   return (
     <main className="space-y-8 sm:space-y-12 pb-16">
       {activeTab === 'explore' && (
@@ -127,43 +113,6 @@ const MainContent: React.FC = () => {
                       বিভাগ অন্বেষণ
                     </p>
                   </div>
-                </div>
-              </div>
-
-              {/* Bottom-Right Notched Dock Component (Matching Reference) */}
-              <div className="bg-white text-stone-950 px-5 py-3 rounded-2xl sm:rounded-tl-2xl sm:rounded-br-none shadow-2xl flex items-center gap-3.5 border border-stone-200/60 self-stretch sm:self-auto justify-between sm:justify-start">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={handlePrevDistrict}
-                    aria-label="আগের জেলা"
-                    className="w-8 h-8 rounded-full bg-stone-900 hover:bg-[#EA580C] text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleNextDistrict}
-                    aria-label="পরের জেলা"
-                    className="w-8 h-8 rounded-full bg-stone-900 hover:bg-[#EA580C] text-white flex items-center justify-center transition-colors cursor-pointer shadow-sm"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="hidden sm:block h-1.5 w-20 bg-stone-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#EA580C] transition-all duration-300"
-                    style={{ width: `${((activeDistrictIndex + 1) / 64) * 100}%` }}
-                  />
-                </div>
-
-                <div className="text-right sm:text-left">
-                  <span className="font-mono text-xs font-bold text-stone-900 block leading-tight">
-                    {String(activeDistrictIndex + 1).padStart(2, '0')}{' '}
-                    <span className="text-stone-400 font-normal">/ ৬৪</span>
-                  </span>
-                  <span className="font-body text-[10px] font-bold text-[#EA580C] block leading-none truncate max-w-[100px]">
-                    {DISTRICTS[activeDistrictIndex]?.bn_name}
-                  </span>
                 </div>
               </div>
             </div>

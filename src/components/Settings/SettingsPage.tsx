@@ -37,6 +37,31 @@ export const SettingsPage: React.FC = () => {
     setTimeout(() => setSavedToast(false), 2000);
   };
 
+  if (!authUser) {
+    return (
+      <div className="w-full max-w-lg mx-auto py-16 px-4 text-center space-y-6 animate-in fade-in duration-300 font-body">
+        <div className="w-16 h-16 rounded-3xl bg-[#EA580C]/15 text-[#EA580C] flex items-center justify-center mx-auto shadow-md border border-[#EA580C]/30">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-white">
+            লগইন প্রয়োজন
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-400 font-light max-w-sm mx-auto leading-relaxed">
+            আপনার ব্যক্তিগত প্রোফাইল তৈরি করতে এবং ৬৪ জেলার সকল ভ্রমণ ডাটা ক্লাউডে সুরক্ষিত রাখতে লগইন করুন।
+          </p>
+        </div>
+        <button
+          onClick={openAuthModal}
+          className="px-6 py-3 bg-[#EA580C] hover:bg-[#c2410c] text-white rounded-2xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#EA580C]/30 cursor-pointer inline-flex items-center gap-2 hover:scale-105"
+        >
+          <span>লগইন / সাইন আপ করুন</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200">
       {/* Header */}

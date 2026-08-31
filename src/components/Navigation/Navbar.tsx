@@ -28,6 +28,10 @@ export const Navbar: React.FC = () => {
   } = useApp();
 
   const handleTabChange = (tab: ActiveTab) => {
+    if (tab === 'settings' && !authUser) {
+      openAuthModal();
+      return;
+    }
     if (tab !== 'memories') openDistrictJournal(null);
     setActiveTab(tab);
   };
@@ -40,7 +44,6 @@ export const Navbar: React.FC = () => {
   const navItems: { key: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { key: 'explore', label: 'মানচিত্র এক্সপ্লোরার', icon: Map },
     { key: 'memories', label: 'স্মৃতি ও ডায়েরি', icon: BookOpen },
-    { key: 'settings', label: 'সেটিংস', icon: Settings },
   ];
 
   return (
