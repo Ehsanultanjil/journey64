@@ -247,13 +247,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setProfile(loaded.profile);
     setSettings(loaded.settings);
 
-    // Apply dark theme class
+    // Apply theme class on mount
     if (loaded.settings.theme === 'dark' || (loaded.settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
   }, []);
+
+  // Reactive theme switch
+  useEffect(() => {
+    if (settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
+  }, [settings.theme]);
+
 
   // Sync state to storage and cloud
   const syncUserData = (newUserData: Record<string, DistrictUserData>) => {

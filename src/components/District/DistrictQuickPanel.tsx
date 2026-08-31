@@ -73,10 +73,10 @@ export const DistrictQuickPanel: React.FC = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 40, scale: 0.95 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg bg-[#0c0c0c] text-white border-t sm:border border-white/20 rounded-t-2xl sm:rounded-none shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col z-10"
+          className="relative w-full max-w-lg bg-white dark:bg-[#0c0c0c] text-stone-900 dark:text-white border-t sm:border border-stone-200 dark:border-white/20 rounded-t-2xl sm:rounded-none shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col z-10 transition-colors"
         >
           {/* Cover Photo Header or Gradient Banner */}
-          <div className="relative h-40 sm:h-56 w-full bg-[#161616] overflow-hidden shrink-0 border-b border-white/10">
+          <div className="relative h-40 sm:h-56 w-full bg-stone-100 dark:bg-[#161616] overflow-hidden shrink-0 border-b border-stone-200 dark:border-white/10">
             {coverPhoto ? (
               <img
                 src={coverPhoto}
@@ -84,25 +84,25 @@ export const DistrictQuickPanel: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1c120c] via-[#111111] to-[#050505] flex items-center justify-center p-4 sm:p-6 text-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#FAF5EF] via-[#F4EFE6] to-[#EAE3D2] dark:from-[#1c120c] dark:via-[#111111] dark:to-[#050505] flex items-center justify-center p-4 sm:p-6 text-center">
                 <div>
-                  <Compass className="w-10 h-10 sm:w-14 sm:h-14 text-[#F27D26]/40 mx-auto mb-1 sm:mb-2" />
-                  <p className="font-body font-bold text-[9px] sm:text-[10px] text-white/50 tracking-wider uppercase">
+                  <Compass className="w-10 h-10 sm:w-14 sm:h-14 text-[#F27D26]/60 dark:text-[#F27D26]/40 mx-auto mb-1 sm:mb-2" />
+                  <p className="font-body font-bold text-[9px] sm:text-[10px] text-stone-600 dark:text-white/50 tracking-wider uppercase">
                     {selectedDistrict.division} DIVISION
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30" />
+            {/* Dark gradient overlay for title legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
 
             {/* Top Close & Favorite buttons */}
             <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
               <button
                 id="quick-panel-fav-btn"
                 onClick={() => toggleDistrictFavorite(districtId)}
-                className={`p-2 sm:p-2.5 transition-all ${
+                className={`p-2 sm:p-2.5 transition-all cursor-pointer ${
                   isFavorite
                     ? 'bg-[#F27D26] text-white scale-105 shadow-md'
                     : 'bg-black/60 text-white/80 hover:bg-black'
@@ -115,7 +115,7 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="quick-panel-close-btn"
                 onClick={() => selectDistrict(null)}
-                className="p-2 sm:p-2.5 bg-black/60 hover:bg-[#F27D26] text-white transition-colors"
+                className="p-2 sm:p-2.5 bg-black/60 hover:bg-[#F27D26] text-white transition-colors cursor-pointer"
                 aria-label="Close panel"
               >
                 <X className="w-4 h-4 stroke-[2.5]" />
@@ -139,9 +139,9 @@ export const DistrictQuickPanel: React.FC = () => {
                   </span>
                 )}
               </div>
-              <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-wide mt-1 flex items-baseline gap-2 sm:gap-3">
+              <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-wide mt-1 flex items-baseline gap-2 sm:gap-3 text-white">
                 {selectedDistrict.bn_name}
-                <span className="font-sans text-xs sm:text-base font-semibold text-white/60">
+                <span className="font-sans text-xs sm:text-base font-semibold text-white/70">
                   ({selectedDistrict.name})
                 </span>
               </h2>
@@ -152,24 +152,24 @@ export const DistrictQuickPanel: React.FC = () => {
           <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6">
             {/* Tagline / Highlights */}
             {selectedDistrict.tagline && (
-              <p className="text-xs sm:text-sm text-stone-300 font-light tracking-wide italic border-l-2 border-[#F27D26] pl-3 py-0.5">
+              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-light tracking-wide italic border-l-2 border-[#F27D26] pl-3 py-0.5">
                 "{selectedDistrict.tagline}"
               </p>
             )}
 
             {/* Status Selector Bar in Bangla */}
             <div className="space-y-1.5">
-              <span className="font-body font-bold text-[10px] uppercase tracking-wider text-white/50 block">
+              <span className="font-body font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-white/50 block">
                 ভ্রমণ স্থিতি নির্বাচন
               </span>
-              <div className="bg-white/5 p-1 flex items-center gap-1 border border-white/10">
+              <div className="bg-stone-100 dark:bg-white/5 p-1 flex items-center gap-1 border border-stone-200 dark:border-white/10">
                 <button
                   id="status-btn-visited"
                   onClick={() => handleStatusChange('visited')}
                   className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'visited'
                       ? 'bg-[#F27D26] text-white shadow-md'
-                      : 'text-white/60 hover:text-white'
+                      : 'text-stone-600 dark:text-white/60 hover:text-stone-900 dark:hover:text-white'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -182,7 +182,7 @@ export const DistrictQuickPanel: React.FC = () => {
                   className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'want_to_visit'
                       ? 'bg-amber-400 text-black shadow-md'
-                      : 'text-white/60 hover:text-white'
+                      : 'text-stone-600 dark:text-white/60 hover:text-stone-900 dark:hover:text-white'
                   }`}
                 >
                   <Bookmark className="w-3.5 h-3.5" />
@@ -194,8 +194,8 @@ export const DistrictQuickPanel: React.FC = () => {
                   onClick={() => handleStatusChange('not_visited')}
                   className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     currentStatus === 'not_visited'
-                      ? 'bg-white/20 text-white shadow-md'
-                      : 'text-white/40 hover:text-white'
+                      ? 'bg-stone-300 dark:bg-white/20 text-stone-900 dark:text-white shadow-md'
+                      : 'text-stone-400 dark:text-white/40 hover:text-stone-800 dark:hover:text-white'
                   }`}
                 >
                   বাকি আছে
@@ -208,11 +208,11 @@ export const DistrictQuickPanel: React.FC = () => {
               <div className="space-y-4 pt-1">
                 {/* Stats row: Visit Date, Photos Count, Rating */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white/5 p-3.5 border border-white/10">
-                    <span className="font-body font-bold text-[10px] tracking-wider text-[#F27D26] block mb-1">
+                  <div className="bg-stone-50 dark:bg-white/5 p-3.5 border border-stone-200 dark:border-white/10">
+                    <span className="font-body font-bold text-[10px] tracking-wider text-[#EA580C] dark:text-[#F27D26] block mb-1">
                       প্রথম ভ্রমণ
                     </span>
-                    <p className="font-body text-base font-semibold text-white">
+                    <p className="font-body text-base font-semibold text-stone-900 dark:text-white">
                       {visitDate
                         ? new Date(visitDate).toLocaleDateString('bn-BD', {
                             day: 'numeric',
@@ -223,19 +223,19 @@ export const DistrictQuickPanel: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="bg-white/5 p-3.5 border border-white/10">
-                    <span className="font-body font-bold text-[10px] tracking-wider text-[#F27D26] block mb-1">
+                  <div className="bg-stone-50 dark:bg-white/5 p-3.5 border border-stone-200 dark:border-white/10">
+                    <span className="font-body font-bold text-[10px] tracking-wider text-[#EA580C] dark:text-[#F27D26] block mb-1">
                       সংরক্ষিত ছবি
                     </span>
-                    <p className="font-body text-base font-semibold text-white">
+                    <p className="font-body text-base font-semibold text-stone-900 dark:text-white">
                       {totalPhotos}টি ছবি
                     </p>
                   </div>
                 </div>
 
                 {/* Rating row */}
-                <div className="flex items-center justify-between p-3.5 bg-white/5 border border-white/10">
-                  <span className="font-body font-bold text-xs text-white">
+                <div className="flex items-center justify-between p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10">
+                  <span className="font-body font-bold text-xs text-stone-900 dark:text-white">
                     অভিজ্ঞতা রেটিং
                   </span>
                   <div className="flex items-center gap-1">
@@ -243,11 +243,11 @@ export const DistrictQuickPanel: React.FC = () => {
                       <button
                         key={star}
                         onClick={() => updateDistrictRating(districtId, star)}
-                        className="p-1 text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                        className="p-1 text-amber-500 dark:text-amber-400 hover:scale-110 transition-transform cursor-pointer"
                       >
                         <Star
                           className={`w-4 h-4 ${
-                            star <= rating ? 'fill-amber-400 text-amber-400' : 'text-white/20'
+                            star <= rating ? 'fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400' : 'text-stone-300 dark:text-white/20'
                           }`}
                         />
                       </button>
@@ -262,7 +262,7 @@ export const DistrictQuickPanel: React.FC = () => {
                     selectDistrict(null);
                     openDistrictJournal(districtId);
                   }}
-                  className="w-full py-3.5 px-6 bg-white text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-sm flex items-center justify-between transition-colors cursor-pointer shadow-lg"
+                  className="w-full py-3.5 px-6 bg-stone-900 text-white dark:bg-white dark:text-black hover:bg-[#F27D26] hover:text-white dark:hover:bg-[#F27D26] dark:hover:text-white font-body font-bold text-sm flex items-center justify-between transition-colors cursor-pointer shadow-lg"
                 >
                   <span className="flex items-center gap-2.5">
                     <BookOpen className="w-4 h-4" />
@@ -275,14 +275,14 @@ export const DistrictQuickPanel: React.FC = () => {
 
             {/* Want to Visit action */}
             {currentStatus === 'want_to_visit' && (
-              <div className="p-4 bg-white/5 border border-amber-400/30 space-y-3">
+              <div className="p-4 bg-amber-50/70 dark:bg-white/5 border border-amber-300 dark:border-amber-400/30 space-y-3">
                 <div className="flex items-start gap-3">
-                  <Bookmark className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  <Bookmark className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-body font-bold text-xs text-amber-400">
+                    <h4 className="font-body font-bold text-xs text-amber-800 dark:text-amber-400">
                       আপনার ভ্রমণ ইচ্ছাতালিকায় সংরক্ষিত
                     </h4>
-                    <p className="font-body text-xs text-stone-300 mt-1 font-light">
+                    <p className="font-body text-xs text-stone-600 dark:text-stone-300 mt-1 font-light">
                       মানচিত্রে সোনালী রঙে হাইলাইট করা হয়েছে।
                     </p>
                   </div>
@@ -290,7 +290,7 @@ export const DistrictQuickPanel: React.FC = () => {
 
                 <button
                   onClick={() => handleStatusChange('visited')}
-                  className="w-full py-3 px-4 bg-amber-400 text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3 px-4 bg-amber-500 text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   ভ্রমণ সম্পন্ন হিসেবে চিহ্নিত করুন
@@ -300,21 +300,21 @@ export const DistrictQuickPanel: React.FC = () => {
 
             {/* Not Visited action */}
             {currentStatus === 'not_visited' && (
-              <div className="p-4 bg-white/5 border border-white/10 space-y-3">
-                <p className="font-body text-xs text-stone-300 font-light">
+              <div className="p-4 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 space-y-3">
+                <p className="font-body text-xs text-stone-600 dark:text-stone-300 font-light">
                   আপনি কি {selectedDistrict.bn_name} জেলায় ভ্রমণ করেছেন? ভ্রমণ চিহ্নিত করে স্মৃতি ও ছবি যোগ করুন।
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleStatusChange('visited')}
-                    className="flex-1 py-3 px-4 bg-[#F27D26] text-white hover:bg-white hover:text-black font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="flex-1 py-3 px-4 bg-[#F27D26] text-white hover:bg-stone-900 dark:hover:bg-white dark:hover:text-black font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     ঘুরেছি
                   </button>
                   <button
                     onClick={() => handleStatusChange('want_to_visit')}
-                    className="py-3 px-4 bg-white/10 hover:bg-amber-400 hover:text-black text-white font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="py-3 px-4 bg-stone-200 dark:bg-white/10 hover:bg-amber-400 hover:text-black text-stone-800 dark:text-white font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Bookmark className="w-3.5 h-3.5" />
                     যেতে চাই
@@ -323,18 +323,17 @@ export const DistrictQuickPanel: React.FC = () => {
               </div>
             )}
 
-
             {/* Famous spots chips */}
             {selectedDistrict.famousSpots && selectedDistrict.famousSpots.length > 0 && (
               <div className="pt-2">
-                <span className="font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/50 block mb-2">
-                  NOTABLE LANDMARKS
+                <span className="font-body font-bold text-[9px] uppercase tracking-wider text-stone-500 dark:text-white/50 block mb-2">
+                  উল্লেখযোগ্য দর্শনীয় স্থান
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {selectedDistrict.famousSpots.map((spot, idx) => (
                     <span
                       key={idx}
-                      className="font-body text-[10px] font-semibold uppercase tracking-wider px-3 py-1 bg-white/5 text-stone-300 border border-white/10"
+                      className="font-body text-[10px] font-semibold tracking-wider px-3 py-1 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-white/10"
                     >
                       {spot}
                     </span>
@@ -344,6 +343,7 @@ export const DistrictQuickPanel: React.FC = () => {
             )}
           </div>
         </motion.div>
+
       </div>
 
       {/* Confirmation Dialog for Unvisiting */}

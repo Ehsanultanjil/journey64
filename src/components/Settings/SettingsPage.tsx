@@ -98,84 +98,85 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-300">
       {/* Title */}
-      <div className="border-b border-white/10 pb-6">
-        <span className="font-body font-black text-[9px] uppercase tracking-[0.3em] text-[#F27D26]">
-          System & Storage Configuration
+      <div className="border-b border-stone-200/80 dark:border-white/10 pb-6">
+        <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26]">
+          সিস্টেম ও স্টোরেজ কনফিগারেশন
         </span>
-        <h1 className="font-display text-4xl sm:text-5xl uppercase tracking-tight text-white mt-1">
-          SETTINGS & DATA VAULT
+        <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-tight text-stone-900 dark:text-white mt-1">
+          সেটিংস ও ডাটা ভল্ট
         </h1>
-        <p className="font-body text-xs sm:text-sm text-stone-400 font-light mt-1 max-w-xl">
-          Traveler identity, cartographic rendering preferences, JSON export, and offline local cache management.
+        <p className="font-body text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-light mt-1 max-w-xl">
+          ভ্রমণকারী প্রোফাইল, মানচিত্র ডিসপ্লে পছন্দ, ব্যাকআপ এক্সপোর্ট এবং সুপাবেস ক্লাউড ডাটাবেজ সিঙ্ক।
         </p>
       </div>
 
       {/* Traveler Profile Section */}
-      <div className="bg-[#0e0e0e] border border-white/10 p-6 sm:p-8 space-y-6">
-        <div className="border-b border-white/10 pb-3">
-          <h2 className="font-display text-2xl uppercase tracking-wide text-white flex items-center gap-2.5">
+      <div className="bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 space-y-6 shadow-sm dark:shadow-none transition-colors">
+        <div className="border-b border-stone-200/80 dark:border-white/10 pb-3">
+          <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-stone-900 dark:text-white flex items-center gap-2.5">
             <User className="w-6 h-6 text-[#F27D26]" />
-            TRAVELER DOSSIER
+            ভ্রমণকারী প্রোফাইল
           </h2>
-          <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-            Personal credentials and journal author metadata
+          <p className="font-body text-xs text-stone-500 dark:text-stone-400 font-light mt-0.5">
+            ব্যক্তিগত তথ্য ও ডায়েরি লেখক মেটাডাটা
           </p>
         </div>
 
         <form onSubmit={handleSaveProfile} className="space-y-5">
           <div>
-            <label className="block font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/60 mb-2">
-              TRAVELER IDENTIFIER / NAME
+            <label className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-600 dark:text-white/60 mb-2">
+              ভ্রমণকারীর নাম
             </label>
             <input
               type="text"
               value={userNameDraft}
               onChange={(e) => setUserNameDraft(e.target.value)}
-              placeholder="e.g. Tahmid Chowdhury"
-              className="w-full px-4 py-3 text-sm bg-black border border-white/15 focus:border-[#F27D26] outline-none text-white font-body"
+              placeholder="যেমন: এহসানুল তানজিল"
+              className="w-full px-4 py-3 text-sm bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/15 focus:border-[#F27D26] outline-none text-stone-900 dark:text-white font-body"
             />
           </div>
 
           <div>
-            <label className="block font-body font-black text-[9px] uppercase tracking-[0.25em] text-white/60 mb-2">
-              TRAVEL MOTTO / EXPEDITION LOGLINE
+            <label className="block font-body font-bold text-[10px] uppercase tracking-wider text-stone-600 dark:text-white/60 mb-2">
+              ভ্রমণ নীতিবাক্য / মোটো
             </label>
             <input
               type="text"
               value={userBioDraft}
               onChange={(e) => setUserBioDraft(e.target.value)}
-              placeholder="e.g. Exploring all 64 districts with a backpack and a camera."
-              className="w-full px-4 py-3 text-sm bg-black border border-white/15 focus:border-[#F27D26] outline-none text-white font-body"
+              placeholder="যেমন: ব্যাকপ্যাক এবং ক্যামেরা নিয়ে ৬৪ জেলা অন্বেষণে।"
+              className="w-full px-4 py-3 text-sm bg-stone-50 dark:bg-black border border-stone-200 dark:border-white/15 focus:border-[#F27D26] outline-none text-stone-900 dark:text-white font-body"
             />
           </div>
 
           <div className="flex items-center justify-between pt-2">
             {profileSavedToast && (
-              <span className="font-body font-bold text-xs text-[#F27D26] uppercase tracking-wider flex items-center gap-1.5">
-                <Check className="w-4 h-4" /> PROFILE DOSSIER SAVED
+              <span className="font-body font-bold text-xs text-[#EA580C] dark:text-[#F27D26] uppercase tracking-wider flex items-center gap-1.5">
+                <Check className="w-4 h-4" /> প্রোফাইল সংরক্ষিত হয়েছে
               </span>
             )}
             <button
               type="submit"
-              className="px-6 py-3 bg-[#F27D26] hover:bg-[#d96c1e] text-white font-body font-black text-xs uppercase tracking-[0.2em] transition-colors ml-auto cursor-pointer"
+              className="px-6 py-3 bg-[#F27D26] hover:bg-[#d96c1e] text-white font-body font-bold text-xs uppercase tracking-wider transition-colors ml-auto cursor-pointer shadow-sm"
             >
-              SAVE DOSSIER
+              সংরক্ষণ করুন
             </button>
           </div>
         </form>
       </div>
 
       {/* Map & App Display Options */}
-      <div className="bg-[#0e0e0e] border border-white/10 p-6 sm:p-8 space-y-6">
-        <div className="border-b border-white/10 pb-3">
-          <h2 className="font-display text-2xl uppercase tracking-wide text-white flex items-center gap-2.5">
+      <div className="bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 space-y-6 shadow-sm dark:shadow-none transition-colors">
+        <div className="border-b border-stone-200/80 dark:border-white/10 pb-3">
+          <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-stone-900 dark:text-white flex items-center gap-2.5">
             <MapPin className="w-6 h-6 text-[#F27D26]" />
-            MAP & CARTOGRAPHY PREFERENCES
+            মানচিত্র ও ভিজ্যুয়াল ডিসপ্লে পছন্দ
           </h2>
-          <p className="font-body text-xs text-stone-400 font-light mt-0.5">
-            Customize topographic rendering and script typography
+          <p className="font-body text-xs text-stone-500 dark:text-stone-400 font-light mt-0.5">
+            মানচিত্রের রং, ভাষা এবং মার্কার কাস্টমাইজেশন
           </p>
         </div>
+
 
         <div className="space-y-4">
           {/* Theme Selector */}
