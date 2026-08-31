@@ -130,6 +130,12 @@ export const BangladeshMap: React.FC = () => {
     setIsDragging(false);
   };
 
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setHoveredDistrict(null);
+  };
+
+
   // Touch pan handlers for mobile pinch & drag
   const touchStartRef = useRef<{ x: number; y: number; dist: number }>({ x: 0, y: 0, dist: 0 });
 

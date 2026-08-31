@@ -1,42 +1,39 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+  error?: Error | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
+  state: State = {
     hasError: false,
     error: null,
-    errorInfo: null,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, errorInfo: null };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught React error:', error, errorInfo);
-    this.setState({ error, errorInfo });
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Uncaught React render error:', error, errorInfo);
   }
 
-  private handleReset = () => {
+  handleReload = () => {
+    window.location.reload();
+  };
+
+  handleReset = () => {
     localStorage.clear();
     window.location.reload();
   };
 
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  public render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center p-6 font-sans">
@@ -49,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <h2 className="text-2xl font-bold tracking-tight text-white">
                 Something went wrong
               </h2>
-              <p className="text-xs text-stone-400 mt-2 font-light">
+              <p className="text-xs text-stone-400 mt-2 font-light font-mono">
                 {this.state.error?.message || 'An unexpected error occurred while rendering.'}
               </p>
             </div>
@@ -75,6 +72,6 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return (this as any).props.children;
   }
 }
