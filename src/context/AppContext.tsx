@@ -245,26 +245,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setVisits(loaded.visits);
     setTrips(loaded.trips);
     setProfile(loaded.profile);
-    // Apply theme class on mount
-    if (loaded.settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
+    // Lock dark mode permanently
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
   }, []);
-
-  // Reactive theme switch
-  useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
-  }, [settings.theme]);
 
 
   // Sync state to storage and cloud

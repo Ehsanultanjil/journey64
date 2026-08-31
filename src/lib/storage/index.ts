@@ -18,7 +18,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'light',
+  theme: 'dark',
   showDistrictLabels: true,
   showBengaliNames: true,
   showWishlistOnMap: true,
@@ -115,7 +115,7 @@ export const StorageService = {
       const finalSettings = {
         ...DEFAULT_SETTINGS,
         ...parsedSettings,
-        theme: parsedSettings.theme === 'dark' ? 'dark' : 'light',
+        theme: 'dark' as const,
       };
 
       return {

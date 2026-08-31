@@ -3,8 +3,6 @@ import {
   Map,
   BookOpen,
   Settings,
-  Sun,
-  Moon,
   Compass,
   ArrowRight,
   User,
@@ -23,7 +21,6 @@ export const Navbar: React.FC = () => {
     authUser,
     openAuthModal,
     signOut,
-    updateSettings,
     openDistrictJournal,
   } = useApp();
 
@@ -34,11 +31,6 @@ export const Navbar: React.FC = () => {
     }
     if (tab !== 'memories') openDistrictJournal(null);
     setActiveTab(tab);
-  };
-
-  const toggleTheme = () => {
-    const nextTheme = settings.theme === 'dark' ? 'light' : 'dark';
-    updateSettings({ theme: nextTheme });
   };
 
   const navItems: { key: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
@@ -155,20 +147,6 @@ export const Navbar: React.FC = () => {
               </div>
             </button>
           )}
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 bg-[#12141A]/90 hover:bg-[#1A1D24] border border-white/15 rounded-full text-stone-200 hover:text-white transition-colors cursor-pointer shadow-md"
-            aria-label="থিম পরিবর্তন"
-            title={settings.theme === 'dark' ? 'হোয়াইট থিমে পরিবর্তন' : 'ডার্ক থিমে পরিবর্তন'}
-          >
-            {settings.theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-[#F59E0B]" />
-            ) : (
-              <Moon className="w-4 h-4 text-stone-200" />
-            )}
-          </button>
         </div>
       </div>
 

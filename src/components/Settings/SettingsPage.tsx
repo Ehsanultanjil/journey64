@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import {
   User,
   Settings,
-  Sun,
-  Moon,
   ShieldCheck,
   Check,
   LogOut,
@@ -151,40 +149,6 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* Theme Toggle */}
-            <div className="flex items-center justify-between p-3.5 bg-white/5 rounded-2xl border border-white/5">
-              <div>
-                <p className="text-xs font-bold text-white">কালার থিম</p>
-                <p className="text-[11px] text-stone-400 font-light">
-                  {settings.theme === 'dark' ? 'ডার্ক মোড সক্রিয়' : 'হোয়াইট মোড সক্রিয়'}
-                </p>
-              </div>
-              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                <button
-                  onClick={() => updateSettings({ theme: 'light' })}
-                  className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer ${
-                    settings.theme === 'light'
-                      ? 'bg-white text-stone-950 shadow-sm'
-                      : 'text-stone-400 hover:text-white'
-                  }`}
-                >
-                  <Sun className="w-3.5 h-3.5" />
-                  হোয়াইট
-                </button>
-                <button
-                  onClick={() => updateSettings({ theme: 'dark' })}
-                  className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer ${
-                    settings.theme === 'dark'
-                      ? 'bg-[#EA580C] text-white shadow-sm'
-                      : 'text-stone-400 hover:text-white'
-                  }`}
-                >
-                  <Moon className="w-3.5 h-3.5" />
-                  ডার্ক
-                </button>
-              </div>
-            </div>
-
             {/* District Labels */}
             <div className="flex items-center justify-between p-3.5 bg-white/5 rounded-2xl border border-white/5">
               <div>
