@@ -207,12 +207,13 @@ const MainContent: React.FC = () => {
             </section>
           </div>
         </div>
+      ) : activeTab === 'memories' ? (
+        <MemoriesTimelinePage />
       ) : (
         <div className="flex flex-col flex-1">
           <Navbar />
           <div className="px-3 sm:px-8 lg:px-12 pt-6 pb-16 flex-1">
-            {activeTab === 'memories' && <MemoriesTimelinePage />}
-            {activeTab === 'settings' && <SettingsPage />}
+            <SettingsPage />
           </div>
         </div>
       )}
