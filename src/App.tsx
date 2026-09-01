@@ -43,8 +43,8 @@ const MainContent: React.FC = () => {
             {/* Background Photo & Atmospheric Lighting Overlays */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
-                src="/hero-bg.png"
-                alt="Expedition Background"
+                src="/hero-bg.jpg"
+                alt="Bangladesh Nature Background"
                 className="w-full h-full object-cover object-center filter brightness-[0.80] contrast-[1.08]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10] via-[#0A0C10]/40 to-black/25" />

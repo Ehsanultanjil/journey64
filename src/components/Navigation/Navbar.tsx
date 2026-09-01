@@ -15,12 +15,8 @@ export const Navbar: React.FC = () => {
   const {
     activeTab,
     setActiveTab,
-    stats,
-    settings,
-    cloudSync,
     authUser,
     openAuthModal,
-    signOut,
     openDistrictJournal,
   } = useApp();
 
@@ -38,115 +34,71 @@ export const Navbar: React.FC = () => {
     { key: 'memories', label: 'স্মৃতি ও ডায়েরি', icon: BookOpen },
   ];
 
+  const userInitial = (authUser?.user_metadata?.display_name || authUser?.email || 'U')[0]?.toUpperCase();
+
   return (
     <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between gap-2 sm:gap-4 relative">
-        {/* Left Brand + Navigation Pills */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Brand Emblem */}
-          <div
-            onClick={() => handleTabChange('explore')}
-            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group bg-[#12141A]/90 border border-white/15 px-3 py-1.5 rounded-full shadow-md hover:border-white/30 transition-all"
-          >
-            <div className="w-7 h-7 rounded-full bg-[#059669] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
-              <Compass className="w-4 h-4 stroke-[2.5]" />
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-sm sm:text-base font-bold text-white tracking-tight">
-                আমার বাংলাদেশ
-              </span>
-              <span className="text-[9px] font-mono text-stone-400 hidden sm:inline">
-                64
-              </span>
-            </div>
+      <div className="flex items-center justify-between gap-2 relative max-w-7xl mx-auto">
+        {/* Left: Brand Emblem */}
+        <div
+          onClick={() => handleTabChange('explore')}
+          className="flex items-center gap-2 cursor-pointer group bg-[#12141A]/85 backdrop-blur-xl border border-white/15 px-3 py-1.5 rounded-full shadow-md hover:border-white/30 transition-all shrink-0"
+        >
+          <div className="w-7 h-7 rounded-full bg-[#059669] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
+            <Compass className="w-4 h-4 stroke-[2.5]" />
           </div>
-
-          {/* Nav Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#12141A]/90 backdrop-blur-xl border border-white/15 p-1 rounded-full shadow-lg">
-            {navItems.map((item) => {
-              const isActive = activeTab === item.key;
-              return (
-                <button
-                  key={item.key}
-                  id={`nav-tab-${item.key}`}
-                  onClick={() => handleTabChange(item.key)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30 scale-105'
-                      : 'text-stone-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-sm sm:text-base font-bold text-white tracking-tight">
+              আমার বাংলাদেশ
+            </span>
+            <span className="text-[9px] font-mono text-stone-400 hidden sm:inline">
+              64
+            </span>
+          </div>
         </div>
 
-        {/* Right Action Pills */}
-        <div className="flex items-center gap-2">
-          {/* Live Footprint Pill */}
-          <button
-            onClick={() => handleTabChange('explore')}
-            className="hidden sm:flex items-center gap-2 bg-[#12141A]/90 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-full text-white hover:bg-[#1A1D24] transition-all cursor-pointer shadow-md"
-            title="৬৪ জেলা পদচিহ্ন"
-          >
-            <span className="w-2 h-2 rounded-full bg-[#059669] animate-pulse" />
-            <span className="font-body text-xs font-bold">
-              পদচিহ্ন: <strong className="text-white">{stats.visitedCount}</strong>/৬৪
-            </span>
-            <span className="text-[11px] font-display font-bold text-[#059669] bg-[#059669]/15 px-2 py-0.5 rounded-full">
-              {stats.percentageExplored}%
-            </span>
-          </button>
+        {/* Center: Minimal Centered Navigation Bar */}
+        <nav className="hidden md:flex items-center gap-1.5 bg-[#12141A]/85 backdrop-blur-xl border border-white/15 p-1 rounded-full shadow-lg absolute left-1/2 -translate-x-1/2">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.key;
+            return (
+              <button
+                key={item.key}
+                id={`nav-tab-${item.key}`}
+                onClick={() => handleTabChange(item.key)}
+                className={`px-4 py-1.5 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30 scale-105'
+                    : 'text-stone-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
 
-          {/* Cloud Sync Status Pill */}
+        {/* Right Corner: Sleek Circular Settings Button */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
+            id="nav-settings-circle-btn"
             onClick={() => handleTabChange('settings')}
-            className="hidden lg:flex items-center gap-1.5 bg-[#12141A]/90 border border-white/15 px-3 py-2 rounded-full text-[11px] font-body font-bold text-stone-300 hover:text-white transition-colors"
-            title={cloudSync.message || 'Supabase ক্লাউড ডাটাবেজ'}
+            className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 ${
+              activeTab === 'settings'
+                ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/30'
+                : 'bg-[#12141A]/85 border-white/15 text-stone-300 hover:text-white hover:bg-[#1A1D24] hover:border-white/30'
+            }`}
+            title={authUser ? `প্রোফাইল ও সেটিংস (${authUser.email})` : 'সেটিংস ও লগইন'}
+            aria-label="সেটিংস ও প্রোফাইল"
           >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                cloudSync.connected ? 'bg-[#059669] animate-pulse' : 'bg-amber-400'
-              }`}
-            />
-            <span>{cloudSync.connected ? 'ক্লাউড সক্রিয়' : 'ক্লাউড প্রস্তুত'}</span>
+            {authUser ? (
+              <span className="font-display text-sm font-bold text-white">
+                {userInitial}
+              </span>
+            ) : (
+              <Settings className="w-4 h-4" />
+            )}
           </button>
-
-          {/* Auth Button with Circular Arrow */}
-          {authUser ? (
-            <div className="flex items-center gap-1 bg-[#12141A]/90 border border-white/15 p-1 rounded-full">
-              <button
-                onClick={() => handleTabChange('settings')}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-full text-white text-xs font-body font-bold transition-colors cursor-pointer"
-              >
-                <div className="w-5 h-5 bg-[#059669] text-white rounded-full flex items-center justify-center text-[10px] font-bold uppercase">
-                  {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
-                </div>
-                <span className="hidden sm:inline max-w-[90px] truncate">
-                  {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}
-                </span>
-              </button>
-              <button
-                onClick={signOut}
-                className="p-1.5 hover:bg-white/10 text-stone-400 hover:text-rose-400 rounded-full transition-colors cursor-pointer"
-                title="লগআউট"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={openAuthModal}
-              className="flex items-center gap-2 bg-[#059669] hover:bg-[#047857] text-white px-4 py-2 rounded-full font-body text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#059669]/25"
-            >
-              <span>লগইন করুন</span>
-              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
-                <ArrowRight className="w-2.5 h-2.5" />
-              </div>
-            </button>
-          )}
         </div>
       </div>
 
@@ -174,6 +126,19 @@ export const Navbar: React.FC = () => {
               </button>
             );
           })}
+          <button
+            onClick={() => handleTabChange('settings')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-all cursor-pointer ${
+              activeTab === 'settings'
+                ? 'bg-[#059669] text-white font-bold shadow-md'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span className="font-body text-xs font-bold leading-none">
+              সেটিংস
+            </span>
+          </button>
         </div>
       </nav>
     </header>
