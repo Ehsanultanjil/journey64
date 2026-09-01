@@ -219,7 +219,7 @@ export const BangladeshMap: React.FC = () => {
     }
 
     if (userStatus === 'visited') {
-      return isSelected ? '#EA580C' : '#F27D26'; // Bold Terracotta
+      return isSelected ? '#059669' : '#10B981'; // Emerald Green
     }
     if (userStatus === 'want_to_visit') {
       return isSelected ? '#D97706' : '#F59E0B'; // Amber Gold
@@ -235,7 +235,7 @@ export const BangladeshMap: React.FC = () => {
   const getDistrictStroke = (district: District, isSelected: boolean) => {
     if (isSelected) return isDarkMode ? '#FFFFFF' : '#0F172A';
     const userStatus = userData[district.id]?.status || 'not_visited';
-    if (userStatus === 'visited') return isDarkMode ? '#ff9d54' : '#C2410C';
+    if (userStatus === 'visited') return '#34D399';
     if (userStatus === 'want_to_visit') return isDarkMode ? '#FBBF24' : '#D97706';
     return isDarkMode ? '#2a2a2a' : '#CBD5E1';
   };

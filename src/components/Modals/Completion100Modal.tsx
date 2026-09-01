@@ -27,12 +27,12 @@ export const Completion100Modal: React.FC = () => {
           </button>
 
           {/* Trophy Icon */}
-          <div className="w-16 h-16 rounded-2xl bg-[#EA580C] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#EA580C]/30 text-3xl font-bold">
+          <div className="w-16 h-16 rounded-2xl bg-[#10B981] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#10B981]/30 text-3xl font-bold">
             🏆
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EA580C]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#10B981]">
               ঐতিহাসিক মাইলফলক অর্জিত!
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-1">
@@ -40,7 +40,7 @@ export const Completion100Modal: React.FC = () => {
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 font-light mt-3 leading-relaxed">
               অভিনন্দন <strong className="text-white font-bold">{profile.name || 'ভ্রমণকারী'}</strong>! আপনি বাংলাদেশের ৮টি বিভাগের সকল{' '}
-              <strong className="text-[#EA580C] font-bold">৬৪টি জেলা</strong> সফলভাবে ভ্রমণ ও নথিভুক্ত করেছেন।
+              <strong className="text-[#10B981] font-bold">৬৪টি জেলা</strong> সফলভাবে ভ্রমণ ও নথিভুক্ত করেছেন।
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export const Completion100Modal: React.FC = () => {
 
           <button
             onClick={close100PercentModal}
-            className="w-full py-3.5 px-6 bg-[#EA580C] hover:bg-[#c2410c] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#EA580C]/25 transition-all cursor-pointer hover:scale-[1.01]"
+            className="w-full py-3.5 px-6 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#10B981]/25 transition-all cursor-pointer hover:scale-[1.01]"
           >
             আমার সম্পূর্ণ মানচিত্র দেখুন
           </button>

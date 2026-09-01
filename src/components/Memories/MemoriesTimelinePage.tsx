@@ -134,15 +134,15 @@ export const MemoriesTimelinePage: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-300">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-stone-200/80 dark:border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div>
-          <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26]">
+          <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#10B981]">
             ভ্রমণ আর্কাইভ • কালানুক্রমিক স্মৃতিধারা
           </span>
-          <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-tight text-stone-900 dark:text-white mt-1">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-tight text-white mt-1">
             ভ্রমণ স্মৃতিকথা ও ডায়েরি
           </h1>
-          <p className="font-body text-xs sm:text-sm text-stone-600 dark:text-stone-400 font-light mt-1 max-w-xl">
+          <p className="font-body text-xs sm:text-sm text-stone-400 font-light mt-1 max-w-xl">
             বাংলাদেশের জেলাগুলোতে আপনার ভ্রমণের গল্প, স্মৃতিচিহ্ন এবং সংরক্ষিত আলোকচিত্রমালা।
           </p>
         </div>
@@ -150,25 +150,25 @@ export const MemoriesTimelinePage: React.FC = () => {
         {/* Filter & Search Bar */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative min-w-[200px]">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 dark:text-white/40" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
             <input
               type="text"
               placeholder="স্মৃতি খুঁজুন... (জেলা বা নোট)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs font-body font-semibold tracking-wide bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-white/40 focus:outline-none focus:border-[#F27D26]"
+              className="w-full pl-9 pr-3 py-2 text-xs font-body font-semibold tracking-wide bg-white/5 border border-white/15 text-white placeholder-stone-400 focus:outline-none focus:border-[#10B981] rounded-xl"
             />
           </div>
 
           <button
             onClick={() => setFavoritesOnly(!favoritesOnly)}
-            className={`px-4 py-2 text-xs font-body font-bold tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2 text-xs font-body font-bold tracking-wider flex items-center gap-2 transition-all cursor-pointer rounded-xl ${
               favoritesOnly
-                ? 'bg-[#F27D26] text-white shadow-md'
-                : 'bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-800 dark:text-white hover:bg-stone-200 dark:hover:bg-white/10'
+                ? 'bg-[#10B981] text-white shadow-md'
+                : 'bg-white/5 border border-white/15 text-white hover:bg-white/10'
             }`}
           >
-            <Heart className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-white' : 'text-[#F27D26]'}`} />
+            <Heart className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-white' : 'text-[#10B981]'}`} />
             পছন্দের জেলা
           </button>
         </div>
@@ -176,22 +176,22 @@ export const MemoriesTimelinePage: React.FC = () => {
 
       {/* Empty State when no districts are visited */}
       {visitedDistricts.length === 0 ? (
-        <div className="bg-white dark:bg-[#0f0f0f] border border-stone-200/80 dark:border-white/10 p-10 sm:p-16 text-center space-y-5 max-w-lg mx-auto mt-8 shadow-xl shadow-stone-200/50 dark:shadow-2xl">
-          <div className="w-16 h-16 bg-stone-900 text-white dark:bg-white dark:text-black flex items-center justify-center mx-auto shadow-md">
+        <div className="bg-[#12141A]/90 border border-white/10 p-10 sm:p-16 text-center space-y-5 max-w-lg mx-auto mt-8 rounded-3xl shadow-2xl">
+          <div className="w-16 h-16 rounded-2xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center mx-auto shadow-md border border-[#10B981]/30">
             <Compass className="w-8 h-8 stroke-[2.5]" />
           </div>
-          <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#F27D26] block">
+          <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#10B981] block">
             খালি স্মৃতিকথা
           </span>
-          <h3 className="font-display text-2xl font-bold tracking-wide text-stone-900 dark:text-white">
+          <h3 className="font-display text-2xl font-bold tracking-wide text-white">
             আপনার বাংলাদেশ ভ্রমণ শুরু করুন
           </h3>
-          <p className="font-body text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed font-light">
+          <p className="font-body text-xs sm:text-sm text-stone-400 leading-relaxed font-light">
             আপনি এখনও কোনো জেলায় ভ্রমণ সম্পন্ন হিসেবে চিহ্নিত করেননি। মানচিত্র থেকে জেলা বেছে নিয়ে আপনার স্মৃতি ও ছবি যোগ করুন!
           </p>
           <button
             onClick={() => setActiveTab('explore')}
-            className="px-6 py-3.5 bg-stone-900 text-white dark:bg-white dark:text-black hover:bg-[#F27D26] hover:text-white dark:hover:bg-[#F27D26] dark:hover:text-white font-body font-bold text-xs uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-md"
+            className="px-6 py-3.5 bg-[#10B981] hover:bg-[#059669] text-white font-body font-bold text-xs uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-md rounded-2xl"
           >
             <MapPin className="w-4 h-4" />
             ৬৪ জেলা মানচিত্র খুলুন
@@ -205,21 +205,21 @@ export const MemoriesTimelinePage: React.FC = () => {
         /* Timeline Feed */
         <div className="space-y-12 relative">
           {/* Vertical Timeline Rule */}
-          <div className="absolute left-6 top-8 bottom-8 w-[1px] bg-stone-200 dark:bg-white/10 hidden sm:block" />
+          <div className="absolute left-6 top-8 bottom-8 w-[1px] bg-white/10 hidden sm:block" />
 
           {timelineGroups.map((group) => (
             <div key={group.year} className="space-y-8">
               {/* Year Heading */}
               <div className="flex items-center gap-4">
-                <span className="font-display text-3xl sm:text-4xl text-[#EA580C] dark:text-[#F27D26] font-bold tracking-wide z-10">
+                <span className="font-display text-3xl sm:text-4xl text-[#10B981] font-bold tracking-wide z-10">
                   {group.year}
                 </span>
-                <div className="h-[1px] bg-stone-200 dark:bg-white/10 flex-1" />
+                <div className="h-[1px] bg-white/10 flex-1" />
               </div>
 
               {group.months.map((month) => (
                 <div key={month.monthName} className="space-y-4 sm:pl-10 relative">
-                  <h3 className="font-body font-bold text-[11px] sm:text-xs tracking-wider text-stone-500 dark:text-white/50 uppercase">
+                  <h3 className="font-body font-bold text-[11px] sm:text-xs tracking-wider text-white/50 uppercase">
                     {month.monthName}
                   </h3>
 
@@ -229,10 +229,10 @@ export const MemoriesTimelinePage: React.FC = () => {
                         key={item.district.id}
                         whileHover={{ y: -3 }}
                         onClick={() => openDistrictJournal(item.district.id)}
-                        className="group bg-white dark:bg-[#0e0e0e] border border-stone-200/80 dark:border-white/10 hover:border-stone-400 dark:hover:border-white/25 transition-all cursor-pointer flex flex-col shadow-md shadow-stone-200/40 dark:shadow-none"
+                        className="group bg-[#12141A]/90 border border-white/10 hover:border-white/25 transition-all cursor-pointer flex flex-col rounded-3xl overflow-hidden shadow-md"
                       >
                         {/* Cover Image */}
-                        <div className="relative h-48 w-full bg-stone-100 dark:bg-[#181818] overflow-hidden border-b border-stone-200 dark:border-white/10">
+                        <div className="relative h-48 w-full bg-[#181818] overflow-hidden border-b border-white/10">
                           {item.coverPhoto ? (
                             <img
                               src={item.coverPhoto}
@@ -240,8 +240,8 @@ export const MemoriesTimelinePage: React.FC = () => {
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-[#FAF5EF] to-[#EAE3D2] dark:from-[#1b120c] dark:to-[#0a0a0a] flex items-center justify-center">
-                              <Compass className="w-12 h-12 text-[#F27D26]/40" />
+                            <div className="w-full h-full bg-gradient-to-br from-[#0F1C16] to-[#0A0C10] flex items-center justify-center">
+                              <Compass className="w-12 h-12 text-[#10B981]/40" />
                             </div>
                           )}
 
@@ -249,11 +249,11 @@ export const MemoriesTimelinePage: React.FC = () => {
 
                           {/* Top Badges */}
                           <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                            <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10">
+                            <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10 rounded-full">
                               {item.district.division} বিভাগ
                             </span>
                             {item.userData?.isFavorite && (
-                              <span className="p-1.5 bg-[#F27D26] text-white">
+                              <span className="p-1.5 bg-[#10B981] text-white rounded-full">
                                 <Heart className="w-3.5 h-3.5 fill-white" />
                               </span>
                             )}
@@ -269,7 +269,7 @@ export const MemoriesTimelinePage: React.FC = () => {
                             </h4>
                             <div className="flex items-center gap-4 font-body text-[10px] text-white/70 mt-1 font-semibold">
                               <span className="flex items-center gap-1.5">
-                                <Calendar className="w-3 h-3 text-[#F27D26]" />
+                                <Calendar className="w-3 h-3 text-[#10B981]" />
                                 {new Date(item.dateStr).toLocaleDateString('bn-BD', {
                                   day: 'numeric',
                                   month: 'short',
@@ -277,7 +277,7 @@ export const MemoriesTimelinePage: React.FC = () => {
                                 })}
                               </span>
                               <span className="flex items-center gap-1.5">
-                                <Camera className="w-3 h-3 text-[#F27D26]" />
+                                <Camera className="w-3 h-3 text-[#10B981]" />
                                 {item.photosCount}টি ছবি
                               </span>
                             </div>
@@ -287,16 +287,16 @@ export const MemoriesTimelinePage: React.FC = () => {
                         {/* Note / Excerpt Body */}
                         <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                           {item.note.trim().length > 0 ? (
-                            <p className="font-body text-xs leading-relaxed text-stone-700 dark:text-stone-300 font-light italic line-clamp-2">
+                            <p className="font-body text-xs leading-relaxed text-stone-300 font-light italic line-clamp-2">
                               "{item.note}"
                             </p>
                           ) : (
-                            <p className="font-body text-xs text-stone-400 dark:text-stone-500 italic font-light">
+                            <p className="font-body text-xs text-stone-500 italic font-light">
                               ভ্রমণের স্মৃতি ও গল্প লিপিবদ্ধ করতে ক্লিক করুন...
                             </p>
                           )}
 
-                          <div className="pt-3 border-t border-stone-100 dark:border-white/10 flex items-center justify-between font-body font-bold text-[10px] uppercase tracking-wider text-[#EA580C] dark:text-[#F27D26]">
+                          <div className="pt-3 border-t border-white/10 flex items-center justify-between font-body font-bold text-[10px] uppercase tracking-wider text-[#10B981]">
                             <span>অ্যালবাম ও বিস্তারিত ডায়েরি</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </div>

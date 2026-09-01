@@ -34,12 +34,12 @@ export const UnlockCelebrationModal: React.FC = () => {
           </button>
 
           {/* Icon Badge */}
-          <div className="w-16 h-16 rounded-2xl bg-[#EA580C] flex items-center justify-center mx-auto text-white shadow-lg shadow-[#EA580C]/30">
+          <div className="w-16 h-16 rounded-2xl bg-[#10B981] flex items-center justify-center mx-auto text-white shadow-lg shadow-[#10B981]/30">
             <Sparkles className="w-8 h-8 animate-pulse" />
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EA580C]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#10B981]">
               নতুন জেলা ভ্রমণ চিহ্নিত!
             </span>
             <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mt-1 text-white flex items-center justify-center gap-2">
@@ -58,7 +58,7 @@ export const UnlockCelebrationModal: React.FC = () => {
             <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
               জাতীয় অভিযাত্রা অগ্রগতি
             </p>
-            <p className="font-display text-xl sm:text-2xl font-bold text-[#EA580C]">
+            <p className="font-display text-xl sm:text-2xl font-bold text-[#10B981]">
               ৬৪ জেলার মধ্যে {totalVisited}টি ({percentage}%)
             </p>
           </div>
@@ -69,7 +69,7 @@ export const UnlockCelebrationModal: React.FC = () => {
                 closeUnlockModal();
                 openDistrictJournal(district.id);
               }}
-              className="w-full py-3 px-4 bg-[#EA580C] hover:bg-[#c2410c] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#EA580C]/25 transition-all cursor-pointer hover:scale-[1.01]"
+              className="w-full py-3 px-4 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#10B981]/25 transition-all cursor-pointer hover:scale-[1.01]"
             >
               <Camera className="w-4 h-4" />
               <span>স্মৃতি ও ছবি সংরক্ষণ করুন</span>

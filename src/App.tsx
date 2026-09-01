@@ -57,14 +57,14 @@ const MainContent: React.FC = () => {
             {/* Hero Text, Headline, and Live Metrics */}
             <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12">
               <div className="max-w-2xl space-y-4 sm:space-y-5">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EA580C]/20 backdrop-blur-md border border-[#EA580C]/40 text-[#EA580C] text-[11px] font-body font-bold uppercase tracking-wider shadow-sm">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#10B981]/20 backdrop-blur-md border border-[#10B981]/40 text-[#10B981] text-[11px] font-body font-bold uppercase tracking-wider shadow-sm">
                   <Compass className="w-3.5 h-3.5 animate-spin-slow" />
                   ৬৪ জেলা জাতীয় অভিযাত্রা ডায়েরি
                 </div>
 
                 <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05] drop-shadow-md">
                   ৬৪ জেলা ভ্রমণ। <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-stone-100 to-[#EA580C]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#10B981]">
                     জাতীয় পদচিহ্ন।
                   </span> <br />
                   অনন্ত স্মৃতিকথা।
@@ -100,7 +100,7 @@ const MainContent: React.FC = () => {
                   </div>
                   <div className="h-8 w-[1px] bg-white/20" />
                   <div>
-                    <p className="font-display text-3xl sm:text-4xl font-bold text-[#EA580C] tracking-tight drop-shadow-sm">
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-[#10B981] tracking-tight drop-shadow-sm">
                       {stats.percentageExplored}%
                     </p>
                     <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
@@ -109,7 +109,7 @@ const MainContent: React.FC = () => {
                   </div>
                   <div className="h-8 w-[1px] bg-white/20" />
                   <div>
-                    <p className="font-display text-3xl sm:text-4xl font-bold text-amber-400 tracking-tight drop-shadow-sm">
+                    <p className="font-display text-3xl sm:text-4xl font-bold text-emerald-400 tracking-tight drop-shadow-sm">
                       {stats.divisionsExploredCount} <span className="text-sm font-normal text-white/60">/ ৮</span>
                     </p>
                     <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
@@ -133,7 +133,7 @@ const MainContent: React.FC = () => {
             <section className="space-y-4 sm:space-y-6 pt-4 border-t border-white/10">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                 <div>
-                  <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#EA580C]">
+                  <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#10B981]">
                     আঞ্চলিক সূচি
                   </span>
                   <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-white mt-0.5 sm:mt-1">
@@ -198,7 +198,7 @@ const MainContent: React.FC = () => {
                               onClick={() => selectDistrict(district.id)}
                               className={`px-2 py-2 text-left text-xs transition-all flex items-center justify-between rounded-xl border cursor-pointer ${
                                 status === 'visited'
-                                  ? 'bg-[#EA580C]/15 text-[#EA580C] font-bold border-[#EA580C]/40'
+                                  ? 'bg-[#10B981]/15 text-[#10B981] font-bold border-[#10B981]/40'
                                   : status === 'want_to_visit'
                                   ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
                                   : 'bg-white/5 text-stone-400 hover:text-white hover:bg-white/10 border-white/5'
@@ -215,7 +215,7 @@ const MainContent: React.FC = () => {
                                   </span>
                                 )}
                                 {status === 'visited' && (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-[#EA580C]" />
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
                                 )}
                                 {status === 'want_to_visit' && (
                                   <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
@@ -256,7 +256,7 @@ export default function App() {
   return (
     <AppProvider>
       {/* Outer Viewport Canvas (Neutral Grey) */}
-      <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#EA580C] selection:text-white transition-colors duration-300">
+      <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#10B981] selection:text-white transition-colors duration-300">
         {/* Floating Device Container Frame matching Reference */}
         <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-hidden relative flex flex-col min-h-[92vh]">
           <MainContent />
