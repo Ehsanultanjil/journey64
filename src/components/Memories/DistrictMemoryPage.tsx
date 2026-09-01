@@ -196,7 +196,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         </div>
       </div>
 
-      {/* Big Atmospheric Cover Card with Integrated Date, Story & Frosted Backdrop */}
+      {/* Big Atmospheric Cover Card with Integrated Story & Frosted Backdrop */}
       <div className="relative overflow-hidden rounded-3xl bg-[#12141A] border border-white/15 shadow-2xl min-h-[380px] sm:min-h-[440px] flex flex-col justify-between">
         {/* Background Cover Photo with Subtle Atmospheric Blur Overlay */}
         {coverPhoto ? (
@@ -213,45 +213,18 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10]" />
         )}
 
-        {/* Top Badges Row inside Cover Card */}
-        <div className="relative z-10 p-4 sm:p-6 flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-3 py-1 text-xs font-bold rounded-full bg-[#059669] text-white shadow-xs">
-              {district.division} বিভাগ
-            </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-black/50 backdrop-blur-md text-stone-200 border border-white/10">
-              {totalPhotos}টি ছবি
-            </span>
-
-            {/* Visit Date Pill */}
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-black/50 backdrop-blur-md text-emerald-300 border border-emerald-500/20 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-              <span>
-                {visitDateDraft
-                  ? new Date(visitDateDraft).toLocaleDateString('bn-BD', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })
-                  : 'তারিখ নির্দিষ্ট নেই'}
+        {/* Top of Card: District Name, Division & Expand Button */}
+        <div className="relative z-10 p-5 sm:p-7 flex items-start justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#059669] text-white shadow-xs">
+                {district.division} বিভাগ
               </span>
-            </span>
-          </div>
+              <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-black/50 backdrop-blur-md text-stone-200 border border-white/10">
+                {totalPhotos}টি ছবি
+              </span>
+            </div>
 
-          {coverPhoto && (
-            <button
-              onClick={() => openLightbox(photos, 0, district.name)}
-              className="p-2 sm:p-2.5 bg-black/60 hover:bg-black/90 backdrop-blur-md rounded-full text-white transition-colors cursor-pointer shadow-md border border-white/10"
-              aria-label="পূর্ণস্ক্রিন দেখুন"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Bottom Content Area: District Headline & Integrated Travel Story */}
-        <div className="relative z-10 p-5 sm:p-8 space-y-4">
-          <div className="space-y-1">
             <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white flex items-baseline gap-3 drop-shadow-md">
               {district.bn_name}
               <span className="font-sans text-lg sm:text-2xl font-normal text-stone-300">
@@ -260,17 +233,45 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             </h1>
 
             {district.tagline && (
-              <p className="text-xs sm:text-sm text-stone-300 font-light italic max-w-xl drop-shadow-sm">
+              <p className="text-xs sm:text-sm text-stone-200 font-light italic max-w-xl drop-shadow-sm">
                 "{district.tagline}"
               </p>
             )}
           </div>
 
-          {/* Integrated Travel Story / Description inside Cover Card */}
+          {coverPhoto && (
+            <button
+              onClick={() => openLightbox(photos, 0, district.name)}
+              className="p-2 sm:p-2.5 bg-black/60 hover:bg-black/90 backdrop-blur-md rounded-full text-white transition-colors cursor-pointer shadow-md border border-white/10 shrink-0"
+              aria-label="পূর্ণস্ক্রিন দেখুন"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Bottom of Card: Integrated Travel Story & Visit Date */}
+        <div className="relative z-10 p-5 sm:p-7">
           <div className="bg-[#0A0C10]/80 backdrop-blur-xl border border-white/15 p-4 sm:p-5 rounded-2xl space-y-2.5 max-w-2xl shadow-xl">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#059669]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>ভ্রমণের অভিজ্ঞতা ও স্মৃতি</span>
+            <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 flex-wrap">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#059669]">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>ভ্রমণের অভিজ্ঞতা ও স্মৃতি</span>
+              </div>
+
+              {/* Visit Date Pill */}
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-300 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                <Calendar className="w-3 h-3 text-emerald-400" />
+                <span>
+                  {visitDateDraft
+                    ? new Date(visitDateDraft).toLocaleDateString('bn-BD', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : 'তারিখ নির্দিষ্ট নেই'}
+                </span>
+              </div>
             </div>
 
             {notesDraft.trim().length > 0 ? (
