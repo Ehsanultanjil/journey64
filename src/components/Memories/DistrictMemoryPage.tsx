@@ -239,16 +239,6 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               </p>
             )}
           </div>
-
-          {coverPhoto && (
-            <button
-              onClick={() => openLightbox(photos, 0, district.name)}
-              className="p-2 sm:p-2.5 bg-black/50 hover:bg-black/80 backdrop-blur-md rounded-full text-white transition-colors cursor-pointer shadow-md border border-white/20 shrink-0"
-              aria-label="পূর্ণস্ক্রিন দেখুন"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          )}
         </div>
 
         {/* Frosted Glass Travel Story Box with Integrated Date */}
