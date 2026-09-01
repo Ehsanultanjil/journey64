@@ -83,20 +83,17 @@ export const Navbar: React.FC = () => {
           <button
             id="nav-settings-circle-btn"
             onClick={() => handleTabChange('settings')}
-            className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 ${
+            className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 group relative ${
               activeTab === 'settings'
                 ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/30'
                 : 'bg-[#12141A]/85 border-white/15 text-stone-300 hover:text-white hover:bg-[#1A1D24] hover:border-white/30'
             }`}
             title={authUser ? `প্রোফাইল ও সেটিংস (${authUser.email})` : 'সেটিংস ও লগইন'}
-            aria-label="সেটিংস ও প্রোফাইল"
+            aria-label="সেটিংস"
           >
-            {authUser ? (
-              <span className="font-display text-sm font-bold text-white">
-                {userInitial}
-              </span>
-            ) : (
-              <Settings className="w-4 h-4" />
+            <Settings className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300" />
+            {authUser && (
+              <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#12141A]" />
             )}
           </button>
         </div>
