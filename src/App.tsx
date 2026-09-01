@@ -60,19 +60,19 @@ const MainContent: React.FC = () => {
               <div className="max-w-2xl space-y-4 sm:space-y-5">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#059669]/25 backdrop-blur-md border border-[#059669]/40 text-emerald-300 text-[11px] font-body font-bold uppercase tracking-wider shadow-sm">
                   <Compass className="w-3.5 h-3.5 animate-spin-slow" />
-                  ৬৪ জেলা জাতীয় অভিযাত্রা ডায়েরি
+                  আমার বাংলাদেশ • ভ্রমণ ডায়েরি
                 </div>
 
-                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05] drop-shadow-md">
-                  ৬৪ জেলা ভ্রমণ। <br />
+                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.08] drop-shadow-md">
+                  দেশজুড়ে ঘুরে বেড়ান, <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
-                    জাতীয় পদচিহ্ন।
+                    জমিয়ে রাখুন প্রতিটি
                   </span> <br />
-                  অনন্ত স্মৃতিকথা।
+                  জেলার সুন্দর স্মৃতি।
                 </h1>
 
                 <p className="font-body text-xs sm:text-sm md:text-base text-stone-200 font-light leading-relaxed max-w-lg drop-shadow-sm">
-                  বাংলাদেশের প্রতিটি জেলা, প্রান্তর ও প্রান্তরে আপনার ভ্রমণের অনন্য পদচিহ্ন চিহ্নিত করুন এবং স্মৃতিগুলো চিরকাল অক্ষত রাখুন।
+                  বাংলাদেশের কোন কোন জেলায় গিয়েছেন তা মানচিত্রে চিহ্নিত করুন, আর ভ্রমণের সুন্দর গল্প ও ছবিগুলো সাজিয়ে রাখুন আপনার ব্যক্তিগত ডায়েরিতে।
                 </p>
 
                 <div className="flex items-center gap-3 pt-2">
@@ -82,7 +82,7 @@ const MainContent: React.FC = () => {
                     }}
                     className="px-5 py-3 bg-white hover:bg-stone-100 text-stone-950 font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2.5 shadow-xl hover:scale-105 transition-all cursor-pointer"
                   >
-                    <span>মানচিত্র অন্বেষণ করুন</span>
+                    <span>মানচিত্র দেখুন</span>
                     <div className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center">
                       <ArrowRight className="w-3 h-3" />
                     </div>
@@ -93,10 +93,10 @@ const MainContent: React.FC = () => {
                 <div className="flex items-center gap-6 sm:gap-10 pt-6 sm:pt-8 border-t border-white/15">
                   <div>
                     <p className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-sm">
-                      {stats.visitedCount}+
+                      {stats.visitedCount} <span className="text-sm font-normal text-white/60">/ ৬৪</span>
                     </p>
                     <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
-                      জেলা ভ্রমণ সম্পন্ন
+                      জেলায় ঘুরেছেন
                     </p>
                   </div>
                   <div className="h-8 w-[1px] bg-white/20" />
@@ -105,7 +105,7 @@ const MainContent: React.FC = () => {
                       {stats.percentageExplored}%
                     </p>
                     <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
-                      সার্বভৌম পদচিহ্ন
+                      বাংলাদেশ ভ্রমণ
                     </p>
                   </div>
                   <div className="h-8 w-[1px] bg-white/20" />
@@ -114,7 +114,7 @@ const MainContent: React.FC = () => {
                       {stats.divisionsExploredCount} <span className="text-sm font-normal text-white/60">/ ৮</span>
                     </p>
                     <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
-                      বিভাগ অন্বেষণ
+                      বিভাগ ঘুরেছেন
                     </p>
                   </div>
                 </div>
@@ -135,14 +135,14 @@ const MainContent: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                 <div>
                   <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
-                    আঞ্চলিক সূচি
+                    বিভাগ ও জেলা তালিকা
                   </span>
                   <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-white mt-0.5 sm:mt-1">
                     বিভাগ অনুযায়ী ৬৪ জেলা
                   </h2>
                 </div>
                 <p className="font-body text-xs text-stone-400 font-light max-w-sm">
-                  যেকোনো জেলায় ক্লিক করে ভ্রমণ স্থিতি ও আলোকচিত্র নথিভুক্ত করুন
+                  যেকোনো জেলায় ক্লিক করে ভ্রমণ স্থিতি ও ছবি যুক্ত করুন
                 </p>
               </div>
 

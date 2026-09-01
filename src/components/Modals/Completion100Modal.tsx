@@ -33,26 +33,26 @@ export const Completion100Modal: React.FC = () => {
 
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#059669]">
-              ঐতিহাসিক মাইলফলক অর্জিত!
+              ঐতিহাসিক মাইলফলক!
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-1">
-              সম্পূর্ণ বাংলাদেশ ভ্রমণ সম্পন্ন!
+              পুরো বাংলাদেশ ঘুরে ফেলেছেন!
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 font-light mt-3 leading-relaxed">
-              অভিনন্দন <strong className="text-white font-bold">{profile.name || 'ভ্রমণকারী'}</strong>! আপনি বাংলাদেশের ৮টি বিভাগের সকল{' '}
-              <strong className="text-[#059669] font-bold">৬৪টি জেলা</strong> সফলভাবে ভ্রমণ ও নথিভুক্ত করেছেন।
+              অভিনন্দন <strong className="text-white font-bold">{profile.name || 'ভ্রমণকারী'}</strong>! আপনি বাংলাদেশের ৮টি বিভাগের পুরো{' '}
+              <strong className="text-[#059669] font-bold">৬৪টি জেলা</strong> ঘুরে আপনার ডায়েরিতে যুক্ত করেছেন।
             </p>
           </div>
 
           <div className="bg-white/5 border border-white/10 p-4 rounded-2xl text-xs font-light text-stone-300">
-            🇧🇩 প্রতিটি নদী, পাহাড়, বনভূমি, উপকূল এবং প্রত্নতাত্ত্বিক স্মৃতি এখন আপনার জাতীয় ভ্রমণ ডায়েরিতে অমর হয়ে রইল।
+            🇧🇩 নদী, পাহাড়, সমুদ্র আর প্রকৃতির মাঝে কাটানো প্রতিটি গল্প এখন আপনার ডায়েরিতে সাজানো রইল।
           </div>
 
           <button
             onClick={close100PercentModal}
             className="w-full py-3.5 px-6 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
           >
-            আমার সম্পূর্ণ মানচিত্র দেখুন
+            সম্পূর্ণ মানচিত্র দেখুন
           </button>
         </motion.div>
       </div>

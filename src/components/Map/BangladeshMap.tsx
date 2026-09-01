@@ -321,7 +321,7 @@ export const BangladeshMap: React.FC = () => {
                         </div>
                       </div>
                       <span className="font-body text-xs font-bold text-[#059669]">
-                        নির্বাচন করুন →
+                        দেখুন →
                       </span>
                     </button>
                   );
@@ -338,9 +338,9 @@ export const BangladeshMap: React.FC = () => {
             <select
               value={divisionFilter}
               onChange={(e) => setDivisionFilter(e.target.value)}
-              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#F27D26] cursor-pointer truncate"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#059669] cursor-pointer truncate rounded-xl"
             >
-              <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সকল বিভাগ (৮টি)</option>
+              <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সব বিভাগ (৮টি)</option>
               {DIVISIONS.map((div) => (
                 <option key={div.name} value={div.name} className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">
                   {div.bn_name} বিভাগ ({div.districtsCount})
@@ -354,12 +354,12 @@ export const BangladeshMap: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#F27D26] cursor-pointer truncate"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#059669] cursor-pointer truncate rounded-xl"
             >
-              <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সকল স্থিতি (৬৪)</option>
-              <option value="visited" className="bg-white text-[#EA580C] dark:bg-[#111] dark:text-[#F27D26]">ঘুরেছি</option>
+              <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সব জেলা (৬৪টি)</option>
+              <option value="visited" className="bg-white text-emerald-600 dark:bg-[#111] dark:text-[#059669]">ঘুরেছি</option>
               <option value="want_to_visit" className="bg-white text-amber-700 dark:bg-[#111] dark:text-amber-400">যেতে চাই</option>
-              <option value="not_visited" className="bg-white text-stone-500 dark:bg-[#111] dark:text-stone-400">বাকি আছে</option>
+              <option value="not_visited" className="bg-white text-stone-500 dark:bg-[#111] dark:text-stone-400">যাইনি</option>
             </select>
           </div>
         </div>

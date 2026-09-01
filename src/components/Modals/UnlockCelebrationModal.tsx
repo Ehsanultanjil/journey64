@@ -40,7 +40,7 @@ export const UnlockCelebrationModal: React.FC = () => {
 
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#059669]">
-              নতুন জেলা ভ্রমণ চিহ্নিত!
+              নতুন জেলা আনলক হয়েছে!
             </span>
             <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mt-1 text-white flex items-center justify-center gap-2">
               {district.bn_name}
@@ -56,7 +56,7 @@ export const UnlockCelebrationModal: React.FC = () => {
           {/* Footprint Progress Card */}
           <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-              জাতীয় অভিযাত্রা অগ্রগতি
+              ভ্রমণের অগ্রগতি
             </p>
             <p className="font-display text-xl sm:text-2xl font-bold text-[#059669]">
               ৬৪ জেলার মধ্যে {totalVisited}টি ({percentage}%)
@@ -72,7 +72,7 @@ export const UnlockCelebrationModal: React.FC = () => {
               className="w-full py-3 px-4 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
             >
               <Camera className="w-4 h-4" />
-              <span>স্মৃতি ও ছবি সংরক্ষণ করুন</span>
+              <span>ছবি ও স্মৃতি যোগ করুন</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 

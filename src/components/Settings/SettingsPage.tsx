@@ -43,10 +43,10 @@ export const SettingsPage: React.FC = () => {
         </div>
         <div className="space-y-2">
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-white">
-            লগইন প্রয়োজন
+            লগইন করুন
           </h2>
           <p className="text-xs sm:text-sm text-stone-400 font-light max-w-sm mx-auto leading-relaxed">
-            আপনার ব্যক্তিগত প্রোফাইল তৈরি করতে এবং ৬৪ জেলার সকল ভ্রমণ ডাটা ক্লাউডে সুরক্ষিত রাখতে লগইন করুন।
+            আপনার সব ভ্রমণের ডাটা ও ছবি যেকোনো ডিভাইস থেকে নিরাপদ রাখতে লগইন করুন।
           </p>
         </div>
         <button
@@ -65,7 +65,7 @@ export const SettingsPage: React.FC = () => {
       {/* Header */}
       <div className="border-b border-white/10 pb-4">
         <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
-          ব্যবহারকারী কনফিগারেশন
+          প্রোফাইল ও সেটিংস
         </span>
         <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-0.5">
           সেটিংস
@@ -81,10 +81,10 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <h3 className="font-display text-lg font-bold text-white leading-tight">
-                ভ্রমণকারী প্রোফাইল
+                আপনার প্রোফাইল
               </h3>
               <p className="font-body text-xs text-stone-400 font-light">
-                আপনার ডায়েরিতে প্রদর্শিত নাম ও নীতিবাক্য
+                ডায়েরিতে আপনার নাম ও বায়ো যেভাবে দেখাবে
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export const SettingsPage: React.FC = () => {
           <form onSubmit={handleSaveProfile} className="space-y-4 font-body">
             <div>
               <label className="block text-xs font-bold text-stone-300 mb-1.5">
-                নাম / নামফলক
+                আপনার নাম
               </label>
               <input
                 type="text"
@@ -105,7 +105,7 @@ export const SettingsPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-stone-300 mb-1.5">
-                ভ্রমণ নীতিবাক্য
+                ছোট বায়ো বা স্ট্যাটাস
               </label>
               <input
                 type="text"
@@ -119,14 +119,14 @@ export const SettingsPage: React.FC = () => {
             <div className="flex items-center justify-between pt-1">
               {savedToast && (
                 <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5">
-                  <Check className="w-4 h-4" /> সংরক্ষিত হয়েছে
+                  <Check className="w-4 h-4" /> সেভ হয়েছে
                 </span>
               )}
               <button
                 type="submit"
                 className="ml-auto px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
               >
-                সংরক্ষণ করুন
+                সেভ করুন
               </button>
             </div>
           </form>
@@ -140,7 +140,7 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <h3 className="font-display text-lg font-bold text-white leading-tight">
-                ডিসপ্লে পছন্দ
+                ডিসপ্লে সেটিংস
               </h3>
               <p className="text-xs text-stone-400 font-light">
                 কালার থিম ও মানচিত্র ইন্টারফেস
@@ -154,7 +154,7 @@ export const SettingsPage: React.FC = () => {
               <div>
                 <p className="text-xs font-bold text-white">মানচিত্রে জেলার নাম</p>
                 <p className="text-[11px] text-stone-400 font-light">
-                  মানচিত্রের ওপরে বাংলা জেলার নামফলক প্রদর্শন
+                  মানচিত্রের ওপর সরাসরি বাংলা নাম দেখতে চান কি না
                 </p>
               </div>
               <input
@@ -176,7 +176,7 @@ export const SettingsPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-display text-lg font-bold text-white leading-tight">
-                  অ্যাকাউন্ট ও ক্লাউড সিঙ্ক
+                  ক্লাউড ব্যাকআপ ও সিঙ্ক
                 </h3>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span
@@ -185,7 +185,7 @@ export const SettingsPage: React.FC = () => {
                     }`}
                   />
                   <p className="text-xs text-stone-300">
-                    {cloudSync.connected ? 'অটো-সিঙ্ক সক্রিয় (Supabase)' : 'লোকাল মেমোরিতে সক্রিয়'}
+                    {cloudSync.connected ? 'ক্লাউড সিঙ্ক চালু আছে' : 'ডাটা এই ডিভাইসে সেভ আছে'}
                   </p>
                 </div>
               </div>

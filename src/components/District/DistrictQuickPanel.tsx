@@ -159,7 +159,7 @@ export const DistrictQuickPanel: React.FC = () => {
             {/* Status Selection Cards (Clean 3-Way Selector) */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                ভ্রমণ স্থিতি নির্বাচন করুন
+                ভ্রমণের অবস্থা
               </label>
 
               <div className="grid grid-cols-3 gap-2">
@@ -174,7 +174,7 @@ export const DistrictQuickPanel: React.FC = () => {
                   }`}
                 >
                   <CheckCircle2 className={`w-5 h-5 ${currentStatus === 'visited' ? 'text-white' : 'text-stone-400'}`} />
-                  <span className="text-xs font-bold leading-tight">ভ্রমণ করেছি</span>
+                  <span className="text-xs font-bold leading-tight">ঘুরেছি</span>
                 </button>
 
                 {/* 2. Wishlist */}
@@ -188,7 +188,7 @@ export const DistrictQuickPanel: React.FC = () => {
                   }`}
                 >
                   <Bookmark className={`w-5 h-5 ${currentStatus === 'want_to_visit' ? 'text-amber-400 fill-amber-400' : 'text-stone-400'}`} />
-                  <span className="text-xs font-bold leading-tight">ইচ্ছাতালিকা</span>
+                  <span className="text-xs font-bold leading-tight">যেতে চাই</span>
                 </button>
 
                 {/* 3. Not Visited */}
@@ -204,7 +204,7 @@ export const DistrictQuickPanel: React.FC = () => {
                   <span className="w-5 h-5 rounded-full border border-stone-500 flex items-center justify-center text-[10px] text-stone-400">
                     ✕
                   </span>
-                  <span className="text-xs font-bold leading-tight">বাকি আছে</span>
+                  <span className="text-xs font-bold leading-tight">যাইনি</span>
                 </button>
               </div>
             </div>
@@ -213,7 +213,7 @@ export const DistrictQuickPanel: React.FC = () => {
             {currentStatus === 'visited' && (
               <div className="p-3.5 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between gap-3">
                 <div>
-                  <span className="block text-[11px] font-bold text-stone-400">ভ্রমণ রেটিং</span>
+                  <span className="block text-[11px] font-bold text-stone-400">আপনার রেটিং</span>
                   <div className="flex items-center gap-1 mt-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -229,7 +229,7 @@ export const DistrictQuickPanel: React.FC = () => {
                 </div>
 
                 <div className="text-right border-l border-white/10 pl-3">
-                  <span className="block text-[11px] font-bold text-stone-400">সংরক্ষিত ছবি</span>
+                  <span className="block text-[11px] font-bold text-stone-400">মোট ছবি</span>
                   <span className="text-xs font-bold text-white flex items-center justify-end gap-1 mt-1">
                     <Camera className="w-3.5 h-3.5 text-[#059669]" />
                     {totalPhotos}টি ছবি
@@ -246,7 +246,7 @@ export const DistrictQuickPanel: React.FC = () => {
                 className="w-full py-3 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
               >
                 <Camera className="w-4 h-4" />
-                <span>ফটো অ্যালবাম ও ভ্রমণ ডায়েরি</span>
+                <span>ছবি ও স্মৃতিকথা যোগ করুন</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -263,10 +263,10 @@ export const DistrictQuickPanel: React.FC = () => {
             >
               <div className="flex items-center gap-2.5 text-amber-400">
                 <AlertTriangle className="w-6 h-6 shrink-0" />
-                <h4 className="text-sm font-bold text-white">ভ্রমণ স্থিতি পরিবর্তন করবেন?</h4>
+                <h4 className="text-sm font-bold text-white">স্ট্যাটাস পরিবর্তন করবেন?</h4>
               </div>
               <p className="text-xs text-stone-300 font-light leading-relaxed">
-                {selectedDistrict.bn_name} জেলাকে 'বাকি আছে' হিসেবে চিহ্নিত করবেন?
+                {selectedDistrict.bn_name} জেলাকে ভ্রমণ তালিকা থেকে সরাতে চান?
               </p>
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button

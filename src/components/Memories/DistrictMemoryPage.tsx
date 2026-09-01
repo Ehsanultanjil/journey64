@@ -197,14 +197,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <div className="h-60 sm:h-72 w-full bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10] flex flex-col items-center justify-center p-8 text-center">
             <Compass className="w-14 h-14 text-[#059669]/40 mb-3" />
             <p className="text-sm text-stone-300 font-medium">
-              {district.bn_name} জেলার ছবি ও স্মৃতিকথা সংরক্ষণ করুন
+              {district.bn_name} জেলায় ঘোরার ছবি ও গল্প যোগ করুন
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="mt-4 px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-md transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4" />
-              <span>ছবি আপলোড করুন</span>
+              <span>ছবি যোগ করুন</span>
             </button>
           </div>
         )}
@@ -243,10 +243,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             <div>
               <h2 className="font-display text-xl font-bold text-white flex items-center gap-2">
                 <Camera className="w-5 h-5 text-[#059669]" />
-                ফটো অ্যালবাম
+                স্মৃতির অ্যালবাম
               </h2>
               <p className="text-xs text-stone-400">
-                এই জেলার সেরা স্মৃতি ছবি ({totalPhotos} / ৫)
+                এই জেলার সেরা ছবি ({totalPhotos} / ৫)
               </p>
             </div>
 
@@ -287,10 +287,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 <ImageIcon className="w-6 h-6 text-[#059669]" />
               </div>
               <h4 className="text-sm font-bold text-white">
-                ছবি নির্বাচন করুন
+                ছবি আপলোড করুন
               </h4>
               <p className="text-xs text-stone-400 mt-1 max-w-xs mx-auto font-light">
-                আপনার ভ্রমণের ৩–৫টি ছবি আপলোড করুন। এখানে ক্লিক করে ছবি নির্বাচন করুন।
+                এখানে ক্লিক করে এই জেলায় ঘোরার সেরা ৩ থেকে ৫টি ছবি যোগ করুন।
               </p>
             </div>
           ) : (
@@ -317,7 +317,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                     {isCover && (
                       <div className="absolute top-2 left-2">
                         <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#059669] text-white shadow-xs">
-                          কভার
+                          কভার ছবি
                         </span>
                       </div>
                     )}
@@ -338,7 +338,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                           setEditingCaptionId(photo.id);
                           setCaptionDraft(photo.caption || '');
                         }}
-                        title="ক্যাপশন এডিট"
+                        title="ক্যাপশন লিখুন"
                         className="p-1.5 text-stone-300 hover:text-white hover:bg-white/20 rounded cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -406,7 +406,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-display text-lg font-bold text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#059669]" />
-                ভ্রমণকাহিনী ও ডায়েরি
+                ভ্রমণের গল্প ও ডায়েরি
               </h3>
             </div>
 
@@ -414,7 +414,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               <div>
                 <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                  ভ্রমণের তারিখ
+                  কবে গিয়েছিলেন?
                 </label>
                 <input
                   type="date"
@@ -426,13 +426,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
               <div>
                 <label className="block text-xs font-bold text-stone-300 mb-1.5">
-                  স্মৃতিকথা ও অভিজ্ঞতা
+                  ভ্রমণের অভিজ্ঞতা ও স্মৃতি
                 </label>
                 <textarea
                   rows={6}
                   value={notesDraft}
                   onChange={(e) => setNotesDraft(e.target.value)}
-                  placeholder={`${district.bn_name} ভ্রমণের অনুভূতি, সেরা দর্শনীয় স্থান, স্মৃতিচিহ্ন ও খাবারের অভিজ্ঞতা লিখে রাখুন...`}
+                  placeholder={`${district.bn_name} ভ্রমণের গল্প, সুন্দর জায়গা আর ভালো লাগার মুহূর্তগুলো লিখে রাখুন...`}
                   className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors resize-none leading-relaxed"
                 />
               </div>
@@ -440,11 +440,11 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               <div className="flex items-center justify-between pt-1">
                 {isSavedToast ? (
                   <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
-                    <Check className="w-4 h-4" /> সংরক্ষিত হয়েছে
+                    <Check className="w-4 h-4" /> সেভ হয়েছে
                   </span>
                 ) : (
                   <span className="text-[11px] text-stone-500">
-                    অটো-সিঙ্ক প্রস্তুত
+                    অটো সেভ চালু আছে
                   </span>
                 )}
 
@@ -453,7 +453,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   className="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>সংরক্ষণ করুন</span>
+                  <span>সেভ করুন</span>
                 </button>
               </div>
             </form>

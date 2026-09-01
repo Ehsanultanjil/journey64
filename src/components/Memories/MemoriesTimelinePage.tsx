@@ -137,13 +137,13 @@ export const MemoriesTimelinePage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
         <div>
           <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
-            ভ্রমণ আর্কাইভ • কালানুক্রমিক স্মৃতিধারা
+            আমার ভ্রমণ ডায়েরি
           </span>
           <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-tight text-white mt-1">
-            ভ্রমণ স্মৃতিকথা ও ডায়েরি
+            যেসব জেলায় ঘুরেছি
           </h1>
           <p className="font-body text-xs sm:text-sm text-stone-400 font-light mt-1 max-w-xl">
-            বাংলাদেশের জেলাগুলোতে আপনার ভ্রমণের গল্প, স্মৃতিচিহ্ন এবং সংরক্ষিত আলোকচিত্রমালা।
+            বাংলাদেশের বিভিন্ন জেলায় ঘোরার গল্প, অভিজ্ঞতা আর সুন্দর সব ছবির অ্যালবাম।
           </p>
         </div>
 
@@ -153,7 +153,7 @@ export const MemoriesTimelinePage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
             <input
               type="text"
-              placeholder="স্মৃতি খুঁজুন... (জেলা বা নোট)"
+              placeholder="স্মৃতি খুঁজুন... (জেলার নাম বা নোট)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs font-body font-semibold tracking-wide bg-white/5 border border-white/15 text-white placeholder-stone-400 focus:outline-none focus:border-[#059669] rounded-xl"
@@ -169,7 +169,7 @@ export const MemoriesTimelinePage: React.FC = () => {
             }`}
           >
             <Heart className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-white' : 'text-[#059669]'}`} />
-            পছন্দের জেলা
+            পছন্দের জেলাগুলো
           </button>
         </div>
       </div>
@@ -181,25 +181,25 @@ export const MemoriesTimelinePage: React.FC = () => {
             <Compass className="w-8 h-8 stroke-[2.5]" />
           </div>
           <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669] block">
-            খালি স্মৃতিকথা
+            এখনও কোনো স্মৃতি নেই
           </span>
           <h3 className="font-display text-2xl font-bold tracking-wide text-white">
-            আপনার বাংলাদেশ ভ্রমণ শুরু করুন
+            আপনার ভ্রমণ ডায়েরি শুরু করুন
           </h3>
           <p className="font-body text-xs sm:text-sm text-stone-400 leading-relaxed font-light">
-            আপনি এখনও কোনো জেলায় ভ্রমণ সম্পন্ন হিসেবে চিহ্নিত করেননি। মানচিত্র থেকে জেলা বেছে নিয়ে আপনার স্মৃতি ও ছবি যোগ করুন!
+            আপনি এখনও কোনো জেলায় ঘোরা চিহ্নিত করেননি। মানচিত্র থেকে জেলা বেছে নিয়ে আপনার ছবি ও স্মৃতিগুলো লিখে রাখুন!
           </p>
           <button
             onClick={() => setActiveTab('explore')}
             className="px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-body font-bold text-xs uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-md rounded-2xl"
           >
             <MapPin className="w-4 h-4" />
-            ৬৪ জেলা মানচিত্র খুলুন
+            মানচিত্রে যান
           </button>
         </div>
       ) : timelineGroups.length === 0 ? (
         <div className="text-center py-16 text-stone-500 font-body text-xs font-semibold">
-          আপনার ফিল্টারের সাথে কোনো স্মৃতি মেলেনি।
+          খুঁজে পাওয়া যায়নি। অন্য কিছু লিখে দেখুন।
         </div>
       ) : (
         /* Timeline Feed */
@@ -292,12 +292,12 @@ export const MemoriesTimelinePage: React.FC = () => {
                             </p>
                           ) : (
                             <p className="font-body text-xs text-stone-500 italic font-light">
-                              ভ্রমণের স্মৃতি ও গল্প লিপিবদ্ধ করতে ক্লিক করুন...
+                              ভ্রমণের অনুভূতি ও গল্প লিখে রাখতে ক্লিক করুন...
                             </p>
                           )}
 
                           <div className="pt-3 border-t border-white/10 flex items-center justify-between font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
-                            <span>অ্যালবাম ও বিস্তারিত ডায়েরি</span>
+                            <span>ডায়েরি ও ছবি দেখুন</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>
