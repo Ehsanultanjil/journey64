@@ -162,59 +162,106 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const tableVisits = await SupabaseDB.fetchVisits(user.id);
       const tableTrips = await SupabaseDB.fetchTrips(user.id);
 
-      const cloudUserData =
+      const cloudUserData: Record<string, DistrictUserData> =
         backupRes.data?.userData && Object.keys(backupRes.data.userData).length > 0
           ? backupRes.data.userData
           : tableUserData && Object.keys(tableUserData).length > 0
           ? tableUserData
-          : null;
+          : {};
 
-      const cloudVisits =
+      const cloudVisits: Visit[] =
         backupRes.data?.visits && backupRes.data.visits.length > 0
           ? backupRes.data.visits
           : tableVisits && tableVisits.length > 0
           ? tableVisits
-          : null;
+          : [];
 
-      const cloudTrips =
+      const cloudTrips: Trip[] =
         backupRes.data?.trips && backupRes.data.trips.length > 0
           ? backupRes.data.trips
           : tableTrips && tableTrips.length > 0
           ? tableTrips
-          : null;
+          : [];
 
       const cloudProfile = backupRes.data?.profile;
 
-      // If cloud has data for this user, apply it immediately to state & localStorage
-      if (cloudUserData && Object.keys(cloudUserData).length > 0) {
-        setUserData(cloudUserData);
-        StorageService.saveUserData(cloudUserData);
-      }
+      // 2. Intelligent Two-Way Merge: Combine local device data with cloud data
+      const local = StorageService.loadData();
+      const mergedUserData: Record<string, DistrictUserData> = { ...cloudUserData };
 
-      if (cloudVisits && cloudVisits.length > 0) {
-        setVisits(cloudVisits);
-        StorageService.saveVisits(cloudVisits);
-      }
-
-      if (cloudTrips && cloudTrips.length > 0) {
-        setTrips(cloudTrips);
-        StorageService.saveTrips(cloudTrips);
-      }
-
-      if (cloudProfile) {
-        setProfile(cloudProfile);
-        StorageService.saveProfile(cloudProfile);
-      }
-
-      // If cloud is empty for this user, upload current local state to cloud under this user's ID
-      if (!cloudUserData || Object.keys(cloudUserData).length === 0) {
-        const local = StorageService.loadData();
-        if (Object.keys(local.userData).length > 0 || local.visits.length > 0) {
-          SupabaseDB.syncDistrictUserData(local.userData, user.id);
-          SupabaseDB.syncVisits(local.visits, user.id);
-          SupabaseDB.pushBackup('initial_device_sync', local, user.id);
+      Object.entries(local.userData).forEach(([districtId, localDistrict]) => {
+        const existingCloud = mergedUserData[districtId];
+        if (!existingCloud) {
+          mergedUserData[districtId] = localDistrict;
+        } else {
+          const isVisited = existingCloud.status === 'visited' || localDistrict.status === 'visited';
+          const isWant = isVisited ? false : (existingCloud.status === 'want_to_visit' || localDistrict.status === 'want_to_visit');
+          const finalStatus = isVisited ? 'visited' : isWant ? 'want_to_visit' : 'not_visited';
+          
+          mergedUserData[districtId] = {
+            districtId,
+            status: finalStatus,
+            isFavorite: !!(existingCloud.isFavorite || localDistrict.isFavorite),
+            rating: existingCloud.rating || localDistrict.rating || 5,
+            notes: existingCloud.notes || localDistrict.notes || '',
+            firstVisitedDate: existingCloud.firstVisitedDate || localDistrict.firstVisitedDate,
+            updatedAt: new Date().toISOString(),
+          };
         }
+      });
+
+      // Merge visits without losing photos or date logs
+      const visitMap = new Map<string, Visit>();
+      cloudVisits.forEach((v) => visitMap.set(v.id, v));
+      local.visits.forEach((v) => {
+        if (!visitMap.has(v.id)) {
+          visitMap.set(v.id, v);
+        } else {
+          const existing = visitMap.get(v.id)!;
+          const photoMap = new Map<string, any>();
+          (existing.photos || []).forEach((p) => photoMap.set(p.url, p));
+          (v.photos || []).forEach((p) => photoMap.set(p.url, p));
+          existing.photos = Array.from(photoMap.values());
+          existing.notes = existing.notes || v.notes;
+          existing.visitDate = existing.visitDate || v.visitDate;
+        }
+      });
+      const mergedVisits = Array.from(visitMap.values());
+
+      // Merge trips
+      const tripMap = new Map<string, Trip>();
+      cloudTrips.forEach((t) => tripMap.set(t.id, t));
+      local.trips.forEach((t) => tripMap.set(t.id, t));
+      const mergedTrips = Array.from(tripMap.values());
+
+      const mergedProfile = cloudProfile || local.profile;
+
+      // 3. Apply merged data immediately to state & localStorage
+      setUserData(mergedUserData);
+      StorageService.saveUserData(mergedUserData);
+
+      setVisits(mergedVisits);
+      StorageService.saveVisits(mergedVisits);
+
+      setTrips(mergedTrips);
+      StorageService.saveTrips(mergedTrips);
+
+      if (mergedProfile) {
+        setProfile(mergedProfile);
+        StorageService.saveProfile(mergedProfile);
       }
+
+      // 4. Push combined snapshot to Supabase so all devices are synced
+      SupabaseDB.syncDistrictUserData(mergedUserData, user.id).catch(() => {});
+      SupabaseDB.syncVisits(mergedVisits, user.id).catch(() => {});
+      SupabaseDB.syncTrips(mergedTrips, user.id).catch(() => {});
+      if (mergedProfile) SupabaseDB.saveProfile(mergedProfile, user.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData: mergedUserData,
+        visits: mergedVisits,
+        trips: mergedTrips,
+        profile: mergedProfile,
+      }, user.id).catch(() => {});
 
       setCloudSync((prev) => ({
         ...prev,
@@ -295,80 +342,84 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     document.documentElement.classList.remove('light');
   }, []);
 
+  // Manual trigger for cloud synchronization
+  const syncNow = async () => {
+    if (!authUser) {
+      openAuthModal();
+      return;
+    }
+    await pullAndSyncUserCloudData(authUser);
+  };
+
   // Sync state to storage and cloud
   const syncUserData = (newUserData: Record<string, DistrictUserData>) => {
     setUserData(newUserData);
     StorageService.saveUserData(newUserData);
-    if (authUser?.id) {
-      SupabaseDB.syncDistrictUserData(newUserData, authUser.id).catch(() => {});
-      SupabaseDB.pushBackup('auto_sync', {
-        userData: newUserData,
-        visits,
-        trips,
-        profile,
-        settings,
-      }, authUser.id).catch(() => {});
-    }
+    const userId = authUser?.id;
+    SupabaseDB.syncDistrictUserData(newUserData, userId).catch(() => {});
+    SupabaseDB.pushBackup('auto_sync', {
+      userData: newUserData,
+      visits,
+      trips,
+      profile,
+      settings,
+    }, userId).catch(() => {});
   };
 
   const syncVisits = (newVisits: Visit[]) => {
     setVisits(newVisits);
     StorageService.saveVisits(newVisits);
-    if (authUser?.id) {
-      SupabaseDB.syncVisits(newVisits, authUser.id).catch(() => {});
-      SupabaseDB.pushBackup('auto_sync', {
-        userData,
-        visits: newVisits,
-        trips,
-        profile,
-        settings,
-      }, authUser.id).catch(() => {});
-    }
+    const userId = authUser?.id;
+    SupabaseDB.syncVisits(newVisits, userId).catch(() => {});
+    SupabaseDB.pushBackup('auto_sync', {
+      userData,
+      visits: newVisits,
+      trips,
+      profile,
+      settings,
+    }, userId).catch(() => {});
   };
 
   const syncTrips = (newTrips: Trip[]) => {
     setTrips(newTrips);
     StorageService.saveTrips(newTrips);
-    if (authUser?.id) {
-      SupabaseDB.syncTrips(newTrips, authUser.id).catch(() => {});
-      SupabaseDB.pushBackup('auto_sync', {
-        userData,
-        visits,
-        trips: newTrips,
-        profile,
-        settings,
-      }, authUser.id).catch(() => {});
-    }
+    const userId = authUser?.id;
+    SupabaseDB.syncTrips(newTrips, userId).catch(() => {});
+    SupabaseDB.pushBackup('auto_sync', {
+      userData,
+      visits,
+      trips: newTrips,
+      profile,
+      settings,
+    }, userId).catch(() => {});
   };
 
   const syncProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
     StorageService.saveProfile(newProfile);
-    if (authUser?.id) {
-      SupabaseDB.saveProfile(newProfile, authUser.id).catch(() => {});
-      SupabaseDB.pushBackup('auto_sync', {
-        userData,
-        visits,
-        trips,
-        profile: newProfile,
-        settings,
-      }, authUser.id).catch(() => {});
-    }
+    const userId = authUser?.id;
+    SupabaseDB.saveProfile(newProfile, userId).catch(() => {});
+    SupabaseDB.pushBackup('auto_sync', {
+      userData,
+      visits,
+      trips,
+      profile: newProfile,
+      settings,
+    }, userId).catch(() => {});
   };
 
   const syncSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     StorageService.saveSettings(newSettings);
-    if (authUser?.id) {
-      SupabaseDB.saveSettings(newSettings, authUser.id).catch(() => {});
-      SupabaseDB.pushBackup('auto_sync', {
-        userData,
-        visits,
-        trips,
-        profile,
-        settings: newSettings,
-      }, authUser.id).catch(() => {});
-    }
+    const userId = authUser?.id;
+    SupabaseDB.saveSettings(newSettings, userId).catch(() => {});
+    SupabaseDB.pushBackup('auto_sync', {
+      userData,
+      visits,
+      trips,
+      profile,
+      settings: newSettings,
+    }, userId).catch(() => {});
   };
 
   // Memoized stats & achievements
@@ -920,19 +971,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         settings,
       };
 
+      const userId = authUser?.id;
+
       // Push backup snapshot
-      const backupRes = await SupabaseDB.pushBackup(
-        `Cloud Sync - ${profile.name || 'User'} (${new Date().toLocaleDateString()})`,
-        payload
+      await SupabaseDB.pushBackup(
+        `Cloud Sync - ${profile.name || 'User'}`,
+        payload,
+        userId
       );
 
       // Attempt structured sync
       await Promise.allSettled([
-        SupabaseDB.saveProfile(profile),
-        SupabaseDB.saveSettings(settings),
-        SupabaseDB.syncDistrictUserData(userData),
-        SupabaseDB.syncVisits(visits),
-        SupabaseDB.syncTrips(trips),
+        SupabaseDB.saveProfile(profile, userId),
+        SupabaseDB.saveSettings(settings, userId),
+        SupabaseDB.syncDistrictUserData(userData, userId),
+        SupabaseDB.syncVisits(visits, userId),
+        SupabaseDB.syncTrips(trips, userId),
       ]);
 
       const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -940,7 +994,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         connected: true,
         syncing: false,
         lastSynced: nowStr,
-        message: `Synced to Supabase cloud at ${nowStr}`,
+        message: `ক্লাউডে সফলভাবে সিঙ্ক হয়েছে (${nowStr})`,
       });
 
       return { success: true };
@@ -949,7 +1003,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         ...prev,
         syncing: false,
         error: err.message,
-        message: 'Sync failed: ' + err.message,
+        message: 'সিঙ্ক ব্যর্থ: ' + err.message,
       }));
       return { success: false, error: err.message };
     }
@@ -959,9 +1013,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const pullFromCloud = async (): Promise<{ success: boolean; error?: string }> => {
     setCloudSync((prev) => ({ ...prev, syncing: true, error: undefined }));
     try {
-      const res = await SupabaseDB.pullLatestBackup();
+      const userId = authUser?.id;
+      const res = await SupabaseDB.pullLatestBackup(userId);
       if (!res.success || !res.data) {
-        throw new Error(res.error || 'No cloud snapshot found in Supabase.');
+        throw new Error(res.error || 'ক্লাউডে কোনো ব্যাকআপ পাওয়া যায়নি।');
       }
 
       const cloudData = res.data;
@@ -991,7 +1046,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         connected: true,
         syncing: false,
         lastSynced: nowStr,
-        message: `Restored from Supabase cloud at ${nowStr}`,
+        message: `ক্লাউড থেকে সফলভাবে রিস্টোর হয়েছে (${nowStr})`,
       });
 
       return { success: true };
@@ -1000,7 +1055,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         ...prev,
         syncing: false,
         error: err.message,
-        message: 'Pull failed: ' + err.message,
+        message: 'রিস্টোর ব্যর্থ: ' + err.message,
       }));
       return { success: false, error: err.message };
     }

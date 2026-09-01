@@ -6,6 +6,8 @@ import {
   Check,
   LogOut,
   ArrowRight,
+  RefreshCw,
+  CloudUpload,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -17,6 +19,8 @@ export const SettingsPage: React.FC = () => {
     openAuthModal,
     signOut,
     cloudSync,
+    pushToCloud,
+    pullFromCloud,
     updateProfile,
     updateSettings,
   } = useApp();
@@ -24,6 +28,7 @@ export const SettingsPage: React.FC = () => {
   const [nameDraft, setNameDraft] = useState(profile.name || '');
   const [bioDraft, setBioDraft] = useState(profile.bio || '');
   const [savedToast, setSavedToast] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +38,12 @@ export const SettingsPage: React.FC = () => {
     });
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2000);
+  };
+
+  const handleManualSync = async () => {
+    setSyncLoading(true);
+    await pushToCloud();
+    setSyncLoading(false);
   };
 
   if (!authUser) {
@@ -185,29 +196,30 @@ export const SettingsPage: React.FC = () => {
                     }`}
                   />
                   <p className="text-xs text-stone-300">
-                    {cloudSync.connected ? 'ক্লাউড সিঙ্ক চালু আছে' : 'ডাটা এই ডিভাইসে সেভ আছে'}
+                    {cloudSync.message || (cloudSync.connected ? 'ক্লাউড সিঙ্ক চালু আছে' : 'ডাটা এই ডিভাইসে সেভ আছে')}
                   </p>
                 </div>
               </div>
             </div>
 
-            {authUser ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleManualSync}
+                disabled={syncLoading}
+                className="px-3.5 py-2 bg-[#059669] hover:bg-[#047857] text-white border border-[#059669] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncLoading ? 'animate-spin' : ''}`} />
+                <span>{syncLoading ? 'সিঙ্ক হচ্ছে...' : 'এখনই সিঙ্ক করুন'}</span>
+              </button>
+
               <button
                 onClick={signOut}
-                className="px-4 py-2 bg-white/10 hover:bg-rose-600/20 text-stone-300 hover:text-rose-400 border border-white/15 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3.5 py-2 bg-white/10 hover:bg-rose-600/20 text-stone-300 hover:text-rose-400 border border-white/15 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 লগআউট
               </button>
-            ) : (
-              <button
-                onClick={openAuthModal}
-                className="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
-              >
-                <span>লগইন করুন</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
+            </div>
           </div>
 
           <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-xs text-stone-400 font-light flex items-center justify-between">
