@@ -197,21 +197,21 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
       </div>
 
       {/* Sleek Luminous Cover Card with Direct Minimalist Text */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#12141A] border border-white/15 shadow-2xl p-4 sm:p-7 space-y-2.5 sm:space-y-3.5">
-        {/* Background Cover Photo with Vibrant Glass Blur - NOT Dark */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl p-4 sm:p-7 space-y-2.5 sm:space-y-3.5 isolate transform-gpu bg-[#0A0C10]">
+        {/* Background Cover Photo with Vibrant Glass Blur */}
         {coverPhoto ? (
-          <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute inset-0 z-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
             <img
               src={coverPhoto.url}
               alt={district.name}
-              className="w-full h-full object-cover filter blur-md scale-110 brightness-[0.88] contrast-[1.04]"
+              className="w-full h-full object-cover filter blur-md scale-120 brightness-[0.88] contrast-[1.04] transform-gpu"
             />
             {/* Soft Ambient Overlay */}
-            <div className="absolute inset-0 bg-[#0A0C10]/50 backdrop-blur-sm" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10]/80 via-transparent to-black/20" />
+            <div className="absolute inset-0 bg-[#0A0C10]/55 rounded-2xl sm:rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10]/90 via-transparent to-black/20 rounded-2xl sm:rounded-3xl" />
           </div>
         ) : (
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10]" />
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10] rounded-2xl sm:rounded-3xl" />
         )}
 
         {/* Content directly on Cover: District Name, Division, Date & User Notes */}
