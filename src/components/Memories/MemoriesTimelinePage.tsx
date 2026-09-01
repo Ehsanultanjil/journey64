@@ -30,16 +30,6 @@ export const MemoriesTimelinePage: React.FC = () => {
   const [selectedDivision, setSelectedDivision] = useState<string>('all');
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
 
-  // If currently viewing a specific district journal, render that component
-  if (viewingJournalDistrictId) {
-    return (
-      <DistrictMemoryPage
-        districtId={viewingJournalDistrictId}
-        onBack={() => openDistrictJournal(null)}
-      />
-    );
-  }
-
   // Get visited districts list
   const visitedDistricts = useMemo(() => {
     return DISTRICTS.filter((d) => userData[d.id]?.status === 'visited');
@@ -58,28 +48,28 @@ export const MemoriesTimelinePage: React.FC = () => {
       const year = isNaN(dateObj.getFullYear()) ? 2023 : dateObj.getFullYear();
       const month = isNaN(dateObj.getMonth()) ? 0 : dateObj.getMonth();
 
-      // Photos
-      const photos = dVisits.flatMap((v) => v.photos || []);
-      const coverPhoto = photos.find((p) => p.isCover)?.url || photos[0]?.url;
+      // Find cover photo
+      const coverPhoto =
+        dVisits.flatMap((v) => v.photos || []).find((p) => p.isCover)?.url ||
+        dVisits.flatMap((v) => v.photos || [])[0]?.url;
 
-      // Note
+      const photosCount = dVisits.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
       const note = latestVisit?.notes || uData?.notes || '';
 
       return {
         district,
         userData: uData,
-        visitsCount: dVisits.length,
-        photosCount: photos.length,
-        coverPhoto,
-        note,
+        visits: dVisits,
         dateStr,
-        dateObj,
         year,
         month,
+        coverPhoto,
+        photosCount,
+        note,
       };
     });
 
-    // Apply filters
+    // Filter by division and search query
     const filtered = entries.filter((item) => {
       if (selectedDivision !== 'all' && item.district.division !== selectedDivision) {
         return false;
@@ -87,39 +77,39 @@ export const MemoriesTimelinePage: React.FC = () => {
       if (favoritesOnly && !item.userData?.isFavorite) {
         return false;
       }
-      if (searchQuery.trim().length > 0) {
-        const q = searchQuery.toLowerCase().trim();
-        const m1 = item.district.name.toLowerCase().includes(q);
-        const m2 = item.district.bn_name.includes(q);
-        const m3 = item.note.toLowerCase().includes(q);
-        return m1 || m2 || m3;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesName =
+          item.district.name.toLowerCase().includes(q) ||
+          item.district.bn_name.includes(q);
+        const matchesNote = item.note.toLowerCase().includes(q);
+        return matchesName || matchesNote;
       }
       return true;
     });
 
-    // Sort descending by date
-    filtered.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
+    // Group by year -> month
+    const groups = new Map<number, Map<number, typeof filtered>>();
 
-    // Group by Year -> Month
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
-    const groupMap = new Map<number, Map<number, typeof filtered>>();
     filtered.forEach((item) => {
-      if (!groupMap.has(item.year)) {
-        groupMap.set(item.year, new Map());
+      if (!groups.has(item.year)) {
+        groups.set(item.year, new Map());
       }
-      const yearMap = groupMap.get(item.year)!;
+      const yearMap = groups.get(item.year)!;
       if (!yearMap.has(item.month)) {
         yearMap.set(item.month, []);
       }
       yearMap.get(item.month)!.push(item);
     });
 
-    return Array.from(groupMap.entries())
-      .sort((a, b) => b[0] - a[0])
+    // Convert map to sorted array
+    const months = [
+      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
+    ];
+
+    return Array.from(groups.entries())
+      .sort((a, b) => b[0] - a[0]) // Sort years descending
       .map(([year, monthsMap]) => ({
         year,
         months: Array.from(monthsMap.entries())
@@ -130,6 +120,16 @@ export const MemoriesTimelinePage: React.FC = () => {
           })),
       }));
   }, [visitedDistricts, userData, visits, selectedDivision, favoritesOnly, searchQuery]);
+
+  // If currently viewing a specific district journal, render that component
+  if (viewingJournalDistrictId) {
+    return (
+      <DistrictMemoryPage
+        districtId={viewingJournalDistrictId}
+        onBack={() => openDistrictJournal(null)}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8 pb-24 animate-in fade-in duration-300">
