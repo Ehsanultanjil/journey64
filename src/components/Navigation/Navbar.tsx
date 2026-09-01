@@ -34,8 +34,8 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-3 sm:px-6 lg:px-8 bg-transparent pointer-events-none transition-all">
       <div className="relative flex items-center justify-center max-w-7xl mx-auto min-h-[38px] sm:min-h-[44px]">
-        {/* Center: Perfectly Centered Pure Floating Capsule Navigation Bar */}
-        <nav className="flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-0.5 sm:p-1 rounded-full shadow-2xl pointer-events-auto">
+        {/* Center: Perfectly Symmetrical Navigation Capsule with Equal Width Tabs */}
+        <nav className="flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-1 rounded-full shadow-2xl pointer-events-auto">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
             const Icon = item.icon;
@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
                 key={item.key}
                 id={`nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`relative px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-body font-bold tracking-wide transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5 sm:gap-2 z-10 ${
+                className={`relative w-[100px] sm:w-[135px] py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-body font-bold tracking-wide transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5 sm:gap-2 z-10 ${
                   isActive
                     ? 'text-white'
                     : 'text-stone-300 hover:text-white'
@@ -57,7 +57,7 @@ export const Navbar: React.FC = () => {
                     className="absolute inset-0 bg-[#059669] rounded-full shadow-md shadow-[#059669]/30 -z-10"
                   />
                 )}
-                <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <Icon className="w-3.5 h-3.5" />
                 <span>{item.label}</span>
               </button>
             );
