@@ -26,17 +26,68 @@ import {
 const MainContent: React.FC = () => {
   const {
     activeTab,
+    setActiveTab,
     userData,
     visits,
     stats,
     achievements,
     selectDistrict,
+    viewingJournalDistrictId,
     authModalOpen,
     closeAuthModal,
   } = useApp();
 
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('#bangladesh-map-svg') ||
+      target.closest('input') ||
+      target.closest('textarea') ||
+      target.closest('.fixed') ||
+      viewingJournalDistrictId
+    ) {
+      return;
+    }
+    setTouchStartX(e.touches[0].clientX);
+    setTouchStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || touchStartY === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Minimum 45px horizontal swipe with dominant horizontal trajectory
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0) {
+        // Swiped Left -> Move to Memories
+        if (activeTab === 'explore') {
+          setActiveTab('memories');
+        }
+      } else {
+        // Swiped Right -> Move to Explore
+        if (activeTab === 'memories' || activeTab === 'settings') {
+          setActiveTab('explore');
+        }
+      }
+    }
+
+    setTouchStartX(null);
+    setTouchStartY(null);
+  };
+
   return (
-    <div className="flex flex-col min-h-full">
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex flex-col min-h-full"
+    >
       {activeTab === 'explore' ? (
         <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
           {/* Top Hero Container (Background Photo spans behind Navbar all the way to top) */}
