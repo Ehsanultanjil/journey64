@@ -368,8 +368,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {photos.map((photo, index) => {
-                    const isCover = photo.isCover || index === 0;
+                  {photos.map((photo) => {
+                    const isCover = photo.id === coverPhoto?.id;
                     return (
                       <div
                         key={photo.id}
@@ -539,13 +539,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                 {photos.map((photo, index) => {
-                  const isCover = photo.isCover || index === 0;
+                  const isCover = photo.id === coverPhoto?.id;
                   return (
                     <motion.div
                       key={photo.id}
                       whileHover={{ scale: 1.02 }}
                       className={`group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 shadow-sm aspect-square cursor-pointer ${
-                        index === 0 ? 'col-span-2 aspect-video' : ''
+                        isCover ? 'col-span-2 aspect-video' : ''
                       }`}
                       onClick={() => openLightbox(photos, index, district.name)}
                     >
