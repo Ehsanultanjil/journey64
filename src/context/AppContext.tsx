@@ -367,6 +367,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const openDistrictJournal = (districtId: string | null) => {
+    setSelectedDistrictId(null);
     setViewingJournalDistrictId(districtId);
     if (districtId) {
       setActiveTab('memories');

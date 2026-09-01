@@ -65,9 +65,11 @@ export const UnlockCelebrationModal: React.FC = () => {
 
           <div className="flex flex-col gap-2 pt-1">
             <button
+              id="unlock-modal-add-photo-btn"
               onClick={() => {
+                const targetDistrictId = district.id;
                 closeUnlockModal();
-                openDistrictJournal(district.id);
+                openDistrictJournal(targetDistrictId);
               }}
               className="w-full py-3 px-4 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
             >
