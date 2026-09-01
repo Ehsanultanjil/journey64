@@ -58,11 +58,6 @@ const MainContent: React.FC = () => {
             {/* Hero Text, Headline, and Live Metrics */}
             <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12">
               <div className="max-w-2xl space-y-4 sm:space-y-5">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#059669]/25 backdrop-blur-md border border-[#059669]/40 text-emerald-300 text-[11px] font-body font-bold uppercase tracking-wider shadow-sm">
-                  <Compass className="w-3.5 h-3.5 animate-spin-slow" />
-                  আমার বাংলাদেশ • ভ্রমণ ডায়েরি
-                </div>
-
                 <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.08] drop-shadow-md">
                   দেশজুড়ে ঘুরে বেড়ান, <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">

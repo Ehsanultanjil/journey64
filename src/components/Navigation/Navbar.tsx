@@ -38,24 +38,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between gap-2 relative max-w-7xl mx-auto">
-        {/* Left: Brand Emblem */}
-        <div
-          onClick={() => handleTabChange('explore')}
-          className="flex items-center gap-2 cursor-pointer group bg-[#12141A]/85 backdrop-blur-xl border border-white/15 px-3 py-1.5 rounded-full shadow-md hover:border-white/30 transition-all shrink-0"
-        >
-          <div className="w-7 h-7 rounded-full bg-[#059669] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
-            <Compass className="w-4 h-4 stroke-[2.5]" />
-          </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-sm sm:text-base font-bold text-white tracking-tight">
-              আমার বাংলাদেশ
-            </span>
-            <span className="text-[9px] font-mono text-stone-400 hidden sm:inline">
-              64
-            </span>
-          </div>
-        </div>
+      <div className="flex items-center justify-between gap-2 relative max-w-7xl mx-auto min-h-[44px]">
+        {/* Left Spacer for true centering */}
+        <div className="w-10 shrink-0 hidden md:block" />
 
         {/* Center: Minimal Centered Navigation Bar */}
         <nav className="hidden md:flex items-center gap-1.5 bg-[#12141A]/85 backdrop-blur-xl border border-white/15 p-1 rounded-full shadow-lg absolute left-1/2 -translate-x-1/2">
