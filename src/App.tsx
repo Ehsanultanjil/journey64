@@ -86,11 +86,14 @@ const MainContent: React.FC = () => {
     <div
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="flex flex-col min-h-full"
+      className="flex flex-col min-h-full relative"
     >
+      {/* Global Sticky Frosted Glass Navbar */}
+      <Navbar />
+
       {activeTab === 'explore' ? (
         <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
-          {/* Top Hero Container (Background Photo spans behind Navbar all the way to top) */}
+          {/* Top Hero Container */}
           <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10">
             {/* Background Photo & Atmospheric Lighting Overlays */}
             <div className="absolute inset-0 z-0 pointer-events-none">
@@ -103,11 +106,8 @@ const MainContent: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-[#0A0C10]/95 via-[#0A0C10]/50 to-transparent" />
             </div>
 
-            {/* Navbar floating directly on top of the hero background image */}
-            <Navbar />
-
             {/* Hero Text, Headline, and Live Metrics */}
-            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-6">
+            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-4 sm:pt-8">
               <div className="max-w-2xl space-y-3 sm:space-y-4">
                 <h1 className="font-display text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-snug sm:leading-[1.08] drop-shadow-md">
                   দেশজুড়ে ঘুরে বেড়ান,{' '}
@@ -261,11 +261,8 @@ const MainContent: React.FC = () => {
       ) : activeTab === 'memories' ? (
         <MemoriesTimelinePage />
       ) : (
-        <div className="flex flex-col flex-1">
-          <Navbar />
-          <div className="px-3 sm:px-8 lg:px-12 pt-6 pb-16 flex-1">
-            <SettingsPage />
-          </div>
+        <div className="flex flex-col flex-1 px-3 sm:px-8 lg:px-12 pt-6 pb-16">
+          <SettingsPage />
         </div>
       )}
 
@@ -285,7 +282,7 @@ export default function App() {
       {/* Outer Viewport Canvas (Neutral Grey) */}
       <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#059669] selection:text-white transition-colors duration-300">
         {/* Floating Device Container Frame matching Reference */}
-        <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-hidden relative flex flex-col min-h-[92vh]">
+        <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-clip relative flex flex-col min-h-[92vh]">
           <MainContent />
         </div>
       </div>

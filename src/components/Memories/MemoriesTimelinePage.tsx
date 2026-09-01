@@ -135,14 +135,11 @@ export const MemoriesTimelinePage: React.FC = () => {
   // If currently viewing a specific district journal, render that component
   if (viewingJournalDistrictId) {
     return (
-      <div className="w-full flex flex-col flex-1">
-        <Navbar />
-        <div className="px-3 sm:px-8 lg:px-12 py-6 flex-1">
-          <DistrictMemoryPage
-            districtId={viewingJournalDistrictId}
-            onBack={() => openDistrictJournal(null)}
-          />
-        </div>
+      <div className="w-full flex flex-col flex-1 px-3 sm:px-8 lg:px-12 py-6">
+        <DistrictMemoryPage
+          districtId={viewingJournalDistrictId}
+          onBack={() => openDistrictJournal(null)}
+        />
       </div>
     );
   }
@@ -162,11 +159,8 @@ export const MemoriesTimelinePage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A0C10]/95 via-[#0A0C10]/50 to-transparent" />
         </div>
 
-        {/* Floating Navbar */}
-        <Navbar />
-
         {/* Hero Text, Headline, and Filters */}
-        <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-6">
+        <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-4 sm:pt-8">
           <div className="max-w-4xl space-y-4">
             <div className="space-y-1.5 sm:space-y-2">
               <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">

@@ -32,13 +32,13 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="relative z-40 w-full pt-2 sm:pt-4 px-2.5 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-2.5 sm:px-6 lg:px-8 bg-[#0A0C10]/85 backdrop-blur-2xl border-b border-white/10 shadow-xl shadow-black/50 transition-all">
       <div className="flex items-center justify-between gap-1.5 sm:gap-2 relative max-w-7xl mx-auto min-h-[38px] sm:min-h-[44px]">
         {/* Left Spacer for true centering balance */}
         <div className="w-8 sm:w-10 shrink-0" />
 
         {/* Center: Sleek Compact Navigation Bar with Sliding Pill */}
-        <nav className="flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-0.5 sm:p-1 rounded-full shadow-2xl">
+        <nav className="flex items-center bg-[#12141A]/95 backdrop-blur-2xl border border-white/15 p-0.5 sm:p-1 rounded-full shadow-2xl">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
             const Icon = item.icon;
