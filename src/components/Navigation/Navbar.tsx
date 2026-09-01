@@ -32,8 +32,8 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-end md:justify-between gap-2 relative max-w-7xl mx-auto min-h-[44px]">
+    <header className="relative z-40 w-full pt-2.5 sm:pt-4 px-3 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-end md:justify-between gap-2 relative max-w-7xl mx-auto min-h-[40px] sm:min-h-[44px]">
         {/* Left Spacer for true desktop centering */}
         <div className="w-10 shrink-0 hidden md:block" />
 
