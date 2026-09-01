@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft,
   Calendar,
@@ -14,9 +14,9 @@ import {
   X,
   Compass,
   Maximize2,
-  Bookmark,
   Sparkles,
   Save,
+  MapPin,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getDistrictById } from '../../data/districts';
@@ -44,8 +44,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
   const district = getDistrictById(districtId);
   const districtData = userData[districtId];
   const districtVisits = visits.filter((v) => v.districtId === districtId);
-
   const activeVisit = districtVisits[0] || null;
+
+  // View vs Edit Mode state
+  const [isEditing, setIsEditing] = useState(false);
 
   const [notesDraft, setNotesDraft] = useState(
     activeVisit?.notes || districtData?.notes || ''
@@ -72,7 +74,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     } else if (districtData?.firstVisitedDate) {
       setVisitDateDraft(districtData.firstVisitedDate);
     }
-  }, [activeVisit?.visitDate, districtData?.firstVisitedDate]);
+    if (activeVisit?.notes || districtData?.notes) {
+      setNotesDraft(activeVisit?.notes || districtData?.notes || '');
+    }
+  }, [activeVisit?.visitDate, districtData?.firstVisitedDate, activeVisit?.notes, districtData?.notes]);
 
   // Aggregate all photos for this district
   const photos: Photo[] = (activeVisit?.photos || []).sort(
@@ -113,13 +118,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     }
   };
 
-  const handleSaveNotes = (e?: React.FormEvent) => {
+  const handleSaveAll = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     updateDistrictNotes(districtId, notesDraft, visitDateDraft);
     setIsSavedToast(true);
     setTimeout(() => {
       setIsSavedToast(false);
-      onBack();
+      setIsEditing(false);
     }, 400);
   };
 
@@ -135,14 +140,15 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         <button
           id="journal-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold bg-[#12141A] border border-white/15 text-white hover:bg-[#1A1E26] rounded-full transition-colors shadow-sm cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs font-bold bg-[#12141A] border border-white/15 text-white hover:bg-[#1A1E26] rounded-full transition-colors shadow-sm cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>মানচিত্রে ফিরুন</span>
         </button>
 
-        {/* Favorite & Rating in Header */}
+        {/* Action Controls in Header */}
         <div className="flex items-center gap-2">
+          {/* Star Rating */}
           <div className="flex items-center gap-1 bg-[#12141A] border border-white/15 px-3 py-1.5 rounded-full shadow-sm">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -152,7 +158,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 aria-label={`Rate ${star} stars`}
               >
                 <Star
-                  className={`w-4 h-4 ${
+                  className={`w-3.5 sm:w-4 h-3.5 sm:h-4 ${
                     star <= rating ? 'fill-amber-400 text-amber-400' : 'text-white/20'
                   }`}
                 />
@@ -160,6 +166,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             ))}
           </div>
 
+          {/* Favorite Button */}
           <button
             id="journal-fav-btn"
             onClick={() => toggleDistrictFavorite(districtId)}
@@ -171,6 +178,20 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             aria-label="পছন্দের তালিকা"
           >
             <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
+          </button>
+
+          {/* Small Edit Button at Top */}
+          <button
+            id="journal-edit-mode-btn"
+            onClick={() => setIsEditing(!isEditing)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+              isEditing
+                ? 'bg-stone-700 hover:bg-stone-600 text-white'
+                : 'bg-[#059669] hover:bg-[#047857] text-white shadow-md'
+            }`}
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>{isEditing ? 'প্রিভিউ দেখুন' : 'এডিট করুন'}</span>
           </button>
         </div>
       </div>
@@ -194,18 +215,11 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             </button>
           </div>
         ) : (
-          <div className="h-60 sm:h-72 w-full bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10] flex flex-col items-center justify-center p-8 text-center">
-            <Compass className="w-14 h-14 text-[#059669]/40 mb-3" />
+          <div className="h-56 sm:h-72 w-full bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10] flex flex-col items-center justify-center p-8 text-center">
+            <Compass className="w-12 h-12 text-[#059669]/40 mb-2" />
             <p className="text-sm text-stone-300 font-medium">
-              {district.bn_name} জেলায় ঘোরার ছবি ও গল্প যোগ করুন
+              {district.bn_name} জেলায় ঘোরার ছবি ও গল্প যোগ করতে উপরে এডিট বাটনে ক্লিক করুন
             </p>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="mt-4 px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-md transition-all cursor-pointer"
-            >
-              <Camera className="w-4 h-4" />
-              <span>ছবি যোগ করুন</span>
-            </button>
           </div>
         )}
 
@@ -216,7 +230,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               {district.division} বিভাগ
             </span>
             <span className="px-3 py-1 text-xs font-semibold rounded-full bg-white/15 backdrop-blur-md text-stone-200">
-              {totalPhotos} / ৫টি ছবি
+              {totalPhotos}টি ছবি
             </span>
           </div>
 
@@ -235,231 +249,333 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         </div>
       </div>
 
-      {/* Main Grid: Left Side Photos, Right Side Travel Notes */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Photo Gallery & Upload Section (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-display text-xl font-bold text-white flex items-center gap-2">
-                <Camera className="w-5 h-5 text-[#059669]" />
-                স্মৃতির অ্যালবাম
+      {/* ================= EDIT MODE ================= */}
+      {isEditing ? (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#12141A]/95 border border-[#059669]/40 p-5 sm:p-8 rounded-3xl space-y-6 shadow-2xl"
+        >
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#059669]/20 text-[#059669] flex items-center justify-center">
+                <Edit3 className="w-4 h-4" />
+              </div>
+              <h2 className="font-display text-xl font-bold text-white">
+                স্মৃতি ও তথ্য পরিবর্তন করুন
               </h2>
-              <p className="text-xs text-stone-400">
-                এই জেলার সেরা ছবি ({totalPhotos} / ৫)
-              </p>
             </div>
 
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept="image/*"
-              multiple
-              className="hidden"
-            />
-
-            {totalPhotos < 5 && (
+            <div className="flex items-center gap-2">
               <button
-                id="upload-photo-btn"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-xs font-semibold text-stone-400 hover:text-white transition-colors cursor-pointer"
               >
-                {isUploading ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Plus className="w-3.5 h-3.5" />
-                )}
-                <span>ছবি যোগ করুন</span>
+                বাতিল
               </button>
+              <button
+                type="button"
+                onClick={handleSaveAll}
+                className="px-5 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>পরিবর্তন সেভ করুন</span>
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveAll} className="space-y-6">
+            {/* 1. Date Input */}
+            <div className="max-w-xs">
+              <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#059669]" />
+                কবে গিয়েছিলেন?
+              </label>
+              <input
+                type="date"
+                value={visitDateDraft}
+                onChange={(e) => setVisitDateDraft(e.target.value)}
+                className="w-full px-3.5 py-2 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#059669] transition-colors"
+              />
+            </div>
+
+            {/* 2. Story / Description Textarea */}
+            <div>
+              <label className="block text-xs font-bold text-stone-300 mb-1.5">
+                ভ্রমণের অভিজ্ঞতা, বিবরণ ও অনুভূতি
+              </label>
+              <textarea
+                rows={5}
+                value={notesDraft}
+                onChange={(e) => setNotesDraft(e.target.value)}
+                placeholder={`${district.bn_name} ভ্রমণের গল্প, সুন্দর জায়গা আর ভালো লাগার মুহূর্তগুলো লিখে রাখুন...`}
+                className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* 3. Photo Upload & Management under Edit Page */}
+            <div className="space-y-3 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-[#059669]" />
+                    ছবি ব্যবস্থাপনা ({totalPhotos} / ৫)
+                  </h3>
+                  <p className="text-xs text-stone-400 font-light">
+                    নতুন ছবি যোগ করুন অথবা আগের ছবি এডিট/মুছে ফেলুন
+                  </p>
+                </div>
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+
+                {totalPhotos < 5 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isUploading ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plus className="w-3.5 h-3.5" />
+                    )}
+                    <span>ছবি যোগ করুন</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Photo Edit Grid */}
+              {totalPhotos === 0 ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-white/20 hover:border-[#059669] p-8 rounded-2xl text-center cursor-pointer transition-colors bg-white/5 group"
+                >
+                  <ImageIcon className="w-8 h-8 text-[#059669] mx-auto mb-2" />
+                  <h4 className="text-xs font-bold text-white">ছবি আপলোড করুন</h4>
+                  <p className="text-[11px] text-stone-400 mt-0.5">
+                    ক্লিক করে এই জেলায় ঘোরার ছবি যোগ করুন (সর্বোচ্চ ৫টি)
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {photos.map((photo, index) => {
+                    const isCover = photo.isCover || index === 0;
+                    return (
+                      <div
+                        key={photo.id}
+                        className="group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 aspect-square"
+                      >
+                        <img
+                          src={photo.url}
+                          alt={photo.caption || 'District photo'}
+                          className="w-full h-full object-cover"
+                        />
+
+                        {isCover && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 text-[9px] font-bold rounded bg-[#059669] text-white shadow-xs">
+                            কভার ছবি
+                          </span>
+                        )}
+
+                        {/* Action buttons on thumbnail */}
+                        <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-lg">
+                          {!isCover && (
+                            <button
+                              type="button"
+                              onClick={() => updatePhoto(photo.id, { isCover: true })}
+                              title="কভার ছবি করুন"
+                              className="p-1 text-stone-300 hover:text-white hover:bg-white/20 rounded cursor-pointer"
+                            >
+                              <Star className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCaptionId(photo.id);
+                              setCaptionDraft(photo.caption || '');
+                            }}
+                            title="ক্যাপশন লিখুন"
+                            className="p-1 text-stone-300 hover:text-white hover:bg-white/20 rounded cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeletePhotoConfirmId(photo.id)}
+                            title="ছবি মুছুন"
+                            className="p-1 text-rose-300 hover:text-white hover:bg-rose-600 rounded cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Caption Field */}
+                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white">
+                          {editingCaptionId === photo.id ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={captionDraft}
+                                onChange={(e) => setCaptionDraft(e.target.value)}
+                                placeholder="ক্যাপশন..."
+                                className="flex-1 px-1.5 py-0.5 text-[10px] bg-black/80 border border-white/30 rounded text-white focus:outline-none focus:border-[#059669]"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveCaption(photo.id);
+                                  if (e.key === 'Escape') setEditingCaptionId(null);
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleSaveCaption(photo.id)}
+                                className="p-0.5 bg-[#059669] text-white rounded cursor-pointer"
+                              >
+                                <Check className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <p
+                              onClick={() => {
+                                setEditingCaptionId(photo.id);
+                                setCaptionDraft(photo.caption || '');
+                              }}
+                              className="text-[10px] text-stone-200 truncate cursor-pointer hover:text-white"
+                            >
+                              {photo.caption || '+ ক্যাপশন লিখুন'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Save Action */}
+            <div className="flex items-center justify-between pt-3 border-t border-white/10">
+              {isSavedToast && (
+                <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
+                  <Check className="w-4 h-4" /> সেভ হয়েছে
+                </span>
+              )}
+
+              <button
+                type="submit"
+                className="ml-auto px-6 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>পরিবর্তন সেভ করুন</span>
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      ) : (
+        /* ================= VIEW MODE (Clean Gallery & Story) ================= */
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Story & Description Card */}
+          <div className="bg-[#12141A]/90 border border-white/15 p-5 sm:p-7 rounded-3xl space-y-4 shadow-sm">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#059669]" />
+                <span className="text-xs font-bold text-white">
+                  ভ্রমণের তারিখ:{' '}
+                  <span className="text-stone-300 font-normal">
+                    {visitDateDraft
+                      ? new Date(visitDateDraft).toLocaleDateString('bn-BD', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      : 'তারিখ নির্দিষ্ট নেই'}
+                  </span>
+                </span>
+              </div>
+
+              {district.famousSpots && district.famousSpots.length > 0 && (
+                <div className="flex items-center gap-1.5 text-xs text-stone-400">
+                  <MapPin className="w-3.5 h-3.5 text-[#059669]" />
+                  <span>দর্শনীয় স্থান: {district.famousSpots.slice(0, 3).join(', ')}</span>
+                </div>
+              )}
+            </div>
+
+            {notesDraft.trim().length > 0 ? (
+              <p className="font-body text-xs sm:text-sm text-stone-200 leading-relaxed font-light whitespace-pre-line italic">
+                "{notesDraft}"
+              </p>
+            ) : (
+              <p className="text-xs text-stone-500 font-light italic">
+                কোনো বিবরণ লেখা হয়নি। বিবরণ ও তারিখ যোগ করতে উপরে "এডিট করুন" বাটনে ক্লিক করুন।
+              </p>
             )}
           </div>
 
-          {/* Photo Grid */}
-          {totalPhotos === 0 ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-white/20 hover:border-[#059669] p-8 rounded-3xl text-center cursor-pointer transition-colors bg-[#12141A]/90 group"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#059669]/20 transition-colors">
-                <ImageIcon className="w-6 h-6 text-[#059669]" />
-              </div>
-              <h4 className="text-sm font-bold text-white">
-                ছবি আপলোড করুন
-              </h4>
-              <p className="text-xs text-stone-400 mt-1 max-w-xs mx-auto font-light">
-                এখানে ক্লিক করে এই জেলায় ঘোরার সেরা ৩ থেকে ৫টি ছবি যোগ করুন।
-              </p>
+          {/* Photo Gallery Grid */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl font-bold text-white flex items-center gap-2">
+                <Camera className="w-5 h-5 text-[#059669]" />
+                স্মৃতির অ্যালবাম ({totalPhotos}টি ছবি)
+              </h2>
             </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {photos.map((photo, index) => {
-                const isCover = photo.isCover || index === 0;
-                return (
-                  <motion.div
-                    key={photo.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className={`group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 shadow-sm aspect-square ${
-                      index === 0 ? 'col-span-2 aspect-video' : ''
-                    }`}
-                  >
-                    <img
-                      src={photo.url}
-                      alt={photo.caption || `${district.name} memory #${index + 1}`}
-                      className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
+
+            {totalPhotos === 0 ? (
+              <div className="bg-[#12141A]/90 border border-white/10 p-8 rounded-3xl text-center space-y-2">
+                <ImageIcon className="w-8 h-8 text-stone-500 mx-auto" />
+                <p className="text-xs text-stone-400">এখনও কোনো ছবি আপলোড করা হয়নি।</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                {photos.map((photo, index) => {
+                  const isCover = photo.isCover || index === 0;
+                  return (
+                    <motion.div
+                      key={photo.id}
+                      whileHover={{ scale: 1.02 }}
+                      className={`group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 shadow-sm aspect-square cursor-pointer ${
+                        index === 0 ? 'col-span-2 aspect-video' : ''
+                      }`}
                       onClick={() => openLightbox(photos, index, district.name)}
-                    />
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || `${district.name} photo`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
 
-                    {/* Cover Badge */}
-                    {isCover && (
-                      <div className="absolute top-2 left-2">
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#059669] text-white shadow-xs">
-                          কভার ছবি
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Actions Overlay */}
-                    <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 backdrop-blur-md p-1 rounded-lg">
-                      {!isCover && (
-                        <button
-                          onClick={() => updatePhoto(photo.id, { isCover: true })}
-                          title="কভার ছবি করুন"
-                          className="p-1.5 text-stone-300 hover:text-white hover:bg-white/20 rounded cursor-pointer"
-                        >
-                          <Star className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          setEditingCaptionId(photo.id);
-                          setCaptionDraft(photo.caption || '');
-                        }}
-                        title="ক্যাপশন লিখুন"
-                        className="p-1.5 text-stone-300 hover:text-white hover:bg-white/20 rounded cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletePhotoConfirmId(photo.id)}
-                        title="ছবি মুছুন"
-                        className="p-1.5 text-rose-300 hover:text-white hover:bg-rose-600 rounded cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Caption on Bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
-                      {editingCaptionId === photo.id ? (
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            value={captionDraft}
-                            onChange={(e) => setCaptionDraft(e.target.value)}
-                            placeholder="ক্যাপশন লিখুন..."
-                            className="flex-1 px-2 py-1 text-xs bg-black/70 border border-white/30 rounded text-white focus:outline-none focus:border-[#059669]"
-                            autoFocus
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSaveCaption(photo.id);
-                              if (e.key === 'Escape') setEditingCaptionId(null);
-                            }}
-                          />
-                          <button
-                            onClick={() => handleSaveCaption(photo.id)}
-                            className="p-1 bg-[#059669] text-white rounded cursor-pointer"
-                          >
-                            <Check className="w-3 h-3" />
-                          </button>
-                          <button
-                            onClick={() => setEditingCaptionId(null)}
-                            className="p-1 bg-white/20 text-white rounded cursor-pointer"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
+                      {isCover && (
+                        <div className="absolute top-2 left-2">
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#059669] text-white shadow-xs">
+                            কভার ছবি
+                          </span>
                         </div>
-                      ) : (
-                        <p
-                          onClick={() => {
-                            setEditingCaptionId(photo.id);
-                            setCaptionDraft(photo.caption || '');
-                          }}
-                          className="text-[11px] text-stone-200 truncate cursor-pointer hover:text-white"
-                        >
-                          {photo.caption || '+ ক্যাপশন যোগ করুন'}
-                        </p>
                       )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
-        {/* Travel Story & Notes Card (5 Cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-[#12141A]/90 border border-white/15 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="font-display text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#059669]" />
-                ভ্রমণের গল্প ও ডায়েরি
-              </h3>
-            </div>
-
-            <form onSubmit={handleSaveNotes} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                  কবে গিয়েছিলেন?
-                </label>
-                <input
-                  type="date"
-                  value={visitDateDraft}
-                  onChange={(e) => setVisitDateDraft(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#059669] transition-colors"
-                />
+                      {photo.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+                          <p className="text-xs text-stone-200 truncate">{photo.caption}</p>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1.5">
-                  ভ্রমণের অভিজ্ঞতা ও স্মৃতি
-                </label>
-                <textarea
-                  rows={6}
-                  value={notesDraft}
-                  onChange={(e) => setNotesDraft(e.target.value)}
-                  placeholder={`${district.bn_name} ভ্রমণের গল্প, সুন্দর জায়গা আর ভালো লাগার মুহূর্তগুলো লিখে রাখুন...`}
-                  className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors resize-none leading-relaxed"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                {isSavedToast ? (
-                  <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
-                    <Check className="w-4 h-4" /> সেভ হয়েছে
-                  </span>
-                ) : (
-                  <span className="text-[11px] text-stone-500">
-                    অটো সেভ চালু আছে
-                  </span>
-                )}
-
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>সেভ করুন</span>
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
-      </div>
+      )}
 
       {/* Delete Photo Confirmation Modal */}
       {deletePhotoConfirmId && (
