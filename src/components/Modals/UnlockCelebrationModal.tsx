@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Camera, X, ArrowRight } from 'lucide-react';
+import { Sparkles, MapPin } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const UnlockCelebrationModal: React.FC = () => {
   const {
     unlockModalData,
     closeUnlockModal,
-    openDistrictJournal,
   } = useApp();
+
+  // Auto-dismiss after 2.6 seconds of joyful celebration animation
+  useEffect(() => {
+    if (!unlockModalData) return;
+    const timer = setTimeout(() => {
+      closeUnlockModal();
+    }, 2600);
+    return () => clearTimeout(timer);
+  }, [unlockModalData, closeUnlockModal]);
 
   if (!unlockModalData) return null;
 
@@ -16,74 +24,87 @@ export const UnlockCelebrationModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-70 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md font-body">
+      <div
+        onClick={closeUnlockModal}
+        className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md font-body cursor-pointer select-none"
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.88, y: 20 }}
+          initial={{ opacity: 0, scale: 0.8, y: 25 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.88, y: 20 }}
-          transition={{ type: 'spring', damping: 24, stiffness: 320 }}
-          className="relative w-full max-w-sm bg-[#0F1218] text-white border border-white/15 p-6 sm:p-8 rounded-3xl shadow-2xl text-center space-y-5 overflow-hidden"
+          exit={{ opacity: 0, scale: 0.85, y: -20 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+          className="relative w-full max-w-xs sm:max-w-sm bg-gradient-to-b from-[#131A1F] via-[#0F1419] to-[#0A0D12] text-white border border-[#059669]/40 p-6 sm:p-8 rounded-[32px] shadow-2xl shadow-[#059669]/20 text-center space-y-4 overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
-          <button
-            onClick={closeUnlockModal}
-            className="absolute top-4 right-4 p-2 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-            aria-label="বন্ধ করুন"
+          {/* Radial Ambient Glow Background */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#059669]/25 rounded-full blur-3xl pointer-events-none -z-10" />
+
+          {/* Animated Joyful Icon Badge */}
+          <motion.div
+            initial={{ scale: 0, rotate: -30 }}
+            animate={{ scale: [0, 1.2, 1], rotate: [0, -10, 10, 0] }}
+            transition={{ type: 'spring', damping: 14, stiffness: 300, delay: 0.1 }}
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-[#047857] to-[#10B981] flex items-center justify-center mx-auto text-white shadow-xl shadow-[#059669]/40"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <Sparkles className="w-9 h-9 sm:w-11 sm:h-11 animate-pulse" />
+          </motion.div>
 
-          {/* Icon Badge */}
-          <div className="w-16 h-16 rounded-2xl bg-[#059669] flex items-center justify-center mx-auto text-white shadow-lg shadow-[#059669]/30">
-            <Sparkles className="w-8 h-8 animate-pulse" />
-          </div>
+          {/* Text & District Details */}
+          <div className="space-y-1">
+            <motion.span
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-[11px] font-bold uppercase tracking-widest text-[#10B981] flex items-center justify-center gap-1.5"
+            >
+              <span>✨</span>
+              <span>নতুন জেলা ভ্রমণ সম্পন্ন!</span>
+              <span>✨</span>
+            </motion.span>
 
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#059669]">
-              নতুন জেলা আনলক হয়েছে!
-            </span>
-            <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight mt-1 text-white flex items-center justify-center gap-2">
+            <motion.h3
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.25, type: 'spring' }}
+              className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white flex items-baseline justify-center gap-2 pt-1"
+            >
               {district.bn_name}
-              <span className="font-sans text-sm font-normal text-stone-300">
+              <span className="font-sans text-sm sm:text-base font-normal text-stone-300">
                 ({district.name})
               </span>
-            </h3>
-            <p className="text-xs text-stone-400 font-light mt-0.5">
-              {district.division} বিভাগ
-            </p>
+            </motion.h3>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-xs text-stone-300 font-light flex items-center justify-center gap-1"
+            >
+              <MapPin className="w-3.5 h-3.5 text-[#059669]" />
+              <span>{district.division} বিভাগ</span>
+            </motion.p>
           </div>
 
-          {/* Footprint Progress Card */}
-          <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-              ভ্রমণের অগ্রগতি
-            </p>
-            <p className="font-display text-xl sm:text-2xl font-bold text-[#059669]">
+          {/* Progress Pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl inline-block"
+          >
+            <p className="font-display text-lg sm:text-xl font-bold text-[#10B981]">
               ৬৪ জেলার মধ্যে {totalVisited}টি ({percentage}%)
             </p>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-2 pt-1">
-            <button
-              id="unlock-modal-add-photo-btn"
-              onClick={() => {
-                const targetDistrictId = district.id;
-                closeUnlockModal();
-                openDistrictJournal(targetDistrictId);
-              }}
-              className="w-full py-3 px-4 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
-            >
-              <Camera className="w-4 h-4" />
-              <span>ছবি ও স্মৃতি যোগ করুন</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={closeUnlockModal}
-              className="w-full py-2 text-xs font-semibold text-stone-400 hover:text-white transition-colors cursor-pointer"
-            >
-              মানচিত্র অন্বেষণ চালিয়ে যান
-            </button>
+          {/* Animated Auto-Progress Bar Indicator */}
+          <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden mt-3">
+            <motion.div
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 2.5, ease: 'linear' }}
+              className="h-full bg-gradient-to-r from-[#059669] to-[#10B981]"
+            />
           </div>
         </motion.div>
       </div>
