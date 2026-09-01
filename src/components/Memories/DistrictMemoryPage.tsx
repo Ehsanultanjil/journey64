@@ -196,8 +196,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         </div>
       </div>
 
-      {/* Compact Atmospheric Glass Cover Card (Luminous Blur, Tight Vertical Height) */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#12141A] border border-white/20 shadow-2xl p-4 sm:p-6 space-y-3 sm:space-y-4">
+      {/* Sleek Luminous Cover Card with Direct Minimalist Text */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#12141A] border border-white/15 shadow-2xl p-4 sm:p-7 space-y-2.5 sm:space-y-3.5">
         {/* Background Cover Photo with Vibrant Glass Blur - NOT Dark */}
         {coverPhoto ? (
           <div className="absolute inset-0 z-0 overflow-hidden">
@@ -206,76 +206,65 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               alt={district.name}
               className="w-full h-full object-cover filter blur-md scale-110 brightness-[0.88] contrast-[1.04]"
             />
-            {/* Soft Translucent Ambient Overlay */}
-            <div className="absolute inset-0 bg-[#0A0C10]/45 backdrop-blur-md" />
+            {/* Soft Ambient Overlay */}
+            <div className="absolute inset-0 bg-[#0A0C10]/50 backdrop-blur-sm" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0C10]/80 via-transparent to-black/20" />
           </div>
         ) : (
           <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10]" />
         )}
 
-        {/* Top of Card: District Name, Division & Expand Button */}
-        <div className="relative z-10 flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#059669] text-white shadow-xs">
-                {district.division} বিভাগ
-              </span>
-              <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-black/40 backdrop-blur-md text-stone-200 border border-white/15">
-                {totalPhotos}টি ছবি
-              </span>
-            </div>
-
-            <h1 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white flex items-baseline gap-2.5 drop-shadow-md">
-              {district.bn_name}
-              <span className="font-sans text-base sm:text-xl font-normal text-stone-200">
-                ({district.name})
-              </span>
-            </h1>
-
-            {district.tagline && (
-              <p className="text-xs sm:text-sm text-stone-200 font-light italic max-w-xl drop-shadow-xs">
-                "{district.tagline}"
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Frosted Glass Travel Story Box with Integrated Date */}
-        <div className="relative z-10 bg-[#0A0C10]/65 backdrop-blur-2xl border border-white/20 p-3.5 sm:p-4 rounded-2xl space-y-2 max-w-2xl shadow-lg">
-          <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1.5 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#059669]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>ভ্রমণের অভিজ্ঞতা ও স্মৃতি</span>
-            </div>
+        {/* Content directly on Cover: District Name, Division, Date & User Notes */}
+        <div className="relative z-10 space-y-2 sm:space-y-2.5">
+          {/* Top Badges: Division, Photo Count, and Date */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#059669] text-white shadow-xs">
+              {district.division} বিভাগ
+            </span>
+            <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-black/40 backdrop-blur-md text-stone-200 border border-white/15">
+              {totalPhotos}টি ছবি
+            </span>
 
             {/* Visit Date Pill */}
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-300 bg-white/10 px-2.5 py-0.5 rounded-lg border border-white/15">
-              <Calendar className="w-3 h-3 text-emerald-400" />
-              <span>
-                {visitDateDraft
-                  ? new Date(visitDateDraft).toLocaleDateString('bn-BD', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })
-                  : 'তারিখ নির্দিষ্ট নেই'}
+            {visitDateDraft && (
+              <span className="px-2.5 py-0.5 text-[11px] font-medium rounded-full bg-black/40 backdrop-blur-md text-emerald-300 border border-emerald-500/20 flex items-center gap-1.5">
+                <Calendar className="w-3 h-3 text-emerald-400" />
+                <span>
+                  {new Date(visitDateDraft).toLocaleDateString('bn-BD', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
               </span>
-            </div>
+            )}
           </div>
 
-          {notesDraft.trim().length > 0 ? (
-            <p className="font-body text-xs sm:text-sm text-stone-100 leading-relaxed font-light whitespace-pre-line">
-              "{notesDraft}"
-            </p>
-          ) : (
-            <p className="text-xs text-stone-300 font-light italic">
-              কোনো বিবরণ লেখা হয়নি। নিজের অভিজ্ঞতা লিখতে উপরে "এডিট করুন" বাটনে চাপ দিন।
+          {/* District Name Headline */}
+          <h1 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white flex items-baseline gap-2.5 drop-shadow-md">
+            {district.bn_name}
+            <span className="font-sans text-base sm:text-xl font-normal text-stone-200">
+              ({district.name})
+            </span>
+          </h1>
+
+          {/* Tagline if available */}
+          {district.tagline && (
+            <p className="text-xs sm:text-sm text-stone-200 font-light italic max-w-xl drop-shadow-xs">
+              "{district.tagline}"
             </p>
           )}
 
+          {/* User's Note / Story: ONLY rendered if user wrote notes */}
+          {notesDraft.trim().length > 0 && (
+            <p className="font-body text-xs sm:text-sm text-stone-100 leading-relaxed font-light whitespace-pre-line pt-1 drop-shadow-xs max-w-2xl">
+              "{notesDraft}"
+            </p>
+          )}
+
+          {/* Famous Spots */}
           {district.famousSpots && district.famousSpots.length > 0 && (
-            <div className="flex items-center gap-1.5 text-[11px] text-stone-300 pt-1 border-t border-white/10 flex-wrap">
+            <div className="flex items-center gap-1.5 text-[11px] text-stone-300 pt-1.5 border-t border-white/10 flex-wrap">
               <MapPin className="w-3 h-3 text-[#059669] shrink-0" />
               <span>দর্শনীয় স্থান: {district.famousSpots.slice(0, 3).join(', ')}</span>
             </div>

@@ -135,7 +135,7 @@ export const MemoriesTimelinePage: React.FC = () => {
   // If currently viewing a specific district journal, render that component
   if (viewingJournalDistrictId) {
     return (
-      <div className="w-full flex flex-col flex-1 px-3 sm:px-8 lg:px-12 py-6">
+      <div className="w-full flex flex-col flex-1 px-2.5 sm:px-8 lg:px-12 py-3 sm:py-6">
         <DistrictMemoryPage
           districtId={viewingJournalDistrictId}
           onBack={() => openDistrictJournal(null)}
