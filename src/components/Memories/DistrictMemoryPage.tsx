@@ -117,7 +117,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     if (e) e.preventDefault();
     updateDistrictNotes(districtId, notesDraft, visitDateDraft);
     setIsSavedToast(true);
-    setTimeout(() => setIsSavedToast(false), 2000);
+    setTimeout(() => {
+      setIsSavedToast(false);
+      onBack();
+    }, 400);
   };
 
   const handleSaveCaption = (photoId: string) => {
