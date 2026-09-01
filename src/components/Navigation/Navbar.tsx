@@ -1,12 +1,9 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import {
   Map,
   BookOpen,
   Settings,
-  Compass,
-  ArrowRight,
-  User,
-  LogOut,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ActiveTab } from '../../types';
@@ -40,7 +37,7 @@ export const Navbar: React.FC = () => {
         {/* Left Spacer for true centering */}
         <div className="w-10 shrink-0 hidden md:block" />
 
-        {/* Center: Minimal Centered Navigation Bar with Equal Symmetrical Widths */}
+        {/* Center: Minimal Centered Navigation Bar with Ultra-Smooth Sliding Active Pill */}
         <nav className="hidden md:flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-1 rounded-full shadow-2xl absolute left-1/2 -translate-x-1/2">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
@@ -50,12 +47,19 @@ export const Navbar: React.FC = () => {
                 key={item.key}
                 id={`nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`w-36 sm:w-40 py-2 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer text-center flex items-center justify-center gap-2 ${
+                className={`relative w-36 sm:w-40 py-2 rounded-full text-xs font-body font-bold tracking-wide transition-colors cursor-pointer text-center flex items-center justify-center gap-2 z-10 ${
                   isActive
-                    ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30'
-                    : 'text-stone-300 hover:text-white hover:bg-white/10'
+                    ? 'text-white'
+                    : 'text-stone-300 hover:text-white'
                 }`}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="active-nav-pill"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                    className="absolute inset-0 bg-[#059669] rounded-full shadow-lg shadow-[#059669]/30 -z-10"
+                  />
+                )}
                 <Icon className="w-3.5 h-3.5" />
                 <span>{item.label}</span>
               </button>
@@ -86,7 +90,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Bottom Tab Bar */}
       <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-3 left-4 right-4 z-50 bg-[#12141A]/95 backdrop-blur-2xl border border-white/20 rounded-full p-1.5 shadow-2xl shadow-black/80">
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-around relative">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.key;
@@ -95,12 +99,19 @@ export const Navbar: React.FC = () => {
                 key={item.key}
                 id={`mobile-nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-all cursor-pointer ${
+                className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-colors cursor-pointer z-10 ${
                   isActive
-                    ? 'bg-[#059669] text-white font-bold shadow-md'
+                    ? 'text-white font-bold'
                     : 'text-stone-400 hover:text-white'
                 }`}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="active-mobile-nav-pill"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                    className="absolute inset-0 bg-[#059669] rounded-full shadow-md -z-10"
+                  />
+                )}
                 <Icon className="w-4 h-4" />
                 <span className="font-body text-xs font-bold leading-none">
                   {item.label}
@@ -110,12 +121,19 @@ export const Navbar: React.FC = () => {
           })}
           <button
             onClick={() => handleTabChange('settings')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-all cursor-pointer ${
+            className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-colors cursor-pointer z-10 ${
               activeTab === 'settings'
-                ? 'bg-[#059669] text-white font-bold shadow-md'
+                ? 'text-white font-bold'
                 : 'text-stone-400 hover:text-white'
             }`}
           >
+            {activeTab === 'settings' && (
+              <motion.div
+                layoutId="active-mobile-nav-pill"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                className="absolute inset-0 bg-[#059669] rounded-full shadow-md -z-10"
+              />
+            )}
             <Settings className="w-4 h-4" />
             <span className="font-body text-xs font-bold leading-none">
               সেটিংস
