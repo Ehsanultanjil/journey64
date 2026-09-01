@@ -3,14 +3,26 @@ import { DistrictUserData, Visit, Trip, UserProfile } from '../../types';
 import { AppSettings } from '../storage';
 
 export const SupabaseDB = {
+  // Helper to get active user ID
+  async getEffectiveUserId(userId?: string): Promise<string | undefined> {
+    if (userId) return userId;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.user?.id;
+    } catch {
+      return undefined;
+    }
+  },
+
   // Push full snapshot / backup to Supabase
   async pushBackup(name: string, payload: any, userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       const { error } = await supabase.from('journey_backups').insert([
         {
           name,
           data: payload,
-          user_id: userId || null,
+          user_id: effectiveUserId || null,
         },
       ]);
       if (error) throw error;
@@ -21,16 +33,18 @@ export const SupabaseDB = {
     }
   },
 
-  // Pull latest backup from Supabase for this user (or global latest)
+  // Pull latest backup from Supabase for this user (or latest available)
   async pullLatestBackup(userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
+
       let query = supabase
         .from('journey_backups')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (userId) {
-        query = query.eq('user_id', userId);
+      if (effectiveUserId) {
+        query = query.eq('user_id', effectiveUserId);
       }
 
       const { data, error } = await query.limit(1).maybeSingle();
@@ -46,11 +60,12 @@ export const SupabaseDB = {
   // Sync User Profile
   async saveProfile(profile: UserProfile, userId?: string): Promise<boolean> {
     try {
-      const id = userId || 'default_user';
+      const effectiveUserId = await this.getEffectiveUserId(userId);
+      const id = effectiveUserId || 'default_user';
       const { error } = await supabase.from('user_profiles').upsert([
         {
           id,
-          user_id: userId || null,
+          user_id: effectiveUserId || null,
           name: profile.name,
           display_name: profile.displayName || profile.name,
           bio: profile.bio || '',
@@ -68,11 +83,12 @@ export const SupabaseDB = {
   // Sync Settings
   async saveSettings(settings: AppSettings, userId?: string): Promise<boolean> {
     try {
-      const id = userId ? `settings_${userId}` : 'default_settings';
+      const effectiveUserId = await this.getEffectiveUserId(userId);
+      const id = effectiveUserId ? `settings_${effectiveUserId}` : 'default_settings';
       const { error } = await supabase.from('app_settings').upsert([
         {
           id,
-          user_id: userId || null,
+          user_id: effectiveUserId || null,
           theme: settings.theme,
           show_district_labels: settings.showDistrictLabels,
           show_bengali_names: settings.showBengaliNames,
@@ -90,9 +106,10 @@ export const SupabaseDB = {
   // Sync District User Data
   async syncDistrictUserData(userData: Record<string, DistrictUserData>, userId?: string): Promise<boolean> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       const items = Object.values(userData).map((item) => ({
-        id: userId ? `${userId}_${item.districtId}` : item.districtId,
-        user_id: userId || null,
+        id: effectiveUserId ? `${effectiveUserId}_${item.districtId}` : item.districtId,
+        user_id: effectiveUserId || null,
         district_id: item.districtId,
         status: item.status,
         rating: item.rating || 0,
@@ -105,6 +122,18 @@ export const SupabaseDB = {
       if (items.length === 0) return true;
 
       const { error } = await supabase.from('district_user_data').upsert(items);
+
+      // Also create an auto backup snapshot for multi-device sync
+      if (effectiveUserId) {
+        supabase.from('journey_backups').insert([
+          {
+            name: 'auto_sync',
+            user_id: effectiveUserId,
+            data: { userData },
+          },
+        ]).then(() => {});
+      }
+
       return !error;
     } catch (e) {
       return false;
@@ -115,9 +144,10 @@ export const SupabaseDB = {
   async syncVisits(visits: Visit[], userId?: string): Promise<boolean> {
     try {
       if (visits.length === 0) return true;
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       const records = visits.map((v) => ({
         id: v.id,
-        user_id: userId || null,
+        user_id: effectiveUserId || null,
         district_id: v.districtId,
         date: v.visitDate,
         title: v.title || 'Trip Memory',
@@ -139,9 +169,10 @@ export const SupabaseDB = {
   async syncTrips(trips: Trip[], userId?: string): Promise<boolean> {
     try {
       if (trips.length === 0) return true;
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       const records = trips.map((t) => ({
         id: t.id,
-        user_id: userId || null,
+        user_id: effectiveUserId || null,
         name: t.name,
         description: t.notes || '',
         start_date: t.startDate,
@@ -161,8 +192,9 @@ export const SupabaseDB = {
   // Fetch structured user data from tables
   async fetchUserData(userId?: string): Promise<Record<string, DistrictUserData> | null> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('district_user_data').select('*');
-      if (userId) query = query.eq('user_id', userId);
+      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
       const { data, error } = await query;
       if (error || !data) return null;
 
@@ -187,8 +219,9 @@ export const SupabaseDB = {
   // Fetch structured visits
   async fetchVisits(userId?: string): Promise<Visit[] | null> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('visits').select('*');
-      if (userId) query = query.eq('user_id', userId);
+      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
       const { data, error } = await query;
       if (error || !data) return null;
 
@@ -211,8 +244,9 @@ export const SupabaseDB = {
   // Fetch structured trips
   async fetchTrips(userId?: string): Promise<Trip[] | null> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('trips').select('*');
-      if (userId) query = query.eq('user_id', userId);
+      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
       const { data, error } = await query;
       if (error || !data) return null;
 

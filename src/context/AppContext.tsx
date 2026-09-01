@@ -147,6 +147,86 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     message: 'Checking Supabase connection...',
   });
 
+  const pullAndSyncUserCloudData = async (user: User) => {
+    try {
+      setCloudSync((prev) => ({
+        ...prev,
+        connected: true,
+        syncing: true,
+        message: 'ক্লাউড থেকে ডাটা সিঙ্ক হচ্ছে...',
+      }));
+
+      // 1. Pull latest cloud backup & structured tables for this user
+      const backupRes = await SupabaseDB.pullLatestBackup(user.id);
+      const tableUserData = await SupabaseDB.fetchUserData(user.id);
+      const tableVisits = await SupabaseDB.fetchVisits(user.id);
+      const tableTrips = await SupabaseDB.fetchTrips(user.id);
+
+      const cloudUserData =
+        backupRes.data?.userData && Object.keys(backupRes.data.userData).length > 0
+          ? backupRes.data.userData
+          : tableUserData && Object.keys(tableUserData).length > 0
+          ? tableUserData
+          : null;
+
+      const cloudVisits =
+        backupRes.data?.visits && backupRes.data.visits.length > 0
+          ? backupRes.data.visits
+          : tableVisits && tableVisits.length > 0
+          ? tableVisits
+          : null;
+
+      const cloudTrips =
+        backupRes.data?.trips && backupRes.data.trips.length > 0
+          ? backupRes.data.trips
+          : tableTrips && tableTrips.length > 0
+          ? tableTrips
+          : null;
+
+      const cloudProfile = backupRes.data?.profile;
+
+      // If cloud has data for this user, apply it immediately to state & localStorage
+      if (cloudUserData && Object.keys(cloudUserData).length > 0) {
+        setUserData(cloudUserData);
+        StorageService.saveUserData(cloudUserData);
+      } else {
+        // If cloud is empty for this user, upload current local state to cloud under this user's ID
+        const local = StorageService.loadData();
+        if (Object.keys(local.userData).length > 0) {
+          SupabaseDB.syncDistrictUserData(local.userData, user.id);
+          SupabaseDB.syncVisits(local.visits, user.id);
+          SupabaseDB.pushBackup('initial_device_sync', local, user.id);
+        }
+      }
+
+      if (cloudVisits && cloudVisits.length > 0) {
+        setVisits(cloudVisits);
+        StorageService.saveVisits(cloudVisits);
+      }
+
+      if (cloudTrips && cloudTrips.length > 0) {
+        setTrips(cloudTrips);
+        StorageService.saveTrips(cloudTrips);
+      }
+
+      if (cloudProfile) {
+        setProfile(cloudProfile);
+        StorageService.saveProfile(cloudProfile);
+      }
+
+      setCloudSync((prev) => ({
+        ...prev,
+        connected: true,
+        syncing: false,
+        lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        message: 'সুপাবেস ক্লাউডে সফলভাবে সিঙ্ক হয়েছে',
+      }));
+    } catch (err) {
+      console.error('Error syncing cloud data on login:', err);
+      setCloudSync((prev) => ({ ...prev, syncing: false }));
+    }
+  };
+
   // Track Supabase Auth session changes
   useEffect(() => {
     SupabaseAuth.getUser().then((user) => {
@@ -160,6 +240,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             displayName: uName,
           }));
         }
+        pullAndSyncUserCloudData(user);
       }
     });
 
@@ -175,6 +256,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             displayName: uName,
           }));
         }
+        pullAndSyncUserCloudData(user);
       }
     });
 
@@ -183,8 +265,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
   }, []);
 
-
-  // Verify Supabase connection on startup & auto-pull real cloud data if local is empty
+  // Verify Supabase connection on startup
   useEffect(() => {
     let isMounted = true;
     checkSupabaseConnection().then(async (res) => {
@@ -194,44 +275,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         connected: res.connected,
         message: res.message,
       }));
-
-      // If connected, check if there's saved data in Supabase cloud
-      if (res.connected) {
-        try {
-          const cloudRes = await SupabaseDB.pullLatestBackup();
-          if (cloudRes.success && cloudRes.data && isMounted) {
-            const cData = cloudRes.data;
-            const currentLocal = StorageService.loadData();
-            // If local data is empty, restore from cloud
-            const localIsEmpty = Object.keys(currentLocal.userData).length === 0 && currentLocal.visits.length === 0;
-            if (localIsEmpty && (Object.keys(cData.userData || {}).length > 0 || (cData.visits || []).length > 0)) {
-              if (cData.userData) {
-                setUserData(cData.userData);
-                StorageService.saveUserData(cData.userData);
-              }
-              if (cData.visits) {
-                setVisits(cData.visits);
-                StorageService.saveVisits(cData.visits);
-              }
-              if (cData.trips) {
-                setTrips(cData.trips);
-                StorageService.saveTrips(cData.trips);
-              }
-              if (cData.profile) {
-                setProfile(cData.profile);
-                StorageService.saveProfile(cData.profile);
-              }
-              setCloudSync((prev) => ({
-                ...prev,
-                lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                message: 'Synced from Supabase cloud database',
-              }));
-            }
-          }
-        } catch (e) {
-          // Silent fallback to local data
-        }
-      }
     });
     return () => {
       isMounted = false;
@@ -250,44 +293,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     document.documentElement.classList.remove('light');
   }, []);
 
-
   // Sync state to storage and cloud
   const syncUserData = (newUserData: Record<string, DistrictUserData>) => {
     setUserData(newUserData);
     StorageService.saveUserData(newUserData);
-    SupabaseDB.syncDistrictUserData(newUserData).catch(() => {});
+    SupabaseDB.syncDistrictUserData(newUserData, authUser?.id).catch(() => {});
   };
 
   const syncVisits = (newVisits: Visit[]) => {
     setVisits(newVisits);
     StorageService.saveVisits(newVisits);
-    SupabaseDB.syncVisits(newVisits).catch(() => {});
+    SupabaseDB.syncVisits(newVisits, authUser?.id).catch(() => {});
   };
 
   const syncTrips = (newTrips: Trip[]) => {
     setTrips(newTrips);
     StorageService.saveTrips(newTrips);
-    SupabaseDB.syncTrips(newTrips).catch(() => {});
+    SupabaseDB.syncTrips(newTrips, authUser?.id).catch(() => {});
   };
 
   const syncProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
     StorageService.saveProfile(newProfile);
-    SupabaseDB.saveProfile(newProfile).catch(() => {});
+    SupabaseDB.saveProfile(newProfile, authUser?.id).catch(() => {});
   };
 
   const syncSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     StorageService.saveSettings(newSettings);
-    SupabaseDB.saveSettings(newSettings).catch(() => {});
-
-    if (newSettings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
+    SupabaseDB.saveSettings(newSettings, authUser?.id).catch(() => {});
   };
 
   // Memoized stats & achievements
