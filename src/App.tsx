@@ -13,6 +13,7 @@ import { DISTRICTS } from './data/districts';
 import { DIVISIONS } from './data/divisions';
 import {
   MapPin,
+  Check,
   CheckCircle2,
   Bookmark,
   Camera,

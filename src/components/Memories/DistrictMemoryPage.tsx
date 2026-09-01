@@ -89,16 +89,12 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         const file = files[i];
         const compressedBase64 = await compressImage(file, 1600, 1600, 0.85);
 
-        const newPhoto: Photo = {
-          id: `photo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        addPhoto(districtId, {
           url: compressedBase64,
           caption: '',
-          dateTaken: new Date().toISOString(),
           isCover: totalPhotos === 0 && i === 0,
-          sortOrder: totalPhotos + i,
-        };
-
-        addPhoto(districtId, newPhoto, activeVisit?.id);
+          takenDate: new Date().toISOString(),
+        });
       }
     } catch (err) {
       console.error('Photo upload failed:', err);
@@ -111,7 +107,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
   const handleSaveNotes = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    updateDistrictNotes(districtId, notesDraft, visitDateDraft);
+    updateDistrictNotes(districtId, notesDraft);
     setIsSavedToast(true);
     setTimeout(() => setIsSavedToast(false), 2000);
   };
