@@ -18,11 +18,16 @@ export const SupabaseDB = {
   async pushBackup(name: string, payload: any, userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
+      const backupName = effectiveUserId ? `user_backup_${effectiveUserId}` : name;
+      
       const { error } = await supabase.from('journey_backups').insert([
         {
-          name,
-          data: payload,
-          user_id: effectiveUserId || null,
+          name: backupName,
+          data: {
+            ...payload,
+            userId: effectiveUserId || null,
+            syncedAt: new Date().toISOString(),
+          },
         },
       ]);
       if (error) throw error;
@@ -44,7 +49,7 @@ export const SupabaseDB = {
         .order('created_at', { ascending: false });
 
       if (effectiveUserId) {
-        query = query.eq('user_id', effectiveUserId);
+        query = query.eq('name', `user_backup_${effectiveUserId}`);
       }
 
       const { data, error } = await query.limit(1).maybeSingle();
@@ -65,7 +70,6 @@ export const SupabaseDB = {
       const { error } = await supabase.from('user_profiles').upsert([
         {
           id,
-          user_id: effectiveUserId || null,
           name: profile.name,
           display_name: profile.displayName || profile.name,
           bio: profile.bio || '',
@@ -88,7 +92,6 @@ export const SupabaseDB = {
       const { error } = await supabase.from('app_settings').upsert([
         {
           id,
-          user_id: effectiveUserId || null,
           theme: settings.theme,
           show_district_labels: settings.showDistrictLabels,
           show_bengali_names: settings.showBengaliNames,
@@ -108,8 +111,7 @@ export const SupabaseDB = {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       const items = Object.values(userData).map((item) => ({
-        id: effectiveUserId ? `${effectiveUserId}_${item.districtId}` : item.districtId,
-        user_id: effectiveUserId || null,
+        id: effectiveUserId ? `${effectiveUserId}_${item.districtId}` : `local_${item.districtId}`,
         district_id: item.districtId,
         status: item.status,
         rating: item.rating || 0,
@@ -122,18 +124,6 @@ export const SupabaseDB = {
       if (items.length === 0) return true;
 
       const { error } = await supabase.from('district_user_data').upsert(items);
-
-      // Also create an auto backup snapshot for multi-device sync
-      if (effectiveUserId) {
-        supabase.from('journey_backups').insert([
-          {
-            name: 'auto_sync',
-            user_id: effectiveUserId,
-            data: { userData },
-          },
-        ]).then(() => {});
-      }
-
       return !error;
     } catch (e) {
       return false;
@@ -146,11 +136,10 @@ export const SupabaseDB = {
       if (visits.length === 0) return true;
       const effectiveUserId = await this.getEffectiveUserId(userId);
       const records = visits.map((v) => ({
-        id: v.id,
-        user_id: effectiveUserId || null,
+        id: effectiveUserId ? `${effectiveUserId}_${v.id}` : v.id,
         district_id: v.districtId,
-        date: v.visitDate,
-        title: v.title || 'Trip Memory',
+        date: v.visitDate || new Date().toISOString().split('T')[0],
+        title: v.title || 'ভ্রমণ স্মৃতি',
         story: v.notes || '',
         photos: v.photos || [],
         rating: v.rating || 5,
@@ -171,8 +160,7 @@ export const SupabaseDB = {
       if (trips.length === 0) return true;
       const effectiveUserId = await this.getEffectiveUserId(userId);
       const records = trips.map((t) => ({
-        id: t.id,
-        user_id: effectiveUserId || null,
+        id: effectiveUserId ? `${effectiveUserId}_${t.id}` : t.id,
         name: t.name,
         description: t.notes || '',
         start_date: t.startDate,
@@ -194,9 +182,11 @@ export const SupabaseDB = {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('district_user_data').select('*');
-      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
+      if (effectiveUserId) {
+        query = query.like('id', `${effectiveUserId}_%`);
+      }
       const { data, error } = await query;
-      if (error || !data) return null;
+      if (error || !data || data.length === 0) return null;
 
       const map: Record<string, DistrictUserData> = {};
       data.forEach((row: any) => {
@@ -221,15 +211,17 @@ export const SupabaseDB = {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('visits').select('*');
-      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
+      if (effectiveUserId) {
+        query = query.like('id', `${effectiveUserId}_%`);
+      }
       const { data, error } = await query;
-      if (error || !data) return null;
+      if (error || !data || data.length === 0) return null;
 
       return data.map((row: any) => ({
-        id: row.id,
+        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
         districtId: row.district_id,
         visitDate: row.date || new Date().toISOString().split('T')[0],
-        title: row.title || 'Trip Memory',
+        title: row.title || 'ভ্রমণ স্মৃতি',
         notes: row.story || '',
         photos: row.photos || [],
         rating: row.rating || 5,
@@ -246,12 +238,14 @@ export const SupabaseDB = {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       let query = supabase.from('trips').select('*');
-      if (effectiveUserId) query = query.eq('user_id', effectiveUserId);
+      if (effectiveUserId) {
+        query = query.like('id', `${effectiveUserId}_%`);
+      }
       const { data, error } = await query;
-      if (error || !data) return null;
+      if (error || !data || data.length === 0) return null;
 
       return data.map((row: any) => ({
-        id: row.id,
+        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
         name: row.name,
         startDate: row.start_date,
         endDate: row.end_date,

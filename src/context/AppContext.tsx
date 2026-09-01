@@ -189,14 +189,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (cloudUserData && Object.keys(cloudUserData).length > 0) {
         setUserData(cloudUserData);
         StorageService.saveUserData(cloudUserData);
-      } else {
-        // If cloud is empty for this user, upload current local state to cloud under this user's ID
-        const local = StorageService.loadData();
-        if (Object.keys(local.userData).length > 0) {
-          SupabaseDB.syncDistrictUserData(local.userData, user.id);
-          SupabaseDB.syncVisits(local.visits, user.id);
-          SupabaseDB.pushBackup('initial_device_sync', local, user.id);
-        }
       }
 
       if (cloudVisits && cloudVisits.length > 0) {
@@ -212,6 +204,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (cloudProfile) {
         setProfile(cloudProfile);
         StorageService.saveProfile(cloudProfile);
+      }
+
+      // If cloud is empty for this user, upload current local state to cloud under this user's ID
+      if (!cloudUserData || Object.keys(cloudUserData).length === 0) {
+        const local = StorageService.loadData();
+        if (Object.keys(local.userData).length > 0 || local.visits.length > 0) {
+          SupabaseDB.syncDistrictUserData(local.userData, user.id);
+          SupabaseDB.syncVisits(local.visits, user.id);
+          SupabaseDB.pushBackup('initial_device_sync', local, user.id);
+        }
       }
 
       setCloudSync((prev) => ({
@@ -297,31 +299,76 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const syncUserData = (newUserData: Record<string, DistrictUserData>) => {
     setUserData(newUserData);
     StorageService.saveUserData(newUserData);
-    SupabaseDB.syncDistrictUserData(newUserData, authUser?.id).catch(() => {});
+    if (authUser?.id) {
+      SupabaseDB.syncDistrictUserData(newUserData, authUser.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData: newUserData,
+        visits,
+        trips,
+        profile,
+        settings,
+      }, authUser.id).catch(() => {});
+    }
   };
 
   const syncVisits = (newVisits: Visit[]) => {
     setVisits(newVisits);
     StorageService.saveVisits(newVisits);
-    SupabaseDB.syncVisits(newVisits, authUser?.id).catch(() => {});
+    if (authUser?.id) {
+      SupabaseDB.syncVisits(newVisits, authUser.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData,
+        visits: newVisits,
+        trips,
+        profile,
+        settings,
+      }, authUser.id).catch(() => {});
+    }
   };
 
   const syncTrips = (newTrips: Trip[]) => {
     setTrips(newTrips);
     StorageService.saveTrips(newTrips);
-    SupabaseDB.syncTrips(newTrips, authUser?.id).catch(() => {});
+    if (authUser?.id) {
+      SupabaseDB.syncTrips(newTrips, authUser.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData,
+        visits,
+        trips: newTrips,
+        profile,
+        settings,
+      }, authUser.id).catch(() => {});
+    }
   };
 
   const syncProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
     StorageService.saveProfile(newProfile);
-    SupabaseDB.saveProfile(newProfile, authUser?.id).catch(() => {});
+    if (authUser?.id) {
+      SupabaseDB.saveProfile(newProfile, authUser.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData,
+        visits,
+        trips,
+        profile: newProfile,
+        settings,
+      }, authUser.id).catch(() => {});
+    }
   };
 
   const syncSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     StorageService.saveSettings(newSettings);
-    SupabaseDB.saveSettings(newSettings, authUser?.id).catch(() => {});
+    if (authUser?.id) {
+      SupabaseDB.saveSettings(newSettings, authUser.id).catch(() => {});
+      SupabaseDB.pushBackup('auto_sync', {
+        userData,
+        visits,
+        trips,
+        profile,
+        settings: newSettings,
+      }, authUser.id).catch(() => {});
+    }
   };
 
   // Memoized stats & achievements

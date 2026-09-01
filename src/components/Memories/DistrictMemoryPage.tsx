@@ -95,7 +95,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const compressedBase64 = await compressImage(file, 1600, 1600, 0.85);
+        const compressedBase64 = await compressImage(file, 1080, 1080, 0.75);
 
         addPhoto(districtId, {
           url: compressedBase64,
