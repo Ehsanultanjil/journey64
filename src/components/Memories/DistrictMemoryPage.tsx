@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   ArrowLeft,
@@ -66,6 +66,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
   const isFavorite = !!districtData?.isFavorite;
   const rating = districtData?.rating || 5;
 
+  useEffect(() => {
+    if (activeVisit?.visitDate) {
+      setVisitDateDraft(activeVisit.visitDate);
+    } else if (districtData?.firstVisitedDate) {
+      setVisitDateDraft(districtData.firstVisitedDate);
+    }
+  }, [activeVisit?.visitDate, districtData?.firstVisitedDate]);
+
   // Aggregate all photos for this district
   const photos: Photo[] = (activeVisit?.photos || []).sort(
     (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
@@ -93,7 +101,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           url: compressedBase64,
           caption: '',
           isCover: totalPhotos === 0 && i === 0,
-          takenDate: new Date().toISOString(),
+          takenDate: visitDateDraft || new Date().toISOString().split('T')[0],
         });
       }
     } catch (err) {
@@ -107,7 +115,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
   const handleSaveNotes = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    updateDistrictNotes(districtId, notesDraft);
+    updateDistrictNotes(districtId, notesDraft, visitDateDraft);
     setIsSavedToast(true);
     setTimeout(() => setIsSavedToast(false), 2000);
   };

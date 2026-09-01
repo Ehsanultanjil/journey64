@@ -94,7 +94,7 @@ interface AppContextType {
     status: DistrictStatus,
     extra?: { visitDate?: string; notes?: string; rating?: number }
   ) => void;
-  updateDistrictNotes: (districtId: string, notes: string) => void;
+  updateDistrictNotes: (districtId: string, notes: string, visitDate?: string) => void;
   updateDistrictRating: (districtId: string, rating: number) => void;
   toggleDistrictFavorite: (districtId: string) => void;
   addVisit: (visit: Omit<Visit, 'id' | 'createdAt' | 'updatedAt'>) => Visit;
@@ -465,7 +465,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const updateDistrictNotes = (districtId: string, notes: string) => {
+  const updateDistrictNotes = (districtId: string, notes: string, visitDate?: string) => {
     const current = userData[districtId] || {
       districtId,
       status: 'visited',
@@ -476,6 +476,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       [districtId]: {
         ...current,
         notes,
+        ...(visitDate ? { firstVisitedDate: visitDate } : {}),
         updatedAt: new Date().toISOString(),
       },
     };
@@ -484,7 +485,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Also sync with the primary visit
     const primaryVisit = visits.find((v) => v.districtId === districtId);
     if (primaryVisit) {
-      updateVisit(primaryVisit.id, { notes });
+      updateVisit(primaryVisit.id, {
+        notes,
+        ...(visitDate ? { visitDate } : {}),
+      });
+    } else {
+      const now = new Date().toISOString();
+      const newVisit: Visit = {
+        id: `visit-${districtId}-${Date.now()}`,
+        districtId,
+        visitDate: visitDate || now.split('T')[0],
+        notes,
+        rating: current.rating || 5,
+        photos: [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      syncVisits([newVisit, ...visits]);
     }
   };
 
@@ -613,11 +630,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: now,
     };
 
+    if (photoData.takenDate) {
+      targetVisit.visitDate = photoData.takenDate;
+    }
+
     const updatedPhotos = [...(targetVisit.photos || []), newPhoto];
     const updatedVisits = allVisits.map((v) => {
       if (v.id === targetVisit!.id) {
         return {
           ...v,
+          visitDate: photoData.takenDate || v.visitDate,
           photos: updatedPhotos,
           updatedAt: now,
         };
@@ -627,9 +649,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     syncVisits(updatedVisits);
 
-    // Ensure status is visited
-    if (userData[districtId]?.status !== 'visited') {
-      setDistrictStatus(districtId, 'visited');
+    // Ensure status is visited and sync firstVisitedDate
+    const currentUD = userData[districtId];
+    if (!currentUD || currentUD.status !== 'visited' || (photoData.takenDate && !currentUD.firstVisitedDate)) {
+      syncUserData({
+        ...userData,
+        [districtId]: {
+          ...(currentUD || { districtId, updatedAt: now }),
+          status: 'visited',
+          firstVisitedDate: photoData.takenDate || currentUD?.firstVisitedDate || now.split('T')[0],
+          updatedAt: now,
+        },
+      });
     }
 
     return newPhoto;
