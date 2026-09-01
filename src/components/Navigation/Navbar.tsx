@@ -30,11 +30,9 @@ export const Navbar: React.FC = () => {
   };
 
   const navItems: { key: ActiveTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { key: 'explore', label: 'মানচিত্র এক্সপ্লোরার', icon: Map },
-    { key: 'memories', label: 'স্মৃতি ও ডায়েরি', icon: BookOpen },
+    { key: 'explore', label: 'মানচিত্র', icon: Map },
+    { key: 'memories', label: 'ভ্রমণ ডায়েরি', icon: BookOpen },
   ];
-
-  const userInitial = (authUser?.user_metadata?.display_name || authUser?.email || 'U')[0]?.toUpperCase();
 
   return (
     <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
@@ -42,22 +40,24 @@ export const Navbar: React.FC = () => {
         {/* Left Spacer for true centering */}
         <div className="w-10 shrink-0 hidden md:block" />
 
-        {/* Center: Minimal Centered Navigation Bar */}
-        <nav className="hidden md:flex items-center gap-1.5 bg-[#12141A]/85 backdrop-blur-xl border border-white/15 p-1 rounded-full shadow-lg absolute left-1/2 -translate-x-1/2">
+        {/* Center: Minimal Centered Navigation Bar with Equal Symmetrical Widths */}
+        <nav className="hidden md:flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-1 rounded-full shadow-2xl absolute left-1/2 -translate-x-1/2">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
+            const Icon = item.icon;
             return (
               <button
                 key={item.key}
                 id={`nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`px-4 py-1.5 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
+                className={`w-36 sm:w-40 py-2 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer text-center flex items-center justify-center gap-2 ${
                   isActive
-                    ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30 scale-105'
+                    ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30'
                     : 'text-stone-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {item.label}
+                <Icon className="w-3.5 h-3.5" />
+                <span>{item.label}</span>
               </button>
             );
           })}
