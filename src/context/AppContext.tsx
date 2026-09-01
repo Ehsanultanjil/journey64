@@ -721,14 +721,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     const isFirstPhoto = totalCurrentPhotos === 0;
+    const isNewCover = photoData.isCover !== undefined ? photoData.isCover : isFirstPhoto;
+
     const newPhoto: Photo = {
-      id: `photo-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      id: crypto.randomUUID ? crypto.randomUUID() : `photo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       districtId,
       visitId: targetVisit.id,
       url: photoData.url,
       caption: photoData.caption || '',
       sortOrder: totalCurrentPhotos,
-      isCover: photoData.isCover !== undefined ? photoData.isCover : isFirstPhoto,
+      isCover: isNewCover,
       isFavoriteMemory: isFirstPhoto,
       takenDate: photoData.takenDate || targetVisit.visitDate,
       createdAt: now,
@@ -738,7 +740,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       targetVisit.visitDate = photoData.takenDate;
     }
 
-    const updatedPhotos = [...(targetVisit.photos || []), newPhoto];
+    const sanitizedExisting = (targetVisit.photos || []).map((p) =>
+      isNewCover ? { ...p, isCover: false } : p
+    );
+    const updatedPhotos = [...sanitizedExisting, newPhoto];
+
     const updatedVisits = allVisits.map((v) => {
       if (v.id === targetVisit!.id) {
         return {

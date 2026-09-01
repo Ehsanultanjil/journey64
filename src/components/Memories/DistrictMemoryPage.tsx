@@ -266,7 +266,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {isSavedToast && (
+                <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
+                  <Check className="w-4 h-4" /> সেভ হয়েছে
+                </span>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
@@ -461,23 +467,6 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   })}
                 </div>
               )}
-            </div>
-
-            {/* Bottom Save Action */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/10">
-              {isSavedToast && (
-                <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
-                  <Check className="w-4 h-4" /> সেভ হয়েছে
-                </span>
-              )}
-
-              <button
-                type="submit"
-                className="ml-auto px-6 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>পরিবর্তন সেভ করুন</span>
-              </button>
             </div>
           </form>
         </motion.div>
