@@ -56,13 +56,15 @@ const MainContent: React.FC = () => {
             <Navbar />
 
             {/* Hero Text, Headline, and Live Metrics */}
-            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-6 sm:pt-10 pb-8 sm:pb-12">
-              <div className="max-w-2xl space-y-4 sm:space-y-5">
-                <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.08] drop-shadow-md">
-                  দেশজুড়ে ঘুরে বেড়ান, <br />
+            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-4 sm:pt-10 pb-6 sm:pb-12">
+              <div className="max-w-2xl space-y-3 sm:space-y-5">
+                <h1 className="font-display text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-snug sm:leading-[1.08] drop-shadow-md">
+                  দেশজুড়ে ঘুরে বেড়ান,{' '}
+                  <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
                     জমিয়ে রাখুন প্রতিটি
-                  </span> <br />
+                  </span>{' '}
+                  <br className="hidden sm:inline" />
                   জেলার সুন্দর স্মৃতি।
                 </h1>
 
@@ -70,12 +72,12 @@ const MainContent: React.FC = () => {
                   বাংলাদেশের কোন কোন জেলায় গিয়েছেন তা মানচিত্রে চিহ্নিত করুন, আর ভ্রমণের সুন্দর গল্প ও ছবিগুলো সাজিয়ে রাখুন আপনার ব্যক্তিগত ডায়েরিতে।
                 </p>
 
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex items-center gap-3 pt-1 sm:pt-2">
                   <button
                     onClick={() => {
                       document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="px-5 py-3 bg-white hover:bg-stone-100 text-stone-950 font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2.5 shadow-xl hover:scale-105 transition-all cursor-pointer"
+                    className="px-4 sm:px-5 py-2.5 sm:py-3 bg-white hover:bg-stone-100 text-stone-950 font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2 shadow-xl hover:scale-105 transition-all cursor-pointer"
                   >
                     <span>মানচিত্র দেখুন</span>
                     <div className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center">
