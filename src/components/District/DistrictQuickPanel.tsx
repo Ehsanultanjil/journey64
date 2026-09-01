@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
-  MapPin,
   Calendar,
   Camera,
   Heart,
@@ -10,11 +9,10 @@ import {
   BookOpen,
   CheckCircle2,
   Bookmark,
-  Sparkles,
-  Plus,
-  AlertTriangle,
-  ArrowRight,
   Compass,
+  ArrowRight,
+  Sparkles,
+  AlertTriangle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { DistrictStatus } from '../../types';
@@ -28,6 +26,7 @@ export const DistrictQuickPanel: React.FC = () => {
     setDistrictStatus,
     updateDistrictRating,
     toggleDistrictFavorite,
+    updateDistrictNotes,
     openDistrictJournal,
   } = useApp();
 
@@ -46,7 +45,7 @@ export const DistrictQuickPanel: React.FC = () => {
 
   const isFavorite = !!currentData?.isFavorite;
   const rating = currentData?.rating || 5;
-  const visitDate = currentData?.firstVisitedDate || districtVisits[0]?.visitDate;
+  const notes = currentData?.notes || districtVisits[0]?.notes || '';
 
   const handleStatusChange = (newStatus: DistrictStatus) => {
     if (currentStatus === 'visited' && newStatus === 'not_visited') {
@@ -63,51 +62,51 @@ export const DistrictQuickPanel: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/50 backdrop-blur-xs">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
         {/* Backdrop click to close */}
         <div className="absolute inset-0" onClick={() => selectDistrict(null)} />
 
-        {/* Modal Card */}
+        {/* Modal Dialog */}
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          initial={{ opacity: 0, y: 30, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 40, scale: 0.95 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-lg bg-white dark:bg-[#0c0c0c] text-stone-900 dark:text-white border-t sm:border border-stone-200 dark:border-white/20 rounded-t-2xl sm:rounded-none shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col z-10 transition-colors"
+          exit={{ opacity: 0, y: 30, scale: 0.96 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="relative w-full max-w-md bg-[#0F1218] text-white border border-white/15 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 font-body"
         >
-          {/* Cover Photo Header or Gradient Banner */}
-          <div className="relative h-40 sm:h-56 w-full bg-stone-100 dark:bg-[#161616] overflow-hidden shrink-0 border-b border-stone-200 dark:border-white/10">
+          {/* Header Banner */}
+          <div className="relative h-44 sm:h-52 w-full bg-[#161A22] overflow-hidden shrink-0">
             {coverPhoto ? (
               <img
                 src={coverPhoto}
                 alt={selectedDistrict.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover filter brightness-90"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#FAF5EF] via-[#F4EFE6] to-[#EAE3D2] dark:from-[#1c120c] dark:via-[#111111] dark:to-[#050505] flex items-center justify-center p-4 sm:p-6 text-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#1C1612] via-[#12141A] to-[#0A0C10] flex items-center justify-center p-6 text-center">
                 <div>
-                  <Compass className="w-10 h-10 sm:w-14 sm:h-14 text-[#F27D26]/60 dark:text-[#F27D26]/40 mx-auto mb-1 sm:mb-2" />
-                  <p className="font-body font-bold text-[9px] sm:text-[10px] text-stone-600 dark:text-white/50 tracking-wider uppercase">
+                  <Compass className="w-12 h-12 text-[#EA580C]/40 mx-auto mb-2" />
+                  <span className="text-[10px] font-bold text-[#EA580C] uppercase tracking-widest">
                     {selectedDistrict.division} DIVISION
-                  </p>
+                  </span>
                 </div>
               </div>
             )}
 
-            {/* Dark gradient overlay for title legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+            {/* Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1218] via-[#0F1218]/50 to-black/30" />
 
-            {/* Top Close & Favorite buttons */}
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+            {/* Top Control Buttons */}
+            <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
               <button
                 id="quick-panel-fav-btn"
                 onClick={() => toggleDistrictFavorite(districtId)}
-                className={`p-2 sm:p-2.5 transition-all cursor-pointer ${
+                className={`p-2.5 rounded-full backdrop-blur-md transition-all cursor-pointer ${
                   isFavorite
-                    ? 'bg-[#F27D26] text-white scale-105 shadow-md'
-                    : 'bg-black/60 text-white/80 hover:bg-black'
+                    ? 'bg-[#EA580C] text-white shadow-md scale-105'
+                    : 'bg-black/60 text-white/80 hover:bg-black hover:text-[#EA580C]'
                 }`}
-                aria-label="Toggle favorite"
+                aria-label="পছন্দের তালিকা"
               >
                 <Heart className={`w-4 h-4 ${isFavorite ? 'fill-white' : ''}`} />
               </button>
@@ -115,272 +114,178 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="quick-panel-close-btn"
                 onClick={() => selectDistrict(null)}
-                className="p-2 sm:p-2.5 bg-black/60 hover:bg-[#F27D26] text-white transition-colors cursor-pointer"
-                aria-label="Close panel"
+                className="p-2.5 rounded-full bg-black/60 hover:bg-[#EA580C] text-white backdrop-blur-md transition-colors cursor-pointer"
+                aria-label="বন্ধ করুন"
               >
-                <X className="w-4 h-4 stroke-[2.5]" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* District Titles on Cover */}
-            <div className="absolute bottom-3 left-4 right-4 sm:bottom-4 sm:left-5 sm:right-5 text-white">
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#F27D26] text-white">
-                  {selectedDistrict.division} DIVISION
+            {/* District Titles on Banner */}
+            <div className="absolute bottom-3.5 left-4 right-4 text-white">
+              <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#EA580C] text-white shadow-xs">
+                  {selectedDistrict.division} বিভাগ
                 </span>
                 {selectedDistrict.isCoastal && (
-                  <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-white/20 text-white backdrop-blur-md">
-                    উপকূলীয়
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/15 text-white backdrop-blur-md">
+                    উপকূলীয়
                   </span>
                 )}
                 {selectedDistrict.isHill && (
-                  <span className="font-body font-bold text-[8px] sm:text-[9px] uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 bg-amber-500 text-black">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                     পার্বত্য
                   </span>
                 )}
               </div>
-              <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-wide mt-1 flex items-baseline gap-2 sm:gap-3 text-white">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight flex items-baseline gap-2 text-white">
                 {selectedDistrict.bn_name}
-                <span className="font-sans text-xs sm:text-base font-semibold text-white/70">
+                <span className="font-sans text-xs font-normal text-stone-300">
                   ({selectedDistrict.name})
                 </span>
               </h2>
             </div>
           </div>
 
-          {/* Panel Content Body */}
-          <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6">
+          {/* Modal Body */}
+          <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
             {/* Tagline / Highlights */}
             {selectedDistrict.tagline && (
-              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-light tracking-wide italic border-l-2 border-[#F27D26] pl-3 py-0.5">
+              <p className="text-xs text-stone-300 font-light italic border-l-2 border-[#EA580C] pl-3 py-0.5">
                 "{selectedDistrict.tagline}"
               </p>
             )}
 
-            {/* Status Selector Bar in Bangla */}
+            {/* Status Selection Cards (Clean 3-Way Selector) */}
             <div className="space-y-1.5">
-              <span className="font-body font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-white/50 block">
-                ভ্রমণ স্থিতি নির্বাচন
-              </span>
-              <div className="bg-stone-100 dark:bg-white/5 p-1 flex items-center gap-1 border border-stone-200 dark:border-white/10">
+              <label className="block text-[11px] font-bold text-stone-400 uppercase tracking-wider">
+                ভ্রমণ স্থিতি নির্বাচন করুন
+              </label>
+
+              <div className="grid grid-cols-3 gap-2">
+                {/* 1. Visited */}
                 <button
                   id="status-btn-visited"
                   onClick={() => handleStatusChange('visited')}
-                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                     currentStatus === 'visited'
-                      ? 'bg-[#F27D26] text-white shadow-md'
-                      : 'text-stone-600 dark:text-white/60 hover:text-stone-900 dark:hover:text-white'
+                      ? 'bg-[#EA580C] border-[#EA580C] text-white shadow-lg shadow-[#EA580C]/25'
+                      : 'bg-white/5 border-white/10 text-stone-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  ঘুরেছি
+                  <CheckCircle2 className={`w-5 h-5 ${currentStatus === 'visited' ? 'text-white' : 'text-stone-400'}`} />
+                  <span className="text-xs font-bold leading-tight">ভ্রমণ করেছি</span>
                 </button>
 
+                {/* 2. Wishlist */}
                 <button
-                  id="status-btn-want"
+                  id="status-btn-wishlist"
                   onClick={() => handleStatusChange('want_to_visit')}
-                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                     currentStatus === 'want_to_visit'
-                      ? 'bg-amber-400 text-black shadow-md'
-                      : 'text-stone-600 dark:text-white/60 hover:text-stone-900 dark:hover:text-white'
+                      ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-lg shadow-amber-500/20'
+                      : 'bg-white/5 border-white/10 text-stone-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <Bookmark className="w-3.5 h-3.5" />
-                  যেতে চাই
+                  <Bookmark className={`w-5 h-5 ${currentStatus === 'want_to_visit' ? 'text-amber-400 fill-amber-400' : 'text-stone-400'}`} />
+                  <span className="text-xs font-bold leading-tight">ইচ্ছাতালিকা</span>
                 </button>
 
+                {/* 3. Not Visited */}
                 <button
-                  id="status-btn-not"
+                  id="status-btn-not-visited"
                   onClick={() => handleStatusChange('not_visited')}
-                  className={`flex-1 py-2.5 px-3 font-body text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                     currentStatus === 'not_visited'
-                      ? 'bg-stone-300 dark:bg-white/20 text-stone-900 dark:text-white shadow-md'
-                      : 'text-stone-400 dark:text-white/40 hover:text-stone-800 dark:hover:text-white'
+                      ? 'bg-white/15 border-white/30 text-white shadow-md'
+                      : 'bg-white/5 border-white/10 text-stone-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  বাকি আছে
+                  <span className="w-5 h-5 rounded-full border border-stone-500 flex items-center justify-center text-[10px] text-stone-400">
+                    ✕
+                  </span>
+                  <span className="text-xs font-bold leading-tight">বাকি আছে</span>
                 </button>
               </div>
             </div>
 
-            {/* Visited Details & Actions */}
+            {/* Rating & Photo Counter Bar */}
             {currentStatus === 'visited' && (
-              <div className="space-y-4 pt-1">
-                {/* Stats row: Visit Date, Photos Count, Rating */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-stone-50 dark:bg-white/5 p-3.5 border border-stone-200 dark:border-white/10">
-                    <span className="font-body font-bold text-[10px] tracking-wider text-[#EA580C] dark:text-[#F27D26] block mb-1">
-                      প্রথম ভ্রমণ
-                    </span>
-                    <p className="font-body text-base font-semibold text-stone-900 dark:text-white">
-                      {visitDate
-                        ? new Date(visitDate).toLocaleDateString('bn-BD', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
-                        : 'সংরক্ষিত'}
-                    </p>
-                  </div>
-
-                  <div className="bg-stone-50 dark:bg-white/5 p-3.5 border border-stone-200 dark:border-white/10">
-                    <span className="font-body font-bold text-[10px] tracking-wider text-[#EA580C] dark:text-[#F27D26] block mb-1">
-                      সংরক্ষিত ছবি
-                    </span>
-                    <p className="font-body text-base font-semibold text-stone-900 dark:text-white">
-                      {totalPhotos}টি ছবি
-                    </p>
-                  </div>
-                </div>
-
-                {/* Rating row */}
-                <div className="flex items-center justify-between p-3.5 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10">
-                  <span className="font-body font-bold text-xs text-stone-900 dark:text-white">
-                    অভিজ্ঞতা রেটিং
-                  </span>
-                  <div className="flex items-center gap-1">
+              <div className="p-3.5 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between gap-3">
+                <div>
+                  <span className="block text-[11px] font-bold text-stone-400">ভ্রমণ রেটিং</span>
+                  <div className="flex items-center gap-1 mt-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => updateDistrictRating(districtId, star)}
-                        className="p-1 text-amber-500 dark:text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                        className="text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                        aria-label={`${star} star`}
                       >
-                        <Star
-                          className={`w-4 h-4 ${
-                            star <= rating ? 'fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400' : 'text-stone-300 dark:text-white/20'
-                          }`}
-                        />
+                        <Star className={`w-4 h-4 ${star <= rating ? 'fill-amber-400' : 'text-white/20'}`} />
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Primary Action Button: Open Journal */}
-                <button
-                  id="quick-panel-open-journal-btn"
-                  onClick={() => {
-                    selectDistrict(null);
-                    openDistrictJournal(districtId);
-                  }}
-                  className="w-full py-3.5 px-6 bg-stone-900 text-white dark:bg-white dark:text-black hover:bg-[#F27D26] hover:text-white dark:hover:bg-[#F27D26] dark:hover:text-white font-body font-bold text-sm flex items-center justify-between transition-colors cursor-pointer shadow-lg"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <BookOpen className="w-4 h-4" />
-                    স্মৃতি ও ফটো অ্যালবাম খুলুন
+                <div className="text-right border-l border-white/10 pl-3">
+                  <span className="block text-[11px] font-bold text-stone-400">সংরক্ষিত ছবি</span>
+                  <span className="text-xs font-bold text-white flex items-center justify-end gap-1 mt-1">
+                    <Camera className="w-3.5 h-3.5 text-[#EA580C]" />
+                    {totalPhotos}টি ছবি
                   </span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-
-            {/* Want to Visit action */}
-            {currentStatus === 'want_to_visit' && (
-              <div className="p-4 bg-amber-50/70 dark:bg-white/5 border border-amber-300 dark:border-amber-400/30 space-y-3">
-                <div className="flex items-start gap-3">
-                  <Bookmark className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-body font-bold text-xs text-amber-800 dark:text-amber-400">
-                      আপনার ভ্রমণ ইচ্ছাতালিকায় সংরক্ষিত
-                    </h4>
-                    <p className="font-body text-xs text-stone-600 dark:text-stone-300 mt-1 font-light">
-                      মানচিত্রে সোনালী রঙে হাইলাইট করা হয়েছে।
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleStatusChange('visited')}
-                  className="w-full py-3 px-4 bg-amber-500 text-black hover:bg-[#F27D26] hover:text-white font-body font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  ভ্রমণ সম্পন্ন হিসেবে চিহ্নিত করুন
-                </button>
-              </div>
-            )}
-
-            {/* Not Visited action */}
-            {currentStatus === 'not_visited' && (
-              <div className="p-4 bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 space-y-3">
-                <p className="font-body text-xs text-stone-600 dark:text-stone-300 font-light">
-                  আপনি কি {selectedDistrict.bn_name} জেলায় ভ্রমণ করেছেন? ভ্রমণ চিহ্নিত করে স্মৃতি ও ছবি যোগ করুন।
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleStatusChange('visited')}
-                    className="flex-1 py-3 px-4 bg-[#F27D26] text-white hover:bg-stone-900 dark:hover:bg-white dark:hover:text-black font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    ঘুরেছি
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange('want_to_visit')}
-                    className="py-3 px-4 bg-stone-200 dark:bg-white/10 hover:bg-amber-400 hover:text-black text-stone-800 dark:text-white font-body font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Bookmark className="w-3.5 h-3.5" />
-                    যেতে চাই
-                  </button>
                 </div>
               </div>
             )}
 
-            {/* Famous spots chips */}
-            {selectedDistrict.famousSpots && selectedDistrict.famousSpots.length > 0 && (
-              <div className="pt-2">
-                <span className="font-body font-bold text-[9px] uppercase tracking-wider text-stone-500 dark:text-white/50 block mb-2">
-                  উল্লেখযোগ্য দর্শনীয় স্থান
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {selectedDistrict.famousSpots.map((spot, idx) => (
-                    <span
-                      key={idx}
-                      className="font-body text-[10px] font-semibold tracking-wider px-3 py-1 bg-stone-100 dark:bg-white/5 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-white/10"
-                    >
-                      {spot}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Quick Journal / Open Memory Page Button */}
+            <div className="pt-2">
+              <button
+                id="open-journal-page-btn"
+                onClick={() => openDistrictJournal(districtId)}
+                className="w-full py-3 bg-[#EA580C] hover:bg-[#c2410c] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#EA580C]/25 transition-all cursor-pointer hover:scale-[1.01]"
+              >
+                <Camera className="w-4 h-4" />
+                <span>ফটো অ্যালবাম ও ভ্রমণ ডায়েরি</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </motion.div>
 
+        {/* Confirm Reset Status Dialog */}
+        {confirmUnvisitOpen && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs font-body">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-sm bg-[#12141A] border border-white/20 p-5 rounded-3xl space-y-4 shadow-2xl"
+            >
+              <div className="flex items-center gap-2.5 text-amber-400">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <h4 className="text-sm font-bold text-white">ভ্রমণ স্থিতি পরিবর্তন করবেন?</h4>
+              </div>
+              <p className="text-xs text-stone-300 font-light leading-relaxed">
+                {selectedDistrict.bn_name} জেলাকে 'বাকি আছে' হিসেবে চিহ্নিত করবেন?
+              </p>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setConfirmUnvisitOpen(false)}
+                  className="px-3.5 py-2 text-xs font-semibold text-stone-400 hover:text-white cursor-pointer"
+                >
+                  বাতিল
+                </button>
+                <button
+                  onClick={handleConfirmUnvisit}
+                  className="px-4 py-2 text-xs font-bold bg-[#EA580C] hover:bg-[#c2410c] text-white rounded-xl cursor-pointer"
+                >
+                  হ্যাঁ, পরিবর্তন করুন
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
-
-      {/* Confirmation Dialog for Unvisiting */}
-      {confirmUnvisitOpen && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-3xl p-5 shadow-2xl border border-stone-200 dark:border-stone-800 space-y-4"
-          >
-            <div className="flex items-center gap-3 text-amber-600">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                Mark {selectedDistrict.name} as not visited?
-              </h3>
-            </div>
-            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-              Your saved photos and journal memories will <strong>not</strong> be deleted, and can be restored anytime by marking the district as visited again.
-            </p>
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                onClick={() => setConfirmUnvisitOpen(false)}
-                className="px-3.5 py-2 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmUnvisit}
-                className="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-sm"
-              >
-                Yes, Change Status
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </AnimatePresence>
   );
 };
