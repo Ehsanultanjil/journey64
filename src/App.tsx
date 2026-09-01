@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navigation/Navbar';
 import { BangladeshMap } from './components/Map/BangladeshMap';
@@ -24,35 +23,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-const tabOrder: Record<string, number> = {
-  explore: 0,
-  memories: 1,
-  settings: 2,
-};
-
-const pageVariants = {
-  initial: (dir: number) => ({
-    opacity: 0,
-    x: dir > 0 ? 36 : -36,
-  }),
-  animate: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      x: { type: 'spring', stiffness: 350, damping: 32 },
-      opacity: { duration: 0.22, ease: 'easeOut' },
-    },
-  },
-  exit: (dir: number) => ({
-    opacity: 0,
-    x: dir > 0 ? -36 : 36,
-    transition: {
-      x: { duration: 0.16, ease: 'easeInOut' },
-      opacity: { duration: 0.16, ease: 'easeInOut' },
-    },
-  }),
-};
-
 const MainContent: React.FC = () => {
   const {
     activeTab,
@@ -69,15 +39,6 @@ const MainContent: React.FC = () => {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
-  const [direction, setDirection] = useState<number>(0);
-  const prevTabRef = useRef(activeTab);
-
-  useEffect(() => {
-    const prevOrder = tabOrder[prevTabRef.current] || 0;
-    const newOrder = tabOrder[activeTab] || 0;
-    setDirection(newOrder >= prevOrder ? 1 : -1);
-    prevTabRef.current = activeTab;
-  }, [activeTab]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const target = e.target as HTMLElement;
@@ -127,17 +88,8 @@ const MainContent: React.FC = () => {
       onTouchEnd={handleTouchEnd}
       className="flex flex-col min-h-full relative overflow-hidden"
     >
-      <AnimatePresence mode="wait" custom={direction} initial={false}>
-        {activeTab === 'explore' && (
-          <motion.div
-            key="explore"
-            custom={direction}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="flex flex-col min-h-full space-y-8 sm:space-y-12"
-          >
+      {activeTab === 'explore' ? (
+        <div className="flex flex-col min-h-full space-y-8 sm:space-y-12">
             {/* Top Hero Container (Background Photo spans behind Navbar all the way to top) */}
             <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10">
               {/* Background Photo & Atmospheric Lighting Overlays */}
@@ -299,40 +251,17 @@ const MainContent: React.FC = () => {
                 </div>
               </section>
             </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'memories' && (
-          <motion.div
-            key="memories"
-            custom={direction}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="flex flex-col min-h-full"
-          >
-            <MemoriesTimelinePage />
-          </motion.div>
-        )}
-
-        {activeTab === 'settings' && (
-          <motion.div
-            key="settings"
-            custom={direction}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="flex flex-col flex-1"
-          >
+          </div>
+        ) : activeTab === 'memories' ? (
+          <MemoriesTimelinePage />
+        ) : (
+          <div className="flex flex-col flex-1">
             <Navbar />
             <div className="px-3 sm:px-8 lg:px-12 pt-6 pb-16 flex-1">
               <SettingsPage />
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* Interactive Global Modals */}
       <DistrictQuickPanel />

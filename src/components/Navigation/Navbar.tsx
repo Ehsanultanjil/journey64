@@ -32,12 +32,9 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-2.5 sm:px-6 lg:px-8 bg-transparent pointer-events-none transition-all">
-      <div className="flex items-center justify-between gap-1.5 sm:gap-2 relative max-w-7xl mx-auto min-h-[38px] sm:min-h-[44px]">
-        {/* Left Spacer for true centering balance */}
-        <div className="w-8 sm:w-10 shrink-0" />
-
-        {/* Center: Sleek Pure Floating Capsule Navigation Bar with Sliding Pill */}
+    <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-3 sm:px-6 lg:px-8 bg-transparent pointer-events-none transition-all">
+      <div className="relative flex items-center justify-center max-w-7xl mx-auto min-h-[38px] sm:min-h-[44px]">
+        {/* Center: Perfectly Centered Pure Floating Capsule Navigation Bar */}
         <nav className="flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-0.5 sm:p-1 rounded-full shadow-2xl pointer-events-auto">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
@@ -47,7 +44,7 @@ export const Navbar: React.FC = () => {
                 key={item.key}
                 id={`nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`relative px-3.5 sm:px-6 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-body font-bold tracking-wide transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5 sm:gap-2 z-10 ${
+                className={`relative px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-body font-bold tracking-wide transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5 sm:gap-2 z-10 ${
                   isActive
                     ? 'text-white'
                     : 'text-stone-300 hover:text-white'
@@ -67,8 +64,8 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Corner: Sleek Circular Settings Button */}
-        <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
+        {/* Right Corner: Settings Button Pin to Right without Offsetting Center */}
+        <div className="absolute right-0 flex items-center pointer-events-auto">
           <button
             id="nav-settings-circle-btn"
             onClick={() => handleTabChange('settings')}
