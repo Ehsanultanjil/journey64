@@ -92,9 +92,9 @@ const MainContent: React.FC = () => {
       <Navbar />
 
       {activeTab === 'explore' ? (
-        <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300">
+        <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-300 -mt-[48px] sm:-mt-[58px]">
           {/* Top Hero Container */}
-          <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10">
+          <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10 pt-14 sm:pt-18">
             {/* Background Photo & Atmospheric Lighting Overlays */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
@@ -107,7 +107,7 @@ const MainContent: React.FC = () => {
             </div>
 
             {/* Hero Text, Headline, and Live Metrics */}
-            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-4 sm:pt-8">
+            <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-4">
               <div className="max-w-2xl space-y-3 sm:space-y-4">
                 <h1 className="font-display text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-snug sm:leading-[1.08] drop-shadow-md">
                   দেশজুড়ে ঘুরে বেড়ান,{' '}

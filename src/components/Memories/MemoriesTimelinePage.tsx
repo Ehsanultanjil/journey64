@@ -145,9 +145,9 @@ export const MemoriesTimelinePage: React.FC = () => {
   }
 
   return (
-    <div className="w-full space-y-8 pb-24 animate-in fade-in duration-300 flex flex-col min-h-full">
+    <div className="w-full space-y-8 pb-24 animate-in fade-in duration-300 flex flex-col min-h-full -mt-[48px] sm:-mt-[58px]">
       {/* Top Hero Container with Background Photo matching Explore page */}
-      <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10">
+      <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10 pt-14 sm:pt-18">
         {/* Background Photo & Atmospheric Lighting Overlays */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
@@ -160,7 +160,7 @@ export const MemoriesTimelinePage: React.FC = () => {
         </div>
 
         {/* Hero Text, Headline, and Filters */}
-        <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-4 sm:pt-8">
+        <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-4">
           <div className="max-w-4xl space-y-4">
             <div className="space-y-1.5 sm:space-y-2">
               <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
