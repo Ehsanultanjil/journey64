@@ -89,7 +89,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
           {/* Brand Header */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-11 h-11 rounded-2xl bg-[#10B981] text-white flex items-center justify-center shadow-md">
+            <div className="w-11 h-11 rounded-2xl bg-[#059669] text-white flex items-center justify-center shadow-md">
               <Compass className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
@@ -116,7 +116,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               }}
               className={`flex-1 py-2 rounded-xl transition-all text-center cursor-pointer ${
                 mode === 'signin'
-                  ? 'bg-[#10B981] text-white shadow-sm'
+                  ? 'bg-[#059669] text-white shadow-sm'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -130,7 +130,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               }}
               className={`flex-1 py-2 rounded-xl transition-all text-center cursor-pointer ${
                 mode === 'signup'
-                  ? 'bg-[#10B981] text-white shadow-sm'
+                  ? 'bg-[#059669] text-white shadow-sm'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -147,7 +147,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           )}
 
           {successMsg && (
-            <div className="mb-4 p-3 bg-[#10B981]/15 border border-[#10B981]/40 text-[#10B981] text-xs rounded-2xl flex items-center gap-2">
+            <div className="mb-4 p-3 bg-[#059669]/15 border border-[#059669]/40 text-emerald-400 text-xs rounded-2xl flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -168,7 +168,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="যেমন: এহসানুল তানজিল"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#10B981] transition-colors"
+                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors"
                   />
                 </div>
               </div>
@@ -186,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="yourname@gmail.com"
-                  className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#10B981] transition-colors"
+                  className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors"
                 />
               </div>
             </div>
@@ -201,7 +201,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     <button
                       type="button"
                       onClick={() => setMode('reset')}
-                      className="text-[11px] text-[#10B981] hover:underline cursor-pointer"
+                      className="text-[11px] text-[#059669] hover:underline cursor-pointer"
                     >
                       ভুলে গেছেন?
                     </button>
@@ -215,7 +215,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#10B981] transition-colors"
+                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#10B981]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-2 py-3 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#059669]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
                 <>

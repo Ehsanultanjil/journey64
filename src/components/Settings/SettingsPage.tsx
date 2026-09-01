@@ -38,7 +38,7 @@ export const SettingsPage: React.FC = () => {
   if (!authUser) {
     return (
       <div className="w-full max-w-lg mx-auto py-16 px-4 text-center space-y-6 animate-in fade-in duration-300 font-body">
-        <div className="w-16 h-16 rounded-3xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center mx-auto shadow-md border border-[#10B981]/30">
+        <div className="w-16 h-16 rounded-3xl bg-[#059669]/15 text-[#059669] flex items-center justify-center mx-auto shadow-md border border-[#059669]/30">
           <ShieldCheck className="w-8 h-8" />
         </div>
         <div className="space-y-2">
@@ -51,7 +51,7 @@ export const SettingsPage: React.FC = () => {
         </div>
         <button
           onClick={openAuthModal}
-          className="px-6 py-3 bg-[#10B981] hover:bg-[#059669] text-white rounded-2xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#10B981]/30 cursor-pointer inline-flex items-center gap-2 hover:scale-105"
+          className="px-6 py-3 bg-[#059669] hover:bg-[#047857] text-white rounded-2xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#059669]/30 cursor-pointer inline-flex items-center gap-2 hover:scale-105"
         >
           <span>লগইন / সাইন আপ করুন</span>
           <ArrowRight className="w-4 h-4" />
@@ -64,7 +64,7 @@ export const SettingsPage: React.FC = () => {
     <div className="w-full max-w-3xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200">
       {/* Header */}
       <div className="border-b border-white/10 pb-4">
-        <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#10B981]">
+        <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
           ব্যবহারকারী কনফিগারেশন
         </span>
         <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-0.5">
@@ -76,7 +76,7 @@ export const SettingsPage: React.FC = () => {
         {/* 1. Profile Card */}
         <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm">
           <div className="flex items-center gap-3 border-b border-white/10 pb-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#10B981] text-white flex items-center justify-center font-bold text-base shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-[#059669] text-white flex items-center justify-center font-bold text-base shadow-sm">
               {(nameDraft || authUser?.email || 'U')[0]?.toUpperCase()}
             </div>
             <div>
@@ -99,7 +99,7 @@ export const SettingsPage: React.FC = () => {
                 value={nameDraft}
                 onChange={(e) => setNameDraft(e.target.value)}
                 placeholder="যেমন: আপনার নাম"
-                className="w-full px-4 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#10B981] transition-colors"
+                className="w-full px-4 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#059669] transition-colors"
               />
             </div>
 
@@ -112,19 +112,19 @@ export const SettingsPage: React.FC = () => {
                 value={bioDraft}
                 onChange={(e) => setBioDraft(e.target.value)}
                 placeholder="যেমন: ৬৪ জেলার পথে প্রান্তরে..."
-                className="w-full px-4 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#10B981] transition-colors"
+                className="w-full px-4 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#059669] transition-colors"
               />
             </div>
 
             <div className="flex items-center justify-between pt-1">
               {savedToast && (
-                <span className="text-xs font-bold text-[#10B981] flex items-center gap-1.5">
+                <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5">
                   <Check className="w-4 h-4" /> সংরক্ষিত হয়েছে
                 </span>
               )}
               <button
                 type="submit"
-                className="ml-auto px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="ml-auto px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
               >
                 সংরক্ষণ করুন
               </button>
@@ -136,7 +136,7 @@ export const SettingsPage: React.FC = () => {
         <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm font-body">
           <div className="flex items-center gap-3 border-b border-white/10 pb-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-sm">
-              <Settings className="w-5 h-5 text-[#10B981]" />
+              <Settings className="w-5 h-5 text-[#059669]" />
             </div>
             <div>
               <h3 className="font-display text-lg font-bold text-white leading-tight">
@@ -161,7 +161,7 @@ export const SettingsPage: React.FC = () => {
                 type="checkbox"
                 checked={settings.showDistrictLabels}
                 onChange={(e) => updateSettings({ showDistrictLabels: e.target.checked })}
-                className="w-5 h-5 accent-[#10B981] cursor-pointer rounded"
+                className="w-5 h-5 accent-[#059669] cursor-pointer rounded"
               />
             </div>
           </div>
@@ -171,7 +171,7 @@ export const SettingsPage: React.FC = () => {
         <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm font-body">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-[#059669]/15 text-[#059669] flex items-center justify-center shadow-sm">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -181,7 +181,7 @@ export const SettingsPage: React.FC = () => {
                 <div className="flex items-center gap-2 mt-0.5">
                   <span
                     className={`w-2 h-2 rounded-full ${
-                      cloudSync.connected ? 'bg-[#10B981] animate-pulse' : 'bg-amber-400'
+                      cloudSync.connected ? 'bg-[#059669] animate-pulse' : 'bg-amber-400'
                     }`}
                   />
                   <p className="text-xs text-stone-300">
@@ -202,7 +202,7 @@ export const SettingsPage: React.FC = () => {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <span>লগইন করুন</span>
                 <ArrowRight className="w-3.5 h-3.5" />

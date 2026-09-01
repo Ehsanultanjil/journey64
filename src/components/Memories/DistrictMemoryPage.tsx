@@ -158,8 +158,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             onClick={() => toggleDistrictFavorite(districtId)}
             className={`p-2 rounded-full border transition-all cursor-pointer ${
               isFavorite
-                ? 'bg-[#10B981] border-[#10B981] text-white shadow-md scale-105'
-                : 'bg-[#12141A] border-white/15 text-stone-400 hover:text-[#10B981]'
+                ? 'bg-[#059669] border-[#059669] text-white shadow-md scale-105'
+                : 'bg-[#12141A] border-white/15 text-stone-400 hover:text-[#059669]'
             }`}
             aria-label="পছন্দের তালিকা"
           >
@@ -187,14 +187,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             </button>
           </div>
         ) : (
-          <div className="h-60 sm:h-72 w-full bg-gradient-to-br from-[#0F1C16] via-[#12141A] to-[#0A0C10] flex flex-col items-center justify-center p-8 text-center">
-            <Compass className="w-14 h-14 text-[#10B981]/40 mb-3" />
+          <div className="h-60 sm:h-72 w-full bg-gradient-to-br from-[#0B1A13] via-[#12141A] to-[#0A0C10] flex flex-col items-center justify-center p-8 text-center">
+            <Compass className="w-14 h-14 text-[#059669]/40 mb-3" />
             <p className="text-sm text-stone-300 font-medium">
               {district.bn_name} জেলার ছবি ও স্মৃতিকথা সংরক্ষণ করুন
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-md transition-all cursor-pointer"
+              className="mt-4 px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-md transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               <span>ছবি আপলোড করুন</span>
@@ -205,7 +205,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         {/* Hero Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7 bg-gradient-to-t from-[#0A0C10] via-[#0A0C10]/70 to-transparent">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="px-3 py-1 text-xs font-bold rounded-full bg-[#10B981] text-white shadow-xs">
+            <span className="px-3 py-1 text-xs font-bold rounded-full bg-[#059669] text-white shadow-xs">
               {district.division} বিভাগ
             </span>
             <span className="px-3 py-1 text-xs font-semibold rounded-full bg-white/15 backdrop-blur-md text-stone-200">
@@ -235,7 +235,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-display text-xl font-bold text-white flex items-center gap-2">
-                <Camera className="w-5 h-5 text-[#10B981]" />
+                <Camera className="w-5 h-5 text-[#059669]" />
                 ফটো অ্যালবাম
               </h2>
               <p className="text-xs text-stone-400">
@@ -258,7 +258,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 id="upload-photo-btn"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -274,10 +274,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           {totalPhotos === 0 ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-white/20 hover:border-[#10B981] p-8 rounded-3xl text-center cursor-pointer transition-colors bg-[#12141A]/90 group"
+              className="border-2 border-dashed border-white/20 hover:border-[#059669] p-8 rounded-3xl text-center cursor-pointer transition-colors bg-[#12141A]/90 group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#10B981]/20 transition-colors">
-                <ImageIcon className="w-6 h-6 text-[#10B981]" />
+              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:bg-[#059669]/20 transition-colors">
+                <ImageIcon className="w-6 h-6 text-[#059669]" />
               </div>
               <h4 className="text-sm font-bold text-white">
                 ছবি নির্বাচন করুন
@@ -309,7 +309,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                     {/* Cover Badge */}
                     {isCover && (
                       <div className="absolute top-2 left-2">
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#10B981] text-white shadow-xs">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#059669] text-white shadow-xs">
                           কভার
                         </span>
                       </div>
@@ -354,7 +354,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                             value={captionDraft}
                             onChange={(e) => setCaptionDraft(e.target.value)}
                             placeholder="ক্যাপশন লিখুন..."
-                            className="flex-1 px-2 py-1 text-xs bg-black/70 border border-white/30 rounded text-white focus:outline-none focus:border-[#10B981]"
+                            className="flex-1 px-2 py-1 text-xs bg-black/70 border border-white/30 rounded text-white focus:outline-none focus:border-[#059669]"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCaption(photo.id);
@@ -363,7 +363,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                           />
                           <button
                             onClick={() => handleSaveCaption(photo.id)}
-                            className="p-1 bg-[#10B981] text-white rounded cursor-pointer"
+                            className="p-1 bg-[#059669] text-white rounded cursor-pointer"
                           >
                             <Check className="w-3 h-3" />
                           </button>
@@ -398,7 +398,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           <div className="bg-[#12141A]/90 border border-white/15 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-display text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#10B981]" />
+                <Sparkles className="w-4 h-4 text-[#059669]" />
                 ভ্রমণকাহিনী ও ডায়েরি
               </h3>
             </div>
@@ -406,14 +406,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             <form onSubmit={handleSaveNotes} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#10B981]" />
+                  <Calendar className="w-3.5 h-3.5 text-[#059669]" />
                   ভ্রমণের তারিখ
                 </label>
                 <input
                   type="date"
                   value={visitDateDraft}
                   onChange={(e) => setVisitDateDraft(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#10B981] transition-colors"
+                  className="w-full px-3.5 py-2 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#059669] transition-colors"
                 />
               </div>
 
@@ -426,13 +426,13 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   value={notesDraft}
                   onChange={(e) => setNotesDraft(e.target.value)}
                   placeholder={`${district.bn_name} ভ্রমণের অনুভূতি, সেরা দর্শনীয় স্থান, স্মৃতিচিহ্ন ও খাবারের অভিজ্ঞতা লিখে রাখুন...`}
-                  className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#10B981] transition-colors resize-none leading-relaxed"
+                  className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors resize-none leading-relaxed"
                 />
               </div>
 
               <div className="flex items-center justify-between pt-1">
                 {isSavedToast ? (
-                  <span className="text-xs font-bold text-[#10B981] flex items-center gap-1.5 animate-in fade-in">
+                  <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
                     <Check className="w-4 h-4" /> সংরক্ষিত হয়েছে
                   </span>
                 ) : (
@@ -443,7 +443,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>সংরক্ষণ করুন</span>

@@ -219,7 +219,7 @@ export const BangladeshMap: React.FC = () => {
     }
 
     if (userStatus === 'visited') {
-      return isSelected ? '#059669' : '#10B981'; // Emerald Green
+      return isSelected ? '#047857' : '#059669'; // Deep Forest Emerald Green
     }
     if (userStatus === 'want_to_visit') {
       return isSelected ? '#D97706' : '#F59E0B'; // Amber Gold
@@ -235,7 +235,7 @@ export const BangladeshMap: React.FC = () => {
   const getDistrictStroke = (district: District, isSelected: boolean) => {
     if (isSelected) return isDarkMode ? '#FFFFFF' : '#0F172A';
     const userStatus = userData[district.id]?.status || 'not_visited';
-    if (userStatus === 'visited') return '#34D399';
+    if (userStatus === 'visited') return '#10B981';
     if (userStatus === 'want_to_visit') return isDarkMode ? '#FBBF24' : '#D97706';
     return isDarkMode ? '#2a2a2a' : '#CBD5E1';
   };
@@ -267,7 +267,7 @@ export const BangladeshMap: React.FC = () => {
             placeholder="জেলা খুঁজুন... (যেমন: ঢাকা, কক্সবাজার)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs font-body font-semibold tracking-wide bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-white/40 focus:outline-none focus:border-[#F27D26] focus:ring-1 focus:ring-[#F27D26]"
+            className="w-full pl-9 pr-8 py-2 text-xs font-body font-semibold tracking-wide bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-white/40 focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669]"
           />
           {searchQuery && (
             <button
@@ -302,14 +302,14 @@ export const BangladeshMap: React.FC = () => {
                         <span
                           className={`w-2 h-2 shrink-0 ${
                             status === 'visited'
-                              ? 'bg-[#F27D26]'
+                              ? 'bg-[#059669]'
                               : status === 'want_to_visit'
                               ? 'bg-amber-400'
                               : 'bg-stone-300 dark:bg-white/30'
                           }`}
                         />
                         <div>
-                          <p className="font-body text-base font-bold text-stone-900 dark:text-white group-hover:text-[#F27D26]">
+                          <p className="font-body text-base font-bold text-stone-900 dark:text-white group-hover:text-[#059669]">
                             {d.bn_name}{' '}
                             <span className="text-xs font-normal text-stone-500 dark:text-white/40">
                               ({d.name})
@@ -320,7 +320,7 @@ export const BangladeshMap: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <span className="font-body text-xs font-bold text-[#F27D26]">
+                      <span className="font-body text-xs font-bold text-[#059669]">
                         নির্বাচন করুন →
                       </span>
                     </button>

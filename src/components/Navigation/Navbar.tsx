@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
             onClick={() => handleTabChange('explore')}
             className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group bg-[#12141A]/90 border border-white/15 px-3 py-1.5 rounded-full shadow-md hover:border-white/30 transition-all"
           >
-            <div className="w-7 h-7 rounded-full bg-[#10B981] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
+            <div className="w-7 h-7 rounded-full bg-[#059669] text-white flex items-center justify-center shadow-xs group-hover:rotate-45 transition-transform duration-300">
               <Compass className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -72,7 +72,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => handleTabChange(item.key)}
                   className={`px-4 py-1.5 rounded-full text-xs font-body font-bold tracking-wide transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#10B981] text-white shadow-md shadow-[#10B981]/30 scale-105'
+                      ? 'bg-[#059669] text-white shadow-md shadow-[#059669]/30 scale-105'
                       : 'text-stone-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -91,11 +91,11 @@ export const Navbar: React.FC = () => {
             className="hidden sm:flex items-center gap-2 bg-[#12141A]/90 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-full text-white hover:bg-[#1A1D24] transition-all cursor-pointer shadow-md"
             title="৬৪ জেলা পদচিহ্ন"
           >
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#059669] animate-pulse" />
             <span className="font-body text-xs font-bold">
               পদচিহ্ন: <strong className="text-white">{stats.visitedCount}</strong>/৬৪
             </span>
-            <span className="text-[11px] font-display font-bold text-[#10B981] bg-[#10B981]/15 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-display font-bold text-[#059669] bg-[#059669]/15 px-2 py-0.5 rounded-full">
               {stats.percentageExplored}%
             </span>
           </button>
@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
           >
             <span
               className={`w-2 h-2 rounded-full ${
-                cloudSync.connected ? 'bg-[#10B981] animate-pulse' : 'bg-amber-400'
+                cloudSync.connected ? 'bg-[#059669] animate-pulse' : 'bg-amber-400'
               }`}
             />
             <span>{cloudSync.connected ? 'ক্লাউড সক্রিয়' : 'ক্লাউড প্রস্তুত'}</span>
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => handleTabChange('settings')}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 rounded-full text-white text-xs font-body font-bold transition-colors cursor-pointer"
               >
-                <div className="w-5 h-5 bg-[#10B981] text-white rounded-full flex items-center justify-center text-[10px] font-bold uppercase">
+                <div className="w-5 h-5 bg-[#059669] text-white rounded-full flex items-center justify-center text-[10px] font-bold uppercase">
                   {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
                 </div>
                 <span className="hidden sm:inline max-w-[90px] truncate">
@@ -139,7 +139,7 @@ export const Navbar: React.FC = () => {
           ) : (
             <button
               onClick={openAuthModal}
-              className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white px-4 py-2 rounded-full font-body text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#10B981]/25"
+              className="flex items-center gap-2 bg-[#059669] hover:bg-[#047857] text-white px-4 py-2 rounded-full font-body text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#059669]/25"
             >
               <span>লগইন করুন</span>
               <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
@@ -163,7 +163,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => handleTabChange(item.key)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#10B981] text-white font-bold shadow-md'
+                    ? 'bg-[#059669] text-white font-bold shadow-md'
                     : 'text-stone-400 hover:text-white'
                 }`}
               >
