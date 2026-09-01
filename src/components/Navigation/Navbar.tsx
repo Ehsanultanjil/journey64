@@ -33,8 +33,8 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="relative z-40 w-full pt-3 px-3 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between gap-2 relative max-w-7xl mx-auto min-h-[44px]">
-        {/* Left Spacer for true centering */}
+      <div className="flex items-center justify-end md:justify-between gap-2 relative max-w-7xl mx-auto min-h-[44px]">
+        {/* Left Spacer for true desktop centering */}
         <div className="w-10 shrink-0 hidden md:block" />
 
         {/* Center: Minimal Centered Navigation Bar with Ultra-Smooth Sliding Active Pill */}
@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Corner: Sleek Circular Settings Button */}
+        {/* Right Corner: Sleek Circular Settings Button (Always pinned to Right on mobile & desktop) */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             id="nav-settings-circle-btn"
@@ -88,8 +88,8 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Bottom Tab Bar */}
-      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-3 left-4 right-4 z-50 bg-[#12141A]/95 backdrop-blur-2xl border border-white/20 rounded-full p-1.5 shadow-2xl shadow-black/80">
+      {/* Mobile Bottom Tab Bar: 2 Balanced Symmetrical Tabs (Settings is at the top right circle) */}
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-4 left-6 right-6 z-50 bg-[#12141A]/95 backdrop-blur-2xl border border-white/20 rounded-full p-1.5 shadow-2xl shadow-black/80 max-w-sm mx-auto">
         <div className="flex items-center justify-around relative">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
                 key={item.key}
                 id={`mobile-nav-tab-${item.key}`}
                 onClick={() => handleTabChange(item.key)}
-                className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-colors cursor-pointer z-10 ${
+                className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-full transition-colors cursor-pointer z-10 ${
                   isActive
                     ? 'text-white font-bold'
                     : 'text-stone-400 hover:text-white'
@@ -119,26 +119,6 @@ export const Navbar: React.FC = () => {
               </button>
             );
           })}
-          <button
-            onClick={() => handleTabChange('settings')}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full transition-colors cursor-pointer z-10 ${
-              activeTab === 'settings'
-                ? 'text-white font-bold'
-                : 'text-stone-400 hover:text-white'
-            }`}
-          >
-            {activeTab === 'settings' && (
-              <motion.div
-                layoutId="active-mobile-nav-pill"
-                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                className="absolute inset-0 bg-[#059669] rounded-full shadow-md -z-10"
-              />
-            )}
-            <Settings className="w-4 h-4" />
-            <span className="font-body text-xs font-bold leading-none">
-              সেটিংস
-            </span>
-          </button>
         </div>
       </nav>
     </header>
