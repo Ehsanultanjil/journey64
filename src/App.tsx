@@ -120,25 +120,6 @@ const MainContent: React.FC = () => {
               {/* Hero Text, Headline, and Live Metrics */}
               <section className="relative z-10 px-4 sm:px-8 lg:px-12 py-3 sm:py-6 md:my-auto">
                 <div className="max-w-3xl space-y-3 sm:space-y-4">
-                  {/* Mode Badge Indicator */}
-                  <div>
-                    {!authUser ? (
-                      <button
-                        onClick={() => openAuthModal('আপনার ভ্রমণ ডায়েরি শুরু করতে লগইন বা সাইন আপ করুন')}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold tracking-wide backdrop-blur-md hover:bg-amber-500/25 transition-all cursor-pointer"
-                      >
-                        <Lock className="w-3 h-3 text-amber-400" />
-                        <span>গেস্ট মোড • ডাটা সেভ করতে লগইন করুন</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
-                    ) : (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#059669]/20 border border-[#059669]/40 text-emerald-300 text-[11px] font-bold tracking-wide backdrop-blur-md">
-                        <Sparkles className="w-3 h-3 text-emerald-400" />
-                        <span>স্বাগতম, {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}</span>
-                      </div>
-                    )}
-                  </div>
-
                   <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight sm:leading-[1.12] drop-shadow-md">
                     <span className="block">দেশজুড়ে ঘুরে বেড়ান,</span>
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
