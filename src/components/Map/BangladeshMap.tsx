@@ -256,7 +256,7 @@ export const BangladeshMap: React.FC = () => {
   };
 
   return (
-    <div id="map-container" className="relative w-full flex flex-col bg-white dark:bg-[#0a0a0a] border border-stone-200/80 dark:border-white/15 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl shadow-stone-200/50 dark:shadow-2xl transition-colors">
+    <div id="map-container" className="relative w-full max-w-4xl xl:max-w-5xl mx-auto flex flex-col bg-white dark:bg-[#0a0a0a] border border-stone-200/80 dark:border-white/15 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl shadow-stone-200/50 dark:shadow-2xl transition-colors">
       {/* Top Map Controls Bar */}
       <div className="p-2.5 sm:p-4 border-b border-stone-200/80 dark:border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-[#FDFBF7]/90 dark:bg-[#050505]/90 backdrop-blur-md z-10">
         {/* Search Input */}
