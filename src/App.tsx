@@ -101,8 +101,8 @@ const MainContent: React.FC = () => {
     >
       {activeTab === 'explore' ? (
         <div className="flex flex-col min-h-full space-y-8 sm:space-y-12">
-            {/* Top Hero Container (Background Photo spans behind Navbar all the way to top) */}
-            <div className="relative border-b border-white/10 overflow-hidden flex flex-col justify-start pb-6 sm:pb-10">
+            {/* Top Hero Container (Full-screen 100vh on all devices) */}
+            <div className="relative min-h-[100dvh] w-full border-b border-white/10 overflow-hidden flex flex-col justify-between pb-4 sm:pb-6">
               {/* Background Photo & Atmospheric Lighting Overlays */}
               <div className="absolute inset-0 z-0 pointer-events-none">
                 <img
@@ -118,8 +118,8 @@ const MainContent: React.FC = () => {
               <Navbar />
 
               {/* Hero Text, Headline, and Live Metrics */}
-              <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-6">
-                <div className="max-w-2xl space-y-3 sm:space-y-4">
+              <section className="relative z-10 px-4 sm:px-8 lg:px-12 py-4 sm:py-6 my-auto">
+                <div className="max-w-3xl space-y-3 sm:space-y-4">
                   {/* Mode Badge Indicator */}
                   <div>
                     {!authUser ? (
@@ -208,6 +208,26 @@ const MainContent: React.FC = () => {
                   </div>
                 </div>
               </section>
+
+              {/* Scroll Down Indicator */}
+              <div className="relative z-10 flex flex-col items-center justify-center pt-2 pb-2">
+                <button
+                  onClick={() => {
+                    document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="flex flex-col items-center gap-1 text-stone-400 hover:text-white transition-colors cursor-pointer group"
+                >
+                  <span className="text-[10px] sm:text-[11px] font-body tracking-wider uppercase opacity-75 group-hover:opacity-100">
+                    মানচিত্র দেখতে স্ক্রল করুন
+                  </span>
+                  <motion.div
+                    animate={{ y: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                  >
+                    <ChevronDown className="w-4 h-4 text-emerald-400" />
+                  </motion.div>
+                </button>
+              </div>
             </div>
 
             {/* Bangladesh Interactive Map Section */}
