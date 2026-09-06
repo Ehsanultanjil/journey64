@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navigation/Navbar';
 import { BangladeshMap } from './components/Map/BangladeshMap';
@@ -21,12 +22,21 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
+  Lock,
+  LogIn,
+  User,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  Filter,
 } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const {
     activeTab,
     setActiveTab,
+    authUser,
+    openAuthModal,
     userData,
     visits,
     stats,
@@ -39,6 +49,7 @@ const MainContent: React.FC = () => {
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [openDivision, setOpenDivision] = useState<string | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const target = e.target as HTMLElement;
@@ -109,6 +120,25 @@ const MainContent: React.FC = () => {
               {/* Hero Text, Headline, and Live Metrics */}
               <section className="relative z-10 px-4 sm:px-8 lg:px-12 pt-3 sm:pt-6">
                 <div className="max-w-2xl space-y-3 sm:space-y-4">
+                  {/* Mode Badge Indicator */}
+                  <div>
+                    {!authUser ? (
+                      <button
+                        onClick={() => openAuthModal('আপনার ভ্রমণ ডায়েরি শুরু করতে লগইন বা সাইন আপ করুন')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold tracking-wide backdrop-blur-md hover:bg-amber-500/25 transition-all cursor-pointer"
+                      >
+                        <Lock className="w-3 h-3 text-amber-400" />
+                        <span>গেস্ট মোড • ডাটা সেভ করতে লগইন করুন</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    ) : (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#059669]/20 border border-[#059669]/40 text-emerald-300 text-[11px] font-bold tracking-wide backdrop-blur-md">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        <span>স্বাগতম, {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}</span>
+                      </div>
+                    )}
+                  </div>
+
                   <h1 className="font-display text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-snug sm:leading-[1.08] drop-shadow-md">
                     দেশজুড়ে ঘুরে বেড়ান,{' '}
                     <br className="hidden sm:inline" />
@@ -123,7 +153,7 @@ const MainContent: React.FC = () => {
                     বাংলাদেশের কোন কোন জেলায় গিয়েছেন তা মানচিত্রে চিহ্নিত করুন, আর ভ্রমণের সুন্দর গল্প ও ছবিগুলো সাজিয়ে রাখুন আপনার ব্যক্তিগত ডায়েরিতে।
                   </p>
 
-                  <div className="flex items-center gap-3 pt-1 sm:pt-2">
+                  <div className="flex flex-wrap items-center gap-3 pt-1 sm:pt-2">
                     <button
                       onClick={() => {
                         document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
@@ -135,6 +165,16 @@ const MainContent: React.FC = () => {
                         <ArrowRight className="w-3 h-3" />
                       </div>
                     </button>
+
+                    {!authUser && (
+                      <button
+                        onClick={() => openAuthModal('আপনার ভ্রমণ ডায়েরি শুরু করতে লগইন বা সাইন আপ করুন')}
+                        className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#059669] hover:bg-[#047857] text-white font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2 shadow-xl shadow-[#059669]/30 hover:scale-105 transition-all cursor-pointer"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        <span>লগইন / সাইন আপ</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Bottom-left Metrics Counter Row */}
@@ -177,9 +217,9 @@ const MainContent: React.FC = () => {
               </section>
             </div>
 
-            {/* 64-District Regional Catalog */}
+            {/* 64-District Regional Catalog by Division (Horizontal List Rows on All Screen Sizes) */}
             <div className="px-3 sm:px-8 lg:px-12 pb-16">
-              <section className="space-y-4 sm:space-y-6 pt-4 border-t border-white/10">
+              <section className="space-y-4 pt-4 border-t border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                   <div>
                     <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
@@ -190,13 +230,14 @@ const MainContent: React.FC = () => {
                     </h2>
                   </div>
                   <p className="font-body text-xs text-stone-400 font-light max-w-sm">
-                    যেকোনো জেলায় ক্লিক করে ভ্রমণ স্থিতি ও ছবি যুক্ত করুন
+                    যেকোনো বিভাগে ক্লিক করে জেলা তালিকা দেখুন ও স্থিতি পরিবর্তন করুন
                   </p>
                 </div>
 
-                {/* Division-grouped districts */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Horizontal List of Divisions (Full-Width Rows on All Screen Sizes) */}
+                <div className="space-y-2.5">
                   {DIVISIONS.map((div) => {
+                    const isOpen = openDivision === div.name;
                     const divDistricts = DISTRICTS.filter((d) => d.division === div.name);
                     const divVisited = divDistricts.filter(
                       (d) => userData[d.id]?.status === 'visited'
@@ -206,45 +247,146 @@ const MainContent: React.FC = () => {
                     return (
                       <div
                         key={div.name}
-                        className="bg-[#12141A]/90 border border-white/10 p-4 rounded-3xl space-y-3 shadow-sm hover:border-white/20 transition-all"
+                        className={`w-full rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden ${
+                          isOpen
+                            ? 'bg-[#12141A] border-[#059669]/60 shadow-lg shadow-[#059669]/10'
+                            : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 hover:border-white/20 shadow-xs'
+                        }`}
                       >
-                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                          <h3 className="font-display text-base font-bold text-white flex items-center gap-1.5">
-                            <span>{div.bn_name} বিভাগ</span>
-                          </h3>
-                          <span className="font-body text-[11px] font-bold text-stone-400">
-                            {divVisited}/{divDistricts.length} ({divProgress}%)
-                          </span>
-                        </div>
+                        {/* Full-Width Horizontal Division Header Row */}
+                        <button
+                          type="button"
+                          onClick={() => setOpenDivision(isOpen ? null : div.name)}
+                          className="w-full text-left p-3.5 sm:p-4.5 flex items-center justify-between gap-3 sm:gap-4 cursor-pointer select-none transition-colors group"
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            {/* Division Image Profile Picture with Proper Aspect Ratio */}
+                            <div className="relative w-16 h-12 sm:w-20 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-white/15 bg-black/40 shadow-sm group-hover:scale-105 transition-transform">
+                              <img
+                                src={div.imageUrl}
+                                alt={`${div.bn_name} বিভাগ`}
+                                className="w-full h-full object-cover object-center"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                            </div>
 
-                        <div className="grid grid-cols-2 gap-1.5 font-body">
-                          {divDistricts.map((dist) => {
-                            const status = userData[dist.id]?.status || 'not_visited';
-                            const isVisited = status === 'visited';
+                            {/* Division Name & Details */}
+                            <div className="min-w-0 truncate">
+                              <div className="flex items-center gap-2">
+                                <h3 className={`font-display text-base sm:text-lg font-bold tracking-wide truncate transition-colors ${
+                                  isOpen ? 'text-emerald-400' : 'text-white'
+                                }`}>
+                                  {div.bn_name} বিভাগ
+                                </h3>
+                                <span className="text-[11px] font-body text-stone-500 hidden sm:inline">
+                                  ({div.name})
+                                </span>
+                              </div>
+                              <p className="font-body text-xs text-stone-400 font-light truncate">
+                                {div.districtsCount}টি জেলা • {div.description.slice(0, 50)}...
+                              </p>
+                            </div>
+                          </div>
 
-                            return (
-                              <button
-                                key={dist.id}
-                                onClick={() => selectDistrict(dist.id)}
-                                className={`px-2.5 py-1.5 rounded-xl text-left text-xs transition-all flex items-center justify-between group cursor-pointer ${
-                                  isVisited
-                                    ? 'bg-[#059669] text-white font-bold shadow-xs'
-                                    : status === 'want_to_visit'
-                                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                                    : 'bg-white/5 text-stone-300 hover:bg-white/10 hover:text-white'
-                                }`}
+                          {/* Right Side: Count like 3/7, Progress %, and Chevron */}
+                          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                            <div className="flex flex-col items-end">
+                              <span className="font-display font-bold text-xs sm:text-sm text-white flex items-center gap-1">
+                                <span className={divVisited > 0 ? 'text-[#059669]' : 'text-stone-300'}>
+                                  {divVisited}
+                                </span>
+                                <span className="text-stone-500">/{divDistricts.length}</span>
+                              </span>
+                              <span className="font-body text-[10px] text-stone-500 font-medium">
+                                {divProgress}% সম্পন্ন
+                              </span>
+                            </div>
+
+                            <div
+                              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition-all ${
+                                isOpen
+                                  ? 'bg-[#059669] text-white shadow-xs'
+                                  : 'bg-white/5 text-stone-400 group-hover:bg-white/10 group-hover:text-white'
+                              }`}
+                            >
+                              <motion.div
+                                animate={{ rotate: isOpen ? 180 : 0 }}
+                                transition={{ duration: 0.2 }}
                               >
-                                <span className="truncate">{dist.bn_name}</span>
-                                <div className="flex items-center gap-1 shrink-0">
-                                  {isVisited && <Check className="w-3 h-3 text-white" />}
-                                  {status === 'want_to_visit' && (
-                                    <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                                  )}
+                                <ChevronDown className="w-4 h-4" />
+                              </motion.div>
+                            </div>
+                          </div>
+                        </button>
+
+                        {/* Unfolded Districts Content Directly Below This Division */}
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.25, ease: 'easeInOut' }}
+                              className="overflow-hidden border-t border-white/10 bg-black/30"
+                            >
+                              <div className="p-4 sm:p-5 space-y-4">
+                                {/* Full Landmark Cover Photo Banner */}
+                                <div className="relative h-40 sm:h-52 w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-md bg-black/40">
+                                  <img
+                                    src={div.imageUrl}
+                                    alt={`${div.bn_name} বিভাগ`}
+                                    className="w-full h-full object-cover object-center"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                                  <div className="absolute bottom-3 left-4 right-4 text-white">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#059669] text-white shadow-xs">
+                                        {div.bn_name} বিভাগ
+                                      </span>
+                                      <span className="text-[11px] font-body text-stone-200">
+                                        {divVisited}/{divDistricts.length} জেলা সম্পন্ন ({divProgress}%)
+                                      </span>
+                                    </div>
+                                    <p className="font-body text-xs sm:text-sm text-stone-200 font-light max-w-2xl line-clamp-2">
+                                      {div.description}
+                                    </p>
+                                  </div>
                                 </div>
-                              </button>
-                            );
-                          })}
-                        </div>
+
+                                {/* Districts Buttons Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 font-body">
+                                  {divDistricts.map((dist) => {
+                                    const status = userData[dist.id]?.status || 'not_visited';
+                                    const isVisited = status === 'visited';
+
+                                    return (
+                                      <button
+                                        key={dist.id}
+                                        onClick={() => selectDistrict(dist.id)}
+                                        className={`px-3 py-2.5 rounded-xl text-left text-xs transition-all flex items-center justify-between group cursor-pointer border ${
+                                          isVisited
+                                            ? 'bg-[#059669] text-white font-bold border-[#059669] shadow-xs'
+                                            : status === 'want_to_visit'
+                                            ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                                            : 'bg-white/5 text-stone-300 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/10'
+                                        }`}
+                                      >
+                                        <span className="truncate">{dist.bn_name}</span>
+                                        <div className="flex items-center gap-1 shrink-0 ml-1.5">
+                                          {isVisited && <Check className="w-3.5 h-3.5 text-white" />}
+                                          {status === 'want_to_visit' && (
+                                            <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                          )}
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     );
                   })}
@@ -276,10 +418,8 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      {/* Outer Viewport Canvas (Neutral Grey) */}
-      <div className="min-h-screen bg-[#E5E9EE] dark:bg-[#07080A] py-2 sm:py-6 px-1.5 sm:px-4 lg:px-6 flex flex-col justify-start font-sans selection:bg-[#059669] selection:text-white transition-colors duration-300">
-        {/* Floating Device Container Frame matching Reference */}
-        <div className="w-full max-w-[1500px] mx-auto bg-[#0A0C10] text-white rounded-[24px] sm:rounded-[36px] md:rounded-[44px] shadow-2xl border border-white/10 overflow-clip relative flex flex-col min-h-[92vh]">
+      <div className="min-h-screen w-full bg-[#07080A] text-white font-sans selection:bg-[#059669] selection:text-white flex flex-col p-1 sm:p-2 md:p-3">
+        <div className="w-full bg-[#0A0C10] text-white rounded-[20px] sm:rounded-[28px] md:rounded-[36px] shadow-2xl border border-white/10 overflow-clip relative flex flex-col flex-1">
           <MainContent />
         </div>
       </div>

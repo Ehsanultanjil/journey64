@@ -13,12 +13,15 @@ import {
   ArrowRight,
   Sparkles,
   AlertTriangle,
+  Lock,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { DistrictStatus } from '../../types';
 
 export const DistrictQuickPanel: React.FC = () => {
   const {
+    authUser,
+    openAuthModal,
     selectedDistrict,
     selectDistrict,
     userData,
@@ -48,6 +51,10 @@ export const DistrictQuickPanel: React.FC = () => {
   const notes = currentData?.notes || districtVisits[0]?.notes || '';
 
   const handleStatusChange = (newStatus: DistrictStatus) => {
+    if (!authUser) {
+      openAuthModal('ভ্রমণের অবস্থা পরিবর্তন করতে অনুগ্রহ করে লগইন করুন');
+      return;
+    }
     if (currentStatus === 'visited' && newStatus === 'not_visited') {
       setConfirmUnvisitOpen(true);
       return;
@@ -80,13 +87,13 @@ export const DistrictQuickPanel: React.FC = () => {
               <img
                 src={coverPhoto}
                 alt={selectedDistrict.name}
-                className="w-full h-full object-cover filter brightness-90"
+                className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05]"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1C1612] via-[#12141A] to-[#0A0C10] flex items-center justify-center p-6 text-center">
-                <div>
-                  <Compass className="w-12 h-12 text-[#059669]/40 mx-auto mb-2" />
-                  <span className="text-[10px] font-bold text-[#059669] uppercase tracking-widest">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#059669]/25 via-[#161A22] to-[#0A0C10] p-6 text-center">
+                <Compass className="w-12 h-12 text-[#059669]/60 mb-2" />
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">
                     {selectedDistrict.division} DIVISION
                   </span>
                 </div>
@@ -100,7 +107,13 @@ export const DistrictQuickPanel: React.FC = () => {
             <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
               <button
                 id="quick-panel-fav-btn"
-                onClick={() => toggleDistrictFavorite(districtId)}
+                onClick={() => {
+                  if (!authUser) {
+                    openAuthModal('পছন্দের তালিকায় যুক্ত করতে লগইন করুন');
+                    return;
+                  }
+                  toggleDistrictFavorite(districtId);
+                }}
                 className={`p-2.5 rounded-full backdrop-blur-md transition-all cursor-pointer ${
                   isFavorite
                     ? 'bg-[#059669] text-white shadow-md scale-105'
@@ -149,6 +162,22 @@ export const DistrictQuickPanel: React.FC = () => {
 
           {/* Modal Body */}
           <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
+            {/* Guest Action Notice */}
+            {!authUser && (
+              <div className="p-2.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-between gap-2 text-xs text-amber-200">
+                <div className="flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>ভ্রমণ স্থিতি ও রেটিং সংরক্ষণে লগইন প্রয়োজন</span>
+                </div>
+                <button
+                  onClick={() => openAuthModal('ভ্রমণ স্থিতি সংরক্ষণ করতে অনুগ্রহ করে লগইন করুন')}
+                  className="font-bold underline text-amber-300 hover:text-white cursor-pointer whitespace-nowrap"
+                >
+                  লগইন
+                </button>
+              </div>
+            )}
+
             {/* Tagline / Highlights */}
             {selectedDistrict.tagline && (
               <p className="text-xs text-stone-300 font-light italic border-l-2 border-[#059669] pl-3 py-0.5">

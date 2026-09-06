@@ -56,7 +56,8 @@ interface AppContextType {
   setActiveTab: (tab: ActiveTab) => void;
   authUser: User | null;
   authModalOpen: boolean;
-  openAuthModal: () => void;
+  authPromptMessage: string | null;
+  openAuthModal: (promptMsg?: string) => void;
   closeAuthModal: () => void;
   signOut: () => Promise<void>;
   refreshAuth: () => Promise<void>;
@@ -120,6 +121,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeTab, setActiveTab] = useState<ActiveTab>('explore');
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [authPromptMessage, setAuthPromptMessage] = useState<string | null>(null);
 
   const [userData, setUserData] = useState<Record<string, DistrictUserData>>(() => StorageService.loadData().userData);
   const [visits, setVisits] = useState<Visit[]>(() => StorageService.loadData().visits);
@@ -268,7 +270,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         connected: true,
         syncing: false,
         lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        message: 'সুপাবেস ক্লাউডে সফলভাবে সিঙ্ক হয়েছে',
+        message: 'সফলভাবে সিঙ্ক হয়েছে',
       }));
     } catch (err) {
       console.error('Error syncing cloud data on login:', err);
@@ -327,6 +329,117 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Lock dark mode permanently
     document.documentElement.classList.add('dark');
     document.documentElement.classList.remove('light');
+  }, []);
+
+  // --- Browser & Mobile Back/Forward History Synchronization ---
+  const isPopStateRef = useRef(false);
+
+  const parseHash = (hash: string) => {
+    const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash;
+    const [pathPart, queryPart] = cleanHash.split('?');
+    const path = (pathPart || '').toLowerCase().trim();
+    const params = new URLSearchParams(queryPart || '');
+
+    let tab: ActiveTab = 'explore';
+    let districtId: string | null = null;
+    let journalDistrictId: string | null = null;
+    let isAuthOpen = false;
+    let isLightbox = false;
+
+    if (path === '/login' || path === 'login') {
+      isAuthOpen = true;
+    } else if (path === '/lightbox' || path === 'lightbox') {
+      isLightbox = true;
+    } else if (path.startsWith('/journal/') || path.startsWith('journal/')) {
+      tab = 'memories';
+      journalDistrictId = path.replace(/^\/?journal\//, '') || null;
+    } else if (path === '/memories' || path === 'memories') {
+      tab = 'memories';
+      journalDistrictId = params.get('district') || null;
+    } else if (path === '/settings' || path === 'settings') {
+      tab = 'settings';
+    } else {
+      tab = 'explore';
+      districtId = params.get('district') || null;
+    }
+
+    return { tab, districtId, journalDistrictId, isAuthOpen, isLightbox };
+  };
+
+  const getHashForState = (
+    tab: ActiveTab,
+    dId: string | null,
+    jId: string | null,
+    isAuth: boolean,
+    isLb: boolean
+  ) => {
+    if (isLb) return '#/lightbox';
+    if (isAuth) return '#/login';
+    if (jId) return `#/journal/${jId}`;
+    if (dId) return `#/explore?district=${dId}`;
+    if (tab === 'memories') return '#/memories';
+    if (tab === 'settings') return '#/settings';
+    return '#/explore';
+  };
+
+  const syncHistory = (
+    nextTab: ActiveTab,
+    nextDistrictId: string | null,
+    nextJournalDistrictId: string | null,
+    nextAuthOpen: boolean,
+    nextLightboxOpen: boolean,
+    replace = false
+  ) => {
+    if (typeof window === 'undefined') return;
+    if (isPopStateRef.current) return;
+
+    const targetHash = getHashForState(
+      nextTab,
+      nextDistrictId,
+      nextJournalDistrictId,
+      nextAuthOpen,
+      nextLightboxOpen
+    );
+
+    if (window.location.hash !== targetHash) {
+      if (replace || !window.location.hash) {
+        window.history.replaceState(null, '', targetHash);
+      } else {
+        window.history.pushState(null, '', targetHash);
+      }
+    }
+  };
+
+  // Popstate listener (handles Mobile & Browser Back/Forward buttons)
+  useEffect(() => {
+    const handlePopState = () => {
+      isPopStateRef.current = true;
+      const parsed = parseHash(window.location.hash);
+
+      setActiveTab(parsed.tab);
+      setSelectedDistrictId(parsed.districtId);
+      setViewingJournalDistrictId(parsed.journalDistrictId);
+      setAuthModalOpen(parsed.isAuthOpen);
+      setLightbox((prev) => ({
+        ...prev,
+        isOpen: parsed.isLightbox,
+      }));
+
+      setTimeout(() => {
+        isPopStateRef.current = false;
+      }, 50);
+    };
+
+    if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#/') {
+      window.history.replaceState(null, '', '#/explore');
+    } else {
+      handlePopState();
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   // Manual trigger for cloud synchronization
@@ -464,17 +577,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return photos.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }, [viewingJournalDistrictId, selectedDistrictId, visits]);
 
-  // Actions
+  // Actions with history synchronization
+  const handleSetActiveTab = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    setSelectedDistrictId(null);
+    setViewingJournalDistrictId(null);
+    syncHistory(tab, null, null, authModalOpen, lightbox.isOpen);
+  };
+
   const selectDistrict = (districtId: string | null) => {
     setSelectedDistrictId(districtId);
+    syncHistory(activeTab, districtId, viewingJournalDistrictId, authModalOpen, lightbox.isOpen);
   };
 
   const openDistrictJournal = (districtId: string | null) => {
     setSelectedDistrictId(null);
     setViewingJournalDistrictId(districtId);
+    const nextTab = districtId ? 'memories' : activeTab;
     if (districtId) {
       setActiveTab('memories');
     }
+    syncHistory(nextTab, null, districtId, authModalOpen, lightbox.isOpen);
   };
 
   const openTripDetail = (tripId: string | null) => {
@@ -506,11 +629,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const openAuthModal = (promptMsg?: string) => {
+    setAuthPromptMessage(promptMsg || null);
+    setAuthModalOpen(true);
+    syncHistory(activeTab, selectedDistrictId, viewingJournalDistrictId, true, lightbox.isOpen);
+  };
+  const closeAuthModal = () => {
+    setAuthModalOpen(false);
+    setAuthPromptMessage(null);
+    syncHistory(activeTab, selectedDistrictId, viewingJournalDistrictId, false, lightbox.isOpen);
+  };
+
+  const ensureAuth = (promptMsg?: string): boolean => {
+    if (!authUser) {
+      openAuthModal(promptMsg || 'ভ্রমণ তথ্য ও স্মৃতি সংরক্ষণ করতে অনুগ্রহ করে লগইন বা সাইন আপ করুন।');
+      return false;
+    }
+    return true;
+  };
+
   const setDistrictStatus = (
     districtId: string,
     status: DistrictStatus,
     extra?: { visitDate?: string; notes?: string; rating?: number }
   ) => {
+    if (!ensureAuth('জেলাটির ভ্রমণ স্থিতি সংরক্ষণ করতে অনুগ্রহ করে লগইন করুন।')) return;
+
     const current = userData[districtId];
     const previousStatus = current?.status || 'not_visited';
     const now = new Date().toISOString();
@@ -570,6 +714,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateDistrictNotes = (districtId: string, notes: string, visitDate?: string) => {
+    if (!ensureAuth('ভ্রমণের নোট ও স্মৃতি সংরক্ষণ করতে অনুগ্রহ করে লগইন করুন।')) return;
+
     const current = userData[districtId] || {
       districtId,
       status: 'visited',
@@ -598,7 +744,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const newVisit: Visit = {
         id: `visit-${districtId}-${Date.now()}`,
         districtId,
-        visitDate: visitDate || now.split('T')[0],
+        visitDate: visitDate || current.firstVisitedDate || now.split('T')[0],
         notes,
         rating: current.rating || 5,
         photos: [],
@@ -610,6 +756,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateDistrictRating = (districtId: string, rating: number) => {
+    if (!ensureAuth('রেটিং সংরক্ষণ করতে অনুগ্রহ করে লগইন করুন।')) return;
+
     const current = userData[districtId] || {
       districtId,
       status: 'visited',
@@ -627,6 +775,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const toggleDistrictFavorite = (districtId: string) => {
+    if (!ensureAuth('প্রিয় জেলা তালিকায় যুক্ত করতে অনুগ্রহ করে লগইন করুন।')) return;
+
     const current = userData[districtId] || {
       districtId,
       status: 'visited',
@@ -644,6 +794,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addVisit = (visitData: Omit<Visit, 'id' | 'createdAt' | 'updatedAt'>): Visit => {
+    if (!ensureAuth('ভ্রমণ রেকর্ড তৈরি করতে লগইন করুন।')) return null as any;
+
     const now = new Date().toISOString();
     const newVisit: Visit = {
       ...visitData,
@@ -664,6 +816,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateVisit = (visitId: string, updates: Partial<Visit>) => {
+    if (!ensureAuth()) return;
+
     const newVisits = visits.map((v) => {
       if (v.id === visitId) {
         return {
@@ -678,6 +832,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteVisit = (visitId: string) => {
+    if (!ensureAuth()) return;
+
     const target = visits.find((v) => v.id === visitId);
     const newVisits = visits.filter((v) => v.id !== visitId);
     syncVisits(newVisits);
@@ -695,6 +851,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     districtId: string,
     photoData: { url: string; caption?: string; isCover?: boolean; takenDate?: string }
   ): Photo | null => {
+    if (!ensureAuth('ছবি ও স্মৃতিকথা যুক্ত করতে লগইন করুন।')) return null;
+
     // Find or create primary visit for this district
     let targetVisit = visits.find((v) => v.districtId === districtId);
     let allVisits = [...visits];
@@ -777,53 +935,63 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updatePhoto = (photoId: string, updates: Partial<Photo>) => {
+    if (!ensureAuth()) return;
+
     const newVisits = visits.map((v) => {
-      if (!v.photos) return v;
-      let hasTarget = false;
+      if (!v.photos || !v.photos.some((p) => p.id === photoId)) return v;
+
       const newPhotos = v.photos.map((p) => {
         if (p.id === photoId) {
-          hasTarget = true;
-          return { ...p, ...updates };
+          const updated = { ...p, ...updates };
+          return updated;
         }
-        // If updates.isCover is true, set others to false
-        if (updates.isCover) {
+        if (updates.isCover && p.id !== photoId) {
           return { ...p, isCover: false };
         }
         return p;
       });
 
-      if (hasTarget) {
-        return { ...v, photos: newPhotos, updatedAt: new Date().toISOString() };
-      }
-      return v;
+      return {
+        ...v,
+        photos: newPhotos,
+        updatedAt: new Date().toISOString(),
+      };
     });
 
     syncVisits(newVisits);
   };
 
   const deletePhoto = (photoId: string) => {
+    if (!ensureAuth()) return;
+
     const newVisits = visits.map((v) => {
-      if (!v.photos) return v;
-      const targetPhoto = v.photos.find((p) => p.id === photoId);
-      if (!targetPhoto) return v;
+      if (!v.photos || !v.photos.some((p) => p.id === photoId)) return v;
 
       const remaining = v.photos.filter((p) => p.id !== photoId);
-      // If deleted photo was cover, assign new cover to the first remaining
-      if (targetPhoto.isCover && remaining.length > 0) {
+      if (remaining.length > 0 && !remaining.some((p) => p.isCover)) {
         remaining[0].isCover = true;
       }
-      return { ...v, photos: remaining, updatedAt: new Date().toISOString() };
+
+      return {
+        ...v,
+        photos: remaining,
+        updatedAt: new Date().toISOString(),
+      };
     });
 
     syncVisits(newVisits);
   };
 
   const reorderPhotos = (districtId: string, photoIds: string[]) => {
+    if (!ensureAuth()) return;
+
     const newVisits = visits.map((v) => {
       if (v.districtId !== districtId || !v.photos) return v;
-      const photoMap = new Map<string, Photo>(v.photos.map((p) => [p.id, p]));
-      const reordered: Photo[] = [];
 
+      const photoMap = new Map<string, Photo>();
+      v.photos.forEach((p) => photoMap.set(p.id, p));
+
+      const reordered: Photo[] = [];
       photoIds.forEach((id, index) => {
         const p = photoMap.get(id);
         if (p) {
@@ -842,7 +1010,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       });
 
-      // Append any unmentioned
       v.photos.forEach((p) => {
         if (!photoIds.includes(p.id)) {
           reordered.push({ ...p, sortOrder: reordered.length });
@@ -856,6 +1023,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const createTrip = (tripData: Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>): Trip => {
+    if (!ensureAuth('ট্যুর পরিকল্পনা তৈরি করতে লগইন করুন।')) return null as any;
+
     const now = new Date().toISOString();
     const newTrip: Trip = {
       ...tripData,
@@ -885,6 +1054,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateTrip = (tripId: string, updates: Partial<Trip>) => {
+    if (!ensureAuth()) return;
+
     const newTrips = trips.map((t) => {
       if (t.id === tripId) {
         return {
@@ -899,21 +1070,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteTrip = (tripId: string) => {
+    if (!ensureAuth()) return;
+
     const newTrips = trips.filter((t) => t.id !== tripId);
     syncTrips(newTrips);
   };
 
   const updateProfile = (profileUpdates: Partial<UserProfile>) => {
+    if (!ensureAuth('প্রোফাইল তথ্য আপডেট করতে লগইন করুন।')) return;
+
     const updated = { ...profile, ...profileUpdates };
     syncProfile(updated);
   };
 
   const updateSettings = (settingsUpdates: Partial<AppSettings>) => {
+    if (!ensureAuth('সেটিংস পরিবর্তন করতে লগইন করুন।')) return;
+
     const updated = { ...settings, ...settingsUpdates };
     syncSettings(updated);
   };
 
   const resetToCleanSlate = () => {
+    if (!ensureAuth('ডাটা রিসেট করতে লগইন করুন।')) return;
+
     const res = StorageService.resetToBlank();
     setUserData(res.userData);
     setVisits(res.visits);
@@ -928,6 +1107,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const importJsonBackup = (jsonString: string) => {
+    if (!ensureAuth('ব্যাকআপ ফাইল ইমপোর্ট করতে লগইন করুন।')) {
+      return { success: false, error: 'অনুগ্রহ করে প্রথমে লগইন করুন।' };
+    }
+
     const res = StorageService.validateAndImportBackup(jsonString);
     if (!res.success || !res.data) {
       return { success: false, error: res.error || 'Failed to import.' };
@@ -949,10 +1132,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       currentIndex: index,
       districtName,
     });
+    syncHistory(activeTab, selectedDistrictId, viewingJournalDistrictId, authModalOpen, true);
   };
 
   const closeLightbox = () => {
     setLightbox((prev) => ({ ...prev, isOpen: false }));
+    syncHistory(activeTab, selectedDistrictId, viewingJournalDistrictId, authModalOpen, false);
   };
 
   const setLightboxIndex = (index: number) => {
@@ -1072,9 +1257,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const openAuthModal = () => setAuthModalOpen(true);
-  const closeAuthModal = () => setAuthModalOpen(false);
-
   const signOut = async () => {
     await SupabaseAuth.signOut();
     setAuthUser(null);
@@ -1106,9 +1288,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     <AppContext.Provider
       value={{
         activeTab,
-        setActiveTab,
+        setActiveTab: handleSetActiveTab,
         authUser,
         authModalOpen,
+        authPromptMessage,
         openAuthModal,
         closeAuthModal,
         signOut,

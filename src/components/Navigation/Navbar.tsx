@@ -4,6 +4,7 @@ import {
   Map,
   BookOpen,
   Settings,
+  LogIn,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ActiveTab } from '../../types';
@@ -64,24 +65,39 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Corner: Settings Button Pin to Right without Offsetting Center */}
-        <div className="absolute right-0 flex items-center pointer-events-auto">
-          <button
-            id="nav-settings-circle-btn"
-            onClick={() => handleTabChange('settings')}
-            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 group relative ${
-              activeTab === 'settings'
-                ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/30'
-                : 'bg-[#12141A]/85 border-white/15 text-stone-300 hover:text-white hover:bg-[#1A1D24] hover:border-white/30'
-            }`}
-            title={authUser ? `প্রোফাইল ও সেটিংস (${authUser.email})` : 'সেটিংস ও লগইন'}
-            aria-label="সেটিংস"
-          >
-            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:rotate-45 transition-transform duration-300" />
-            {authUser && (
-              <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#12141A]" />
-            )}
-          </button>
+        {/* Right Corner: Auth Status & Settings Button */}
+        <div className="absolute right-0 flex items-center gap-2 pointer-events-auto">
+          {!authUser ? (
+            <button
+              id="nav-login-btn"
+              onClick={() => openAuthModal('আপনার ভ্রমণ তথ্য সংরক্ষণ ও সিঙ্ক করতে লগইন করুন')}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 bg-[#059669] hover:bg-[#047857] text-white text-[11px] sm:text-xs font-body font-bold shadow-lg shadow-[#059669]/30 transition-all cursor-pointer hover:scale-105 active:scale-95"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">লগইন করুন</span>
+              <span className="sm:hidden">লগইন</span>
+            </button>
+          ) : (
+            <button
+              id="nav-settings-circle-btn"
+              onClick={() => handleTabChange('settings')}
+              className={`flex items-center gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 group relative ${
+                activeTab === 'settings'
+                  ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/30'
+                  : 'bg-[#12141A]/85 border-white/15 text-stone-200 hover:text-white hover:bg-[#1A1D24] hover:border-white/30'
+              }`}
+              title={`প্রোফাইল ও সেটিংস (${authUser.email})`}
+              aria-label="সেটিংস ও প্রোফাইল"
+            >
+              <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold uppercase border border-emerald-500/40">
+                {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold font-body max-w-[90px] truncate hidden md:inline">
+                {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}
+              </span>
+              <Settings className="w-3.5 h-3.5 group-hover:rotate-45 transition-transform duration-300 text-stone-400 group-hover:text-white" />
+            </button>
+          )}
         </div>
       </div>
     </header>

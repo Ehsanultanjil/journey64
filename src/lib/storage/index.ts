@@ -48,13 +48,9 @@ export async function compressImage(
       let height = img.height;
 
       if (width > maxWidth || height > maxHeight) {
-        if (width / height > maxWidth / maxHeight) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        } else {
-          width = Math.round((width * maxHeight) / height);
-          maxHeight = height;
-        }
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
       }
 
       const canvas = document.createElement('canvas');

@@ -17,6 +17,7 @@ import {
   Sparkles,
   Save,
   MapPin,
+  Lock,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getDistrictById } from '../../data/districts';
@@ -30,6 +31,8 @@ interface Props {
 
 export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
   const {
+    authUser,
+    openAuthModal,
     userData,
     visits,
     updateDistrictNotes,
@@ -100,7 +103,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const compressedBase64 = await compressImage(file, 1080, 1080, 0.75);
+        const compressedBase64 = await compressImage(file, 1600, 1600, 0.82);
 
         addPhoto(districtId, {
           url: compressedBase64,
@@ -111,7 +114,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
       }
     } catch (err) {
       console.error('Photo upload failed:', err);
-      alert('ছবি আপলোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+      alert('ছবি আপলোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -120,6 +123,10 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
   const handleSaveAll = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (editingCaptionId) {
+      updatePhoto(editingCaptionId, { caption: captionDraft.trim() });
+      setEditingCaptionId(null);
+    }
     updateDistrictNotes(districtId, notesDraft, visitDateDraft);
     setIsSavedToast(true);
     setTimeout(() => {
@@ -133,8 +140,32 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     setEditingCaptionId(null);
   };
 
+  const handleToggleEdit = () => {
+    if (!authUser) {
+      openAuthModal('ভ্রমণ নোট ও স্মৃতি এডিট করতে অনুগ্রহ করে লগইন করুন');
+      return;
+    }
+    setIsEditing(!isEditing);
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200 font-body">
+      {/* Guest Mode Notice */}
+      {!authUser && (
+        <div className="p-3 sm:p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-200">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>আপনি অতিথি হিসেবে স্মৃতিগুলো দেখছেন। ছবি আপলোড বা ভ্রমণ গল্প সংরক্ষণ করতে লগইন করুন।</span>
+          </div>
+          <button
+            onClick={() => openAuthModal('ছবি ও স্মৃতিকথা সংরক্ষণ করতে অনুগ্রহ করে লগইন করুন')}
+            className="px-3.5 py-1.5 bg-[#059669] hover:bg-[#047857] text-white font-bold rounded-xl text-xs shadow-md transition-all cursor-pointer whitespace-nowrap self-end sm:self-auto"
+          >
+            লগইন করুন
+          </button>
+        </div>
+      )}
+
       {/* Top Header Bar */}
       <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
         <button
@@ -183,7 +214,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           {/* Small Edit Button at Top */}
           <button
             id="journal-edit-mode-btn"
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={handleToggleEdit}
             className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
               isEditing
                 ? 'bg-stone-700 hover:bg-stone-600 text-white'
@@ -266,7 +297,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           {district.famousSpots && district.famousSpots.length > 0 && (
             <div className="flex items-center gap-1.5 text-[11px] text-stone-300 pt-1.5 border-t border-white/10 flex-wrap">
               <MapPin className="w-3 h-3 text-[#059669] shrink-0" />
-              <span>দর্শনীয় স্থান: {district.famousSpots.slice(0, 3).join(', ')}</span>
+              <span>দর্শনীয় স্থান: {district.famousSpots.slice(0, 3).join(', ')}</span>
             </div>
           )}
         </div>
@@ -292,7 +323,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             <div className="flex items-center gap-3">
               {isSavedToast && (
                 <span className="text-xs font-bold text-[#059669] flex items-center gap-1.5 animate-in fade-in">
-                  <Check className="w-4 h-4" /> সেভ হয়েছে
+                  <Check className="w-4 h-4" /> সেভ হয়েছে
                 </span>
               )}
 
@@ -319,7 +350,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             <div className="max-w-xs">
               <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                কবে গিয়েছিলেন?
+                কবে গিয়েছিলেন?
               </label>
               <input
                 type="date"
@@ -338,7 +369,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 rows={5}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                placeholder={`${district.bn_name} ভ্রমণের গল্প, সুন্দর জায়গা আর ভালো লাগার মুহূর্তগুলো লিখে রাখুন...`}
+                placeholder={`${district.bn_name} ভ্রমণের গল্প, সুন্দর জায়গা আর ভালো লাগার মুহূর্তগুলো লিখে রাখুন...`}
                 className="w-full p-3.5 text-xs bg-white/5 border border-white/15 rounded-2xl text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] transition-colors resize-none leading-relaxed"
               />
             </div>
@@ -392,7 +423,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   <ImageIcon className="w-8 h-8 text-[#059669] mx-auto mb-2" />
                   <h4 className="text-xs font-bold text-white">ছবি আপলোড করুন</h4>
                   <p className="text-[11px] text-stone-400 mt-0.5">
-                    ক্লিক করে এই জেলায় ঘোরার ছবি যোগ করুন (সর্বোচ্চ ৫টি)
+                    ক্লিক করে এই জেলায় ঘোরার ছবি যোগ করুন (সর্বোচ্চ ৫টি)
                   </p>
                 </div>
               ) : (
@@ -402,12 +433,12 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                     return (
                       <div
                         key={photo.id}
-                        className="group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 aspect-square"
+                        className="group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 aspect-[4/3]"
                       >
                         <img
                           src={photo.url}
                           alt={photo.caption || 'District photo'}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
                         />
 
                         {isCover && (
@@ -450,39 +481,61 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                         </div>
 
                         {/* Caption Field */}
-                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white">
+                        <div
+                          className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent text-white"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {editingCaptionId === photo.id ? (
                             <div className="flex items-center gap-1">
                               <input
                                 type="text"
                                 value={captionDraft}
                                 onChange={(e) => setCaptionDraft(e.target.value)}
-                                placeholder="ক্যাপশন..."
-                                className="flex-1 px-1.5 py-0.5 text-[10px] bg-black/80 border border-white/30 rounded text-white focus:outline-none focus:border-[#059669]"
+                                placeholder="ক্যাপশন লিখুন..."
+                                className="flex-1 px-2 py-1 text-[11px] bg-black/90 border border-[#059669] rounded text-white focus:outline-none focus:ring-1 focus:ring-[#059669]"
                                 autoFocus
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleSaveCaption(photo.id);
-                                  if (e.key === 'Escape') setEditingCaptionId(null);
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleSaveCaption(photo.id);
+                                  }
+                                  if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setEditingCaptionId(null);
+                                  }
                                 }}
+                                onBlur={() => handleSaveCaption(photo.id)}
                               />
                               <button
                                 type="button"
-                                onClick={() => handleSaveCaption(photo.id)}
-                                className="p-0.5 bg-[#059669] text-white rounded cursor-pointer"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleSaveCaption(photo.id);
+                                }}
+                                className="p-1 bg-[#059669] hover:bg-[#047857] text-white rounded cursor-pointer shrink-0"
+                                title="ক্যাপশন সেভ করুন"
                               >
-                                <Check className="w-3 h-3" />
+                                <Check className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           ) : (
-                            <p
-                              onClick={() => {
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setEditingCaptionId(photo.id);
                                 setCaptionDraft(photo.caption || '');
                               }}
-                              className="text-[10px] text-stone-200 truncate cursor-pointer hover:text-white"
+                              className="flex items-center justify-between gap-1 cursor-pointer group/cap hover:bg-white/10 px-1.5 py-0.5 rounded transition-colors"
+                              title="ক্যাপশন এডিট করতে ক্লিক করুন"
                             >
-                              {photo.caption || '+ ক্যাপশন লিখুন'}
-                            </p>
+                              <p className={`text-[10px] truncate ${photo.caption ? 'text-stone-200' : 'text-emerald-400 font-medium'}`}>
+                                {photo.caption || '+ ক্যাপশন লিখুন'}
+                              </p>
+                              <Edit3 className="w-3 h-3 text-stone-400 group-hover/cap:text-white shrink-0" />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -508,41 +561,56 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
             {totalPhotos === 0 ? (
               <div className="bg-[#12141A]/90 border border-white/10 p-8 rounded-3xl text-center space-y-2">
                 <ImageIcon className="w-8 h-8 text-stone-500 mx-auto" />
-                <p className="text-xs text-stone-400">এখনও কোনো ছবি আপলোড করা হয়নি।</p>
+                <p className="text-xs text-stone-400">এখনও কোনো ছবি আপলোড করা হয়নি।</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+              <div className="columns-1 sm:columns-2 gap-4">
                 {photos.map((photo, index) => {
                   const isCover = photo.id === coverPhoto?.id;
                   return (
-                    <motion.div
-                      key={photo.id}
-                      whileHover={{ scale: 1.02 }}
-                      className={`group relative overflow-hidden rounded-2xl bg-[#161A22] border border-white/15 shadow-sm aspect-square cursor-pointer ${
-                        isCover ? 'col-span-2 aspect-video' : ''
-                      }`}
-                      onClick={() => openLightbox(photos, index, district.name)}
-                    >
-                      <img
-                        src={photo.url}
-                        alt={photo.caption || `${district.name} photo`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                    <div key={photo.id} className="break-inside-avoid mb-4">
+                      <motion.div
+                        whileHover={{ y: -3 }}
+                        transition={{ duration: 0.2 }}
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#12151C] border border-white/15 hover:border-emerald-500/40 shadow-xl cursor-pointer"
+                        onClick={() => openLightbox(photos, index, district.name)}
+                      >
+                        {/* Full uncropped photo at natural aspect ratio */}
+                        <img
+                          src={photo.url}
+                          alt={photo.caption || `${district.name} photo`}
+                          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
+                          loading="lazy"
+                        />
 
-                      {isCover && (
-                        <div className="absolute top-2 left-2">
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#059669] text-white shadow-xs">
-                            কভার ছবি
-                          </span>
-                        </div>
-                      )}
+                        {/* Cover badge */}
+                        {isCover && (
+                          <div className="absolute top-2.5 left-2.5 z-20">
+                            <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-[#059669] text-white shadow-md backdrop-blur-md">
+                              কভার ছবি
+                            </span>
+                          </div>
+                        )}
 
-                      {photo.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
-                          <p className="text-xs text-stone-200 truncate">{photo.caption}</p>
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3 z-10">
+                          <div className="flex items-center justify-end">
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                              <Maximize2 className="w-3 h-3" /> পুরো ছবি দেখুন
+                            </span>
+                          </div>
                         </div>
-                      )}
-                    </motion.div>
+
+                        {/* Caption below photo — only if caption exists */}
+                        {photo.caption && (
+                          <div className="px-3 py-2.5 bg-[#12151C] border-t border-white/10">
+                            <p className="text-[11px] sm:text-xs text-stone-200 leading-relaxed">
+                              {photo.caption}
+                            </p>
+                          </div>
+                        )}
+                      </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -563,7 +631,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               এই ছবিটি মুছে ফেলতে চান?
             </h3>
             <p className="text-xs text-stone-300">
-              ছবিটি {district.bn_name} অ্যালবাম থেকে সরিয়ে ফেলা হবে।
+              ছবিটি {district.bn_name} অ্যালবাম থেকে সরিয়ে ফেলা হবে।
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
