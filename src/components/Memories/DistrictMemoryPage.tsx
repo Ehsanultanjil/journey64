@@ -149,7 +149,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200 font-body">
+    <div className="w-full max-w-7xl 2xl:max-w-[1600px] mx-auto space-y-6 sm:space-y-8 pb-24 animate-in fade-in duration-200 font-body">
       {/* Guest Mode Notice */}
       {!authUser && (
         <div className="p-3 sm:p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-200">
@@ -228,7 +228,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
       </div>
 
       {/* Sleek Luminous Cover Card with Direct Minimalist Text */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl p-4 sm:p-7 space-y-2.5 sm:space-y-3.5 isolate transform-gpu bg-[#0A0C10]">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl p-5 sm:p-8 lg:p-10 space-y-3 sm:space-y-4 isolate transform-gpu bg-[#0A0C10]">
         {/* Background Cover Photo with Vibrant Glass Blur */}
         {coverPhoto ? (
           <div className="absolute inset-0 z-0 overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
@@ -246,7 +246,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
         )}
 
         {/* Content directly on Cover: District Name, Division, Date & User Notes */}
-        <div className="relative z-10 space-y-2 sm:space-y-2.5">
+        <div className="relative z-10 space-y-2 sm:space-y-3">
           {/* Top Badges: Division, Photo Count, and Date */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#059669] text-white shadow-xs">
@@ -281,14 +281,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
           {/* Tagline if available */}
           {district.tagline && (
-            <p className="text-xs sm:text-sm text-stone-200 font-light italic max-w-xl drop-shadow-xs">
+            <p className="text-xs sm:text-sm text-stone-200 font-light italic max-w-2xl drop-shadow-xs">
               "{district.tagline}"
             </p>
           )}
 
           {/* User's Note / Story: ONLY rendered if user wrote notes */}
           {notesDraft.trim().length > 0 && (
-            <p className="font-body text-xs sm:text-sm text-stone-100 leading-relaxed font-light whitespace-pre-line pt-1 drop-shadow-xs max-w-2xl">
+            <p className="font-body text-xs sm:text-sm md:text-base text-stone-100 leading-relaxed font-light whitespace-pre-line pt-1 drop-shadow-xs max-w-4xl">
               "{notesDraft}"
             </p>
           )}
@@ -564,11 +564,11 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 <p className="text-xs text-stone-400">এখনও কোনো ছবি আপলোড করা হয়নি।</p>
               </div>
             ) : (
-              <div className="columns-1 sm:columns-2 gap-4">
+              <div className="columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-4 sm:gap-6">
                 {photos.map((photo, index) => {
                   const isCover = photo.id === coverPhoto?.id;
                   return (
-                    <div key={photo.id} className="break-inside-avoid mb-4">
+                    <div key={photo.id} className="break-inside-avoid mb-4 sm:mb-6">
                       <motion.div
                         whileHover={{ y: -3 }}
                         transition={{ duration: 0.2 }}
@@ -586,7 +586,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                         {/* Cover badge */}
                         {isCover && (
                           <div className="absolute top-2.5 left-2.5 z-20">
-                            <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-[#059669] text-white shadow-md backdrop-blur-md">
+                            <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-[#059669] text-white shadow-md backdrop-blur-md">
                               কভার ছবি
                             </span>
                           </div>
@@ -603,8 +603,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
                         {/* Caption below photo — only if caption exists */}
                         {photo.caption && (
-                          <div className="px-3 py-2.5 bg-[#12151C] border-t border-white/10">
-                            <p className="text-[11px] sm:text-xs text-stone-200 leading-relaxed">
+                          <div className="px-3.5 py-2.5 bg-[#12151C] border-t border-white/10">
+                            <p className="text-[11px] sm:text-xs text-stone-200 leading-relaxed font-medium">
                               {photo.caption}
                             </p>
                           </div>
