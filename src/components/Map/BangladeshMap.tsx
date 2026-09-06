@@ -148,11 +148,12 @@ export const BangladeshMap: React.FC = () => {
     setHoveredDistrict(null);
   };
 
-  // Touch handlers: Allow natural vertical page scroll at normal zoom. Only pan when zoomed in or 2-finger pinch!
-  const touchStartRef = useRef<{ x: number; y: number; dist: number; isPinching: boolean }>({
+  // Touch handlers: Smooth linear pinch-to-zoom with focal tracking
+  const touchStartRef = useRef<{ x: number; y: number; dist: number; startScale: number; isPinching: boolean }>({
     x: 0,
     y: 0,
     dist: 0,
+    startScale: 1,
     isPinching: false,
   });
 
@@ -162,10 +163,13 @@ export const BangladeshMap: React.FC = () => {
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       touchStartRef.current = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - transform.x,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - transform.y,
-        dist,
+        x: midX - transform.x,
+        y: midY - transform.y,
+        dist: dist || 1,
+        startScale: transform.scale,
         isPinching: true,
       };
       setIsDragging(true);
@@ -175,6 +179,7 @@ export const BangladeshMap: React.FC = () => {
         x: e.touches[0].clientX - transform.x,
         y: e.touches[0].clientY - transform.y,
         dist: 0,
+        startScale: transform.scale,
         isPinching: false,
       };
     }
@@ -187,9 +192,14 @@ export const BangladeshMap: React.FC = () => {
         e.touches[0].clientY - e.touches[1].clientY
       );
       const scaleFactor = dist / touchStartRef.current.dist;
-      const nextScale = Math.min(Math.max(transform.scale * scaleFactor, 1), 4);
-      setTransform((prev) => clampTransform(nextScale, prev.x, prev.y));
-      touchStartRef.current.dist = dist;
+      const nextScale = Math.min(Math.max(touchStartRef.current.startScale * scaleFactor, 1), 4.5);
+
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const rawX = midX - touchStartRef.current.x;
+      const rawY = midY - touchStartRef.current.y;
+
+      setTransform(clampTransform(nextScale, rawX, rawY));
     } else if (e.touches.length === 1 && isDragging && transform.scale > 1.05) {
       const rawX = e.touches[0].clientX - touchStartRef.current.x;
       const rawY = e.touches[0].clientY - touchStartRef.current.y;
@@ -197,10 +207,21 @@ export const BangladeshMap: React.FC = () => {
     }
   };
 
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    touchStartRef.current.dist = 0;
-    touchStartRef.current.isPinching = false;
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+      touchStartRef.current.isPinching = false;
+      touchStartRef.current.dist = 0;
+    } else if (e.touches.length === 1) {
+      touchStartRef.current.isPinching = false;
+      touchStartRef.current = {
+        x: e.touches[0].clientX - transform.x,
+        y: e.touches[0].clientY - transform.y,
+        dist: 0,
+        startScale: transform.scale,
+        isPinching: false,
+      };
+    }
   };
 
 
@@ -395,7 +416,7 @@ export const BangladeshMap: React.FC = () => {
               <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.25" />
             </filter>
             <filter id="active-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#F27D26" floodOpacity="0.7" />
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#059669" floodOpacity="0.7" />
             </filter>
           </defs>
 
@@ -452,7 +473,7 @@ export const BangladeshMap: React.FC = () => {
             })}
           </g>
 
-          {/* District Center Markers & Labels in Bangla */}
+          {/* District Center Markers & Labels in Bangla — Always Crisp White Text */}
           {settings.showDistrictLabels && (
             <g id="district-labels-group" className="pointer-events-none">
               {DISTRICTS.map((district) => {
@@ -476,25 +497,17 @@ export const BangladeshMap: React.FC = () => {
                       <circle
                         r={isSelected ? 4 : 2.5}
                         fill="#FFFFFF"
-                        stroke="#F27D26"
+                        stroke="#059669"
                         strokeWidth={1.5}
                       />
                     )}
                     <text
                       y={userStatus === 'visited' ? -6 : 4}
                       textAnchor="middle"
-                      className={`font-body font-bold tracking-tight transition-all duration-150 ${
-                        isSelected
-                          ? isDarkMode ? 'fill-white font-black drop-shadow-md' : 'fill-[#0F172A] font-black'
-                          : userStatus === 'visited'
-                          ? isDarkMode ? 'fill-[#F27D26]' : 'fill-[#EA580C]'
-                          : isDarkMode ? 'fill-white/80' : 'fill-[#1E293B]'
-                      }`}
+                      className="font-body font-bold tracking-tight transition-all duration-150 fill-white select-none pointer-events-none drop-shadow-md"
                       style={{
                         fontSize: isSelected ? '13px' : transform.scale > 2 ? '12px' : '9.5px',
-                        textShadow: isDarkMode
-                          ? '0 1px 3px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9)'
-                          : '0 0 4px #ffffff, 0 0 6px #ffffff, 0 1px 2px rgba(255,255,255,0.9)',
+                        textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.8)',
                       }}
                     >
                       {district.bn_name}
@@ -512,7 +525,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-zoom-in-btn"
             onClick={handleZoomIn}
             aria-label="জুম ইন"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#F27D26] hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors cursor-pointer"
           >
             <ZoomIn className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -520,7 +533,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-zoom-out-btn"
             onClick={handleZoomOut}
             aria-label="জুম আউট"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#F27D26] hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors cursor-pointer"
           >
             <ZoomOut className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -528,7 +541,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-reset-zoom-btn"
             onClick={handleResetZoom}
             aria-label="রিসেট জুম"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#F27D26] hover:text-white transition-colors border-t border-stone-200 dark:border-white/10 cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors border-t border-stone-200 dark:border-white/10 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
@@ -557,7 +570,7 @@ export const BangladeshMap: React.FC = () => {
                   />
                 )}
                 <div>
-                  <span className="font-body font-bold text-[9px] uppercase tracking-wider text-[#F27D26] block">
+                  <span className="font-body font-bold text-[9px] uppercase tracking-wider text-[#059669] block">
                     {hoveredDistrict.district.division} বিভাগ
                   </span>
                   <h4 className="font-display text-2xl font-bold leading-tight text-stone-900 dark:text-white mt-0.5">
@@ -571,7 +584,7 @@ export const BangladeshMap: React.FC = () => {
                     <span
                       className={`font-body text-[10px] font-bold px-2 py-0.5 inline-block ${
                         userData[hoveredDistrict.district.id]?.status === 'visited'
-                          ? 'bg-[#F27D26] text-white'
+                          ? 'bg-[#059669] text-white'
                           : userData[hoveredDistrict.district.id]?.status === 'want_to_visit'
                           ? 'bg-amber-400 text-black'
                           : 'bg-stone-100 dark:bg-white/10 text-stone-700 dark:text-white/60'
@@ -585,7 +598,7 @@ export const BangladeshMap: React.FC = () => {
                     </span>
                     {getDistrictMemoryCount(hoveredDistrict.district.id) > 0 && (
                       <span className="font-body text-xs font-bold text-stone-600 dark:text-white/70 flex items-center gap-1">
-                        <Camera className="w-3.5 h-3.5 text-[#F27D26]" />
+                        <Camera className="w-3.5 h-3.5 text-[#059669]" />
                         {getDistrictMemoryCount(hoveredDistrict.district.id)}
                       </span>
                     )}
@@ -601,7 +614,7 @@ export const BangladeshMap: React.FC = () => {
       <div className="px-3 sm:px-5 py-3 sm:py-4 border-t border-stone-200/80 dark:border-white/10 bg-white dark:bg-[#050505] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 transition-colors">
         <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#F27D26] shrink-0" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#059669] shrink-0" />
             <span className="font-body text-[11px] sm:text-xs font-semibold text-stone-900 dark:text-white">
               ভ্রমণ সম্পন্ন ({DISTRICTS.filter((d) => userData[d.id]?.status === 'visited').length})
             </span>
@@ -620,7 +633,7 @@ export const BangladeshMap: React.FC = () => {
           </div>
         </div>
 
-        <div className="font-body font-bold text-[11px] sm:text-xs text-[#EA580C] dark:text-[#F27D26]">
+        <div className="font-body font-bold text-[11px] sm:text-xs text-emerald-400">
           ৬৪ জেলা সম্পূর্ণ করতে আর {64 - DISTRICTS.filter((d) => userData[d.id]?.status === 'visited').length}টি জেলা বাকি
         </div>
       </div>
