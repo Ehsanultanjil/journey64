@@ -193,7 +193,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const cloudProfile = backupRes.data?.profile;
 
-      // 2. Functional deep merge: Combine current latest state + storage with cloud data
+      // 2. Timestamp-aware deep merge: Latest updated record wins to preserve deletions & edits
       setUserData((prev) => {
         const local = StorageService.loadData();
         const baseSource: Record<string, DistrictUserData> = { ...local.userData, ...prev };
@@ -205,19 +205,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (!existingCloud) {
             merged[districtId] = localDistrict;
           } else {
-            const isVisited = existingCloud.status === 'visited' || localDistrict.status === 'visited';
-            const isWant = isVisited ? false : (existingCloud.status === 'want_to_visit' || localDistrict.status === 'want_to_visit');
-            const finalStatus = isVisited ? 'visited' : isWant ? 'want_to_visit' : 'not_visited';
-            
-            merged[districtId] = {
-              districtId,
-              status: finalStatus,
-              isFavorite: !!(existingCloud.isFavorite || localDistrict.isFavorite),
-              rating: existingCloud.rating || localDistrict.rating || 5,
-              notes: existingCloud.notes || localDistrict.notes || '',
-              firstVisitedDate: existingCloud.firstVisitedDate || localDistrict.firstVisitedDate,
-              updatedAt: new Date().toISOString(),
-            };
+            const localTime = new Date(localDistrict.updatedAt || 0).getTime();
+            const cloudTime = new Date(existingCloud.updatedAt || 0).getTime();
+            if (localTime >= cloudTime) {
+              merged[districtId] = localDistrict;
+            } else {
+              merged[districtId] = existingCloud;
+            }
           }
         });
 
@@ -230,19 +224,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const local = StorageService.loadData();
         const visitMap = new Map<string, Visit>();
         cloudVisits.forEach((v) => visitMap.set(v.id, v));
-        [...local.visits, ...prev].forEach((v) => {
-          if (!visitMap.has(v.id)) {
-            visitMap.set(v.id, v);
+
+        [...local.visits, ...prev].forEach((localVisit) => {
+          if (!visitMap.has(localVisit.id)) {
+            visitMap.set(localVisit.id, localVisit);
           } else {
-            const existing = visitMap.get(v.id)!;
-            const photoMap = new Map<string, any>();
-            (existing.photos || []).forEach((p) => photoMap.set(p.url, p));
-            (v.photos || []).forEach((p) => photoMap.set(p.url, p));
-            existing.photos = Array.from(photoMap.values());
-            existing.notes = existing.notes || v.notes;
-            existing.visitDate = existing.visitDate || v.visitDate;
+            const cloudVisit = visitMap.get(localVisit.id)!;
+            const localTime = new Date(localVisit.updatedAt || 0).getTime();
+            const cloudTime = new Date(cloudVisit.updatedAt || 0).getTime();
+
+            // If local is newer or equal, local takes precedence (preserves deletions, edits, reordering)
+            if (localTime >= cloudTime) {
+              visitMap.set(localVisit.id, localVisit);
+            } else {
+              visitMap.set(localVisit.id, cloudVisit);
+            }
           }
         });
+
         const mergedVisits = Array.from(visitMap.values());
         StorageService.saveVisits(mergedVisits);
         SupabaseDB.syncVisits(mergedVisits, user.id).catch(() => {});
@@ -253,7 +252,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const local = StorageService.loadData();
         const tripMap = new Map<string, Trip>();
         cloudTrips.forEach((t) => tripMap.set(t.id, t));
-        [...local.trips, ...prev].forEach((t) => tripMap.set(t.id, t));
+
+        [...local.trips, ...prev].forEach((localTrip) => {
+          if (!tripMap.has(localTrip.id)) {
+            tripMap.set(localTrip.id, localTrip);
+          } else {
+            const cloudTrip = tripMap.get(localTrip.id)!;
+            const localTime = new Date(localTrip.updatedAt || 0).getTime();
+            const cloudTime = new Date(cloudTrip.updatedAt || 0).getTime();
+
+            if (localTime >= cloudTime) {
+              tripMap.set(localTrip.id, localTrip);
+            } else {
+              tripMap.set(localTrip.id, cloudTrip);
+            }
+          }
+        });
+
         const mergedTrips = Array.from(tripMap.values());
         StorageService.saveTrips(mergedTrips);
         SupabaseDB.syncTrips(mergedTrips, user.id).catch(() => {});
