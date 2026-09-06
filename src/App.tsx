@@ -101,8 +101,8 @@ const MainContent: React.FC = () => {
     >
       {activeTab === 'explore' ? (
         <div className="flex flex-col min-h-full space-y-8 sm:space-y-12">
-            {/* Top Hero Container (Full-screen 100vh on all devices) */}
-            <div className="relative min-h-[100dvh] w-full border-b border-white/10 overflow-hidden flex flex-col justify-between pb-4 sm:pb-6">
+            {/* Top Hero Container (Full-screen 100vh on Desktop/Tablet, Natural compact height on Mobile) */}
+            <div className="relative w-full md:min-h-[100dvh] border-b border-white/10 overflow-hidden flex flex-col justify-start md:justify-between pb-6 md:pb-6">
               {/* Background Photo & Atmospheric Lighting Overlays */}
               <div className="absolute inset-0 z-0 pointer-events-none">
                 <img
@@ -118,7 +118,7 @@ const MainContent: React.FC = () => {
               <Navbar />
 
               {/* Hero Text, Headline, and Live Metrics */}
-              <section className="relative z-10 px-4 sm:px-8 lg:px-12 py-4 sm:py-6 my-auto">
+              <section className="relative z-10 px-4 sm:px-8 lg:px-12 py-3 sm:py-6 md:my-auto">
                 <div className="max-w-3xl space-y-3 sm:space-y-4">
                   {/* Mode Badge Indicator */}
                   <div>
@@ -207,8 +207,8 @@ const MainContent: React.FC = () => {
                 </div>
               </section>
 
-              {/* Scroll Down Indicator */}
-              <div className="relative z-10 flex flex-col items-center justify-center pt-2 pb-2">
+              {/* Scroll Down Indicator (Desktop/Tablet only) */}
+              <div className="relative z-10 hidden md:flex flex-col items-center justify-center pt-2 pb-2">
                 <button
                   onClick={() => {
                     document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
