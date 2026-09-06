@@ -564,59 +564,70 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 <p className="text-xs text-stone-400">এখনও কোনো ছবি আপলোড করা হয়নি।</p>
               </div>
             ) : (
-              <div className="columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-4 sm:gap-6">
+              <div
+                className={`grid gap-4 sm:gap-6 items-start ${
+                  totalPhotos === 1
+                    ? 'grid-cols-1 max-w-2xl mx-auto'
+                    : totalPhotos === 2
+                    ? 'grid-cols-1 sm:grid-cols-2'
+                    : totalPhotos === 3
+                    ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+                    : totalPhotos === 4
+                    ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                    : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'
+                }`}
+              >
                 {photos.map((photo, index) => {
                   const isCover = photo.id === coverPhoto?.id;
                   return (
-                    <div key={photo.id} className="break-inside-avoid mb-4 sm:mb-6">
-                      <motion.div
-                        whileHover={{ y: -3 }}
-                        transition={{ duration: 0.2 }}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#12151C] border border-white/15 hover:border-emerald-500/40 shadow-xl cursor-pointer"
-                        onClick={() => openLightbox(photos, index, district.name)}
+                    <motion.div
+                      key={photo.id}
+                      whileHover={{ y: -3 }}
+                      transition={{ duration: 0.2 }}
+                      className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#12151C] border border-white/15 hover:border-emerald-500/40 shadow-xl cursor-pointer"
+                      onClick={() => openLightbox(photos, index, district.name)}
+                    >
+                      {/* Full uncropped photo at natural aspect ratio */}
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || `${district.name} photo`}
+                        className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
+                        loading="lazy"
+                      />
+
+                      {/* Cover badge */}
+                      {isCover && (
+                        <div className="absolute top-2.5 left-2.5 z-20">
+                          <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-[#059669] text-white shadow-md backdrop-blur-md">
+                            কভার ছবি
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Bottom Overlay with Caption & Zoom indicator inside the photo */}
+                      <div
+                        className={`absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end z-10 pointer-events-none transition-all duration-300 ${
+                          photo.caption
+                            ? 'bg-gradient-to-t from-black/90 via-black/45 to-transparent'
+                            : 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                        }`}
                       >
-                        {/* Full uncropped photo at natural aspect ratio */}
-                        <img
-                          src={photo.url}
-                          alt={photo.caption || `${district.name} photo`}
-                          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
-                          loading="lazy"
-                        />
-
-                        {/* Cover badge */}
-                        {isCover && (
-                          <div className="absolute top-2.5 left-2.5 z-20">
-                            <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-[#059669] text-white shadow-md backdrop-blur-md">
-                              কভার ছবি
-                            </span>
-                          </div>
+                        {photo.caption && (
+                          <p className="text-xs sm:text-sm text-white font-medium drop-shadow-md leading-relaxed">
+                            {photo.caption}
+                          </p>
                         )}
-
-                        {/* Bottom Overlay with Caption & Zoom indicator inside the photo */}
                         <div
-                          className={`absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end z-10 pointer-events-none transition-all duration-300 ${
-                            photo.caption
-                              ? 'bg-gradient-to-t from-black/90 via-black/45 to-transparent'
-                              : 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                          className={`flex items-center justify-end ${
+                            photo.caption ? 'pt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200' : ''
                           }`}
                         >
-                          {photo.caption && (
-                            <p className="text-xs sm:text-sm text-white font-medium drop-shadow-md leading-relaxed">
-                              {photo.caption}
-                            </p>
-                          )}
-                          <div
-                            className={`flex items-center justify-end ${
-                              photo.caption ? 'pt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200' : ''
-                            }`}
-                          >
-                            <span className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold bg-black/70 px-2 py-0.5 rounded-md backdrop-blur-xs shadow-xs">
-                              <Maximize2 className="w-3 h-3" /> পুরো ছবি দেখুন
-                            </span>
-                          </div>
+                          <span className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold bg-black/70 px-2 py-0.5 rounded-md backdrop-blur-xs shadow-xs">
+                            <Maximize2 className="w-3 h-3" /> পুরো ছবি দেখুন
+                          </span>
                         </div>
-                      </motion.div>
-                    </div>
+                      </div>
+                    </motion.div>
                   );
                 })}
               </div>
