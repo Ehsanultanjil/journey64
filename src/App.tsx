@@ -139,14 +139,12 @@ const MainContent: React.FC = () => {
                     )}
                   </div>
 
-                  <h1 className="font-display text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-snug sm:leading-[1.08] drop-shadow-md">
-                    দেশজুড়ে ঘুরে বেড়ান,{' '}
-                    <br className="hidden sm:inline" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
+                  <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight sm:leading-[1.12] drop-shadow-md">
+                    <span className="block">দেশজুড়ে ঘুরে বেড়ান,</span>
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
                       জমিয়ে রাখুন প্রতিটি
-                    </span>{' '}
-                    <br className="hidden sm:inline" />
-                    জেলার সুন্দর স্মৃতি।
+                    </span>
+                    <span className="block">জেলার সুন্দর স্মৃতি।</span>
                   </h1>
 
                   <p className="font-body text-xs sm:text-sm md:text-base text-stone-200 font-light leading-relaxed max-w-lg drop-shadow-sm">
