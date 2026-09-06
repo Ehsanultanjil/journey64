@@ -592,23 +592,29 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                           </div>
                         )}
 
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3 z-10">
-                          <div className="flex items-center justify-end">
-                            <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                        {/* Bottom Overlay with Caption & Zoom indicator inside the photo */}
+                        <div
+                          className={`absolute inset-x-0 bottom-0 p-3 sm:p-4 flex flex-col justify-end z-10 pointer-events-none transition-all duration-300 ${
+                            photo.caption
+                              ? 'bg-gradient-to-t from-black/90 via-black/45 to-transparent'
+                              : 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                          }`}
+                        >
+                          {photo.caption && (
+                            <p className="text-xs sm:text-sm text-white font-medium drop-shadow-md leading-relaxed">
+                              {photo.caption}
+                            </p>
+                          )}
+                          <div
+                            className={`flex items-center justify-end ${
+                              photo.caption ? 'pt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200' : ''
+                            }`}
+                          >
+                            <span className="flex items-center gap-1 text-[10px] text-emerald-300 font-bold bg-black/70 px-2 py-0.5 rounded-md backdrop-blur-xs shadow-xs">
                               <Maximize2 className="w-3 h-3" /> পুরো ছবি দেখুন
                             </span>
                           </div>
                         </div>
-
-                        {/* Caption below photo — only if caption exists */}
-                        {photo.caption && (
-                          <div className="px-3.5 py-2.5 bg-[#12151C] border-t border-white/10">
-                            <p className="text-[11px] sm:text-xs text-stone-200 leading-relaxed font-medium">
-                              {photo.caption}
-                            </p>
-                          </div>
-                        )}
                       </motion.div>
                     </div>
                   );
