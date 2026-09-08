@@ -14,14 +14,18 @@ export const SupabaseDB = {
     }
   },
 
-  // Push full snapshot / backup to Supabase
+  // Push full snapshot / backup to Supabase (upsert: one row per user, always up-to-date)
   async pushBackup(name: string, payload: any, userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       const backupName = effectiveUserId ? `user_backup_${effectiveUserId}` : name;
-      
-      const { error } = await supabase.from('journey_backups').insert([
+
+      // Use upsert with deterministic ID so there's exactly ONE backup per user
+      const deterministicId = effectiveUserId ? `backup_${effectiveUserId}` : `backup_anonymous_${Date.now()}`;
+
+      const { error } = await supabase.from('journey_backups').upsert([
         {
+          id: deterministicId,
           name: backupName,
           data: {
             ...payload,
@@ -33,7 +37,7 @@ export const SupabaseDB = {
       if (error) throw error;
       return { success: true };
     } catch (err: any) {
-      console.warn('Supabase push backup warning:', err.message);
+      console.error('[SupabaseDB] pushBackup FAILED:', err.message, err);
       return { success: false, error: err.message };
     }
   },
@@ -57,7 +61,7 @@ export const SupabaseDB = {
       if (error) throw error;
       return { success: true, data: data?.data };
     } catch (err: any) {
-      console.warn('Supabase pull latest backup warning:', err.message);
+      console.error('[SupabaseDB] pullLatestBackup FAILED:', err.message, err);
       return { success: false, error: err.message };
     }
   },
@@ -78,8 +82,12 @@ export const SupabaseDB = {
           updated_at: new Date().toISOString(),
         },
       ]);
+      if (error) {
+        console.error('[SupabaseDB] saveProfile FAILED:', error.message, error);
+      }
       return !error;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] saveProfile EXCEPTION:', e?.message, e);
       return false;
     }
   },
@@ -100,8 +108,12 @@ export const SupabaseDB = {
           updated_at: new Date().toISOString(),
         },
       ]);
+      if (error) {
+        console.error('[SupabaseDB] saveSettings FAILED:', error.message, error);
+      }
       return !error;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] saveSettings EXCEPTION:', e?.message, e);
       return false;
     }
   },
@@ -124,8 +136,12 @@ export const SupabaseDB = {
       if (items.length === 0) return true;
 
       const { error } = await supabase.from('district_user_data').upsert(items);
+      if (error) {
+        console.error('[SupabaseDB] syncDistrictUserData FAILED:', error.message, error);
+      }
       return !error;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] syncDistrictUserData EXCEPTION:', e?.message, e);
       return false;
     }
   },
@@ -148,8 +164,12 @@ export const SupabaseDB = {
       }));
 
       const { error } = await supabase.from('visits').upsert(records);
+      if (error) {
+        console.error('[SupabaseDB] syncVisits FAILED:', error.message, error);
+      }
       return !error;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] syncVisits EXCEPTION:', e?.message, e);
       return false;
     }
   },
@@ -171,8 +191,12 @@ export const SupabaseDB = {
       }));
 
       const { error } = await supabase.from('trips').upsert(records);
+      if (error) {
+        console.error('[SupabaseDB] syncTrips FAILED:', error.message, error);
+      }
       return !error;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] syncTrips EXCEPTION:', e?.message, e);
       return false;
     }
   },
@@ -186,7 +210,11 @@ export const SupabaseDB = {
         query = query.like('id', `${effectiveUserId}_%`);
       }
       const { data, error } = await query;
-      if (error || !data || data.length === 0) return null;
+      if (error) {
+        console.error('[SupabaseDB] fetchUserData FAILED:', error.message, error);
+        return null;
+      }
+      if (!data || data.length === 0) return null;
 
       const map: Record<string, DistrictUserData> = {};
       data.forEach((row: any) => {
@@ -201,7 +229,8 @@ export const SupabaseDB = {
         };
       });
       return map;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] fetchUserData EXCEPTION:', e?.message, e);
       return null;
     }
   },
@@ -215,7 +244,11 @@ export const SupabaseDB = {
         query = query.like('id', `${effectiveUserId}_%`);
       }
       const { data, error } = await query;
-      if (error || !data || data.length === 0) return null;
+      if (error) {
+        console.error('[SupabaseDB] fetchVisits FAILED:', error.message, error);
+        return null;
+      }
+      if (!data || data.length === 0) return null;
 
       return data.map((row: any) => ({
         id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
@@ -228,7 +261,8 @@ export const SupabaseDB = {
         createdAt: row.created_at || new Date().toISOString(),
         updatedAt: row.updated_at || new Date().toISOString(),
       }));
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] fetchVisits EXCEPTION:', e?.message, e);
       return null;
     }
   },
@@ -242,7 +276,11 @@ export const SupabaseDB = {
         query = query.like('id', `${effectiveUserId}_%`);
       }
       const { data, error } = await query;
-      if (error || !data || data.length === 0) return null;
+      if (error) {
+        console.error('[SupabaseDB] fetchTrips FAILED:', error.message, error);
+        return null;
+      }
+      if (!data || data.length === 0) return null;
 
       return data.map((row: any) => ({
         id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
@@ -254,7 +292,8 @@ export const SupabaseDB = {
         createdAt: row.created_at || new Date().toISOString(),
         updatedAt: row.updated_at || new Date().toISOString(),
       }));
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[SupabaseDB] fetchTrips EXCEPTION:', e?.message, e);
       return null;
     }
   },

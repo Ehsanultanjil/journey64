@@ -151,6 +151,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const isPullingCloudRef = useRef(false);
   const backupDebounceTimerRef = useRef<any>(null);
+  const pendingBackupDataRef = useRef<any>(null);
 
   const pullAndSyncUserCloudData = async (user: User) => {
     if (isPullingCloudRef.current) return;
@@ -486,7 +487,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await pullAndSyncUserCloudData(authUser);
   };
 
-  // Schedule debounced snapshot backup
+  // Schedule debounced snapshot backup (300ms debounce for fast sync)
   const scheduleDebouncedBackup = (currentData: {
     userData: Record<string, DistrictUserData>;
     visits: Visit[];
@@ -494,14 +495,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     profile: UserProfile;
     settings: AppSettings;
   }) => {
+    // Always keep latest data in ref for beforeunload flush
+    pendingBackupDataRef.current = currentData;
+
     if (backupDebounceTimerRef.current) {
       clearTimeout(backupDebounceTimerRef.current);
     }
     backupDebounceTimerRef.current = setTimeout(() => {
       if (authUser?.id) {
-        SupabaseDB.pushBackup('auto_sync', currentData, authUser.id).catch(() => {});
+        SupabaseDB.pushBackup('auto_sync', currentData, authUser.id)
+          .then(() => { pendingBackupDataRef.current = null; })
+          .catch((err) => console.error('[Sync] Debounced backup failed:', err));
       }
-    }, 1200);
+    }, 300);
   };
 
   // Sync state to storage and cloud
@@ -509,7 +515,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setUserData(newUserData);
     StorageService.saveUserData(newUserData);
     const userId = authUser?.id;
-    SupabaseDB.syncDistrictUserData(newUserData, userId).catch(() => {});
+    SupabaseDB.syncDistrictUserData(newUserData, userId).catch((err) => console.error('[Sync] syncDistrictUserData failed:', err));
     scheduleDebouncedBackup({
       userData: newUserData,
       visits,
@@ -523,7 +529,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setVisits(newVisits);
     StorageService.saveVisits(newVisits);
     const userId = authUser?.id;
-    SupabaseDB.syncVisits(newVisits, userId).catch(() => {});
+    SupabaseDB.syncVisits(newVisits, userId).catch((err) => console.error('[Sync] syncVisits failed:', err));
     scheduleDebouncedBackup({
       userData,
       visits: newVisits,
@@ -537,7 +543,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTrips(newTrips);
     StorageService.saveTrips(newTrips);
     const userId = authUser?.id;
-    SupabaseDB.syncTrips(newTrips, userId).catch(() => {});
+    SupabaseDB.syncTrips(newTrips, userId).catch((err) => console.error('[Sync] syncTrips failed:', err));
     scheduleDebouncedBackup({
       userData,
       visits,
@@ -551,28 +557,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setProfile(newProfile);
     StorageService.saveProfile(newProfile);
     const userId = authUser?.id;
-    SupabaseDB.saveProfile(newProfile, userId).catch(() => {});
+    SupabaseDB.saveProfile(newProfile, userId).catch((err) => console.error('[Sync] saveProfile failed:', err));
     SupabaseDB.pushBackup('auto_sync', {
       userData,
       visits,
       trips,
       profile: newProfile,
       settings,
-    }, userId).catch(() => {});
+    }, userId).catch((err) => console.error('[Sync] pushBackup failed:', err));
   };
 
   const syncSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     StorageService.saveSettings(newSettings);
     const userId = authUser?.id;
-    SupabaseDB.saveSettings(newSettings, userId).catch(() => {});
+    SupabaseDB.saveSettings(newSettings, userId).catch((err) => console.error('[Sync] saveSettings failed:', err));
     SupabaseDB.pushBackup('auto_sync', {
       userData,
       visits,
       trips,
       profile,
       settings: newSettings,
-    }, userId).catch(() => {});
+    }, userId).catch((err) => console.error('[Sync] pushBackup failed:', err));
   };
 
   // Memoized stats & achievements
@@ -1273,57 +1279,136 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  // Pull latest snapshot from Supabase
+  // Pull from cloud: fetch from BOTH backup snapshot AND structured tables, then merge
   const pullFromCloud = async (): Promise<{ success: boolean; error?: string }> => {
     setCloudSync((prev) => ({ ...prev, syncing: true, error: undefined }));
     try {
       const userId = authUser?.id;
-      const res = await SupabaseDB.pullLatestBackup(userId);
-      if (!res.success || !res.data) {
-        throw new Error(res.error || 'ক্লাউডে কোনো ব্যাকআপ পাওয়া যায়নি।');
+
+      // Fetch from both backup AND structured tables in parallel
+      const [backupRes, tblUserData, tblVisits, tblTrips] = await Promise.all([
+        SupabaseDB.pullLatestBackup(userId),
+        SupabaseDB.fetchUserData(userId),
+        SupabaseDB.fetchVisits(userId),
+        SupabaseDB.fetchTrips(userId),
+      ]);
+
+      const cBackup = backupRes.success ? backupRes.data : null;
+
+      // Prefer structured tables, fallback to backup
+      const cUserData: Record<string, DistrictUserData> =
+        tblUserData && Object.keys(tblUserData).length > 0 ? tblUserData : cBackup?.userData || {};
+      const cVisits: Visit[] =
+        tblVisits && tblVisits.length > 0 ? tblVisits : cBackup?.visits || [];
+      const cTrips: Trip[] =
+        tblTrips && tblTrips.length > 0 ? tblTrips : cBackup?.trips || [];
+      const cProfile = cBackup?.profile;
+      const cSettings = cBackup?.settings;
+
+      // Timestamp-aware merge with local data
+      if (Object.keys(cUserData).length > 0) {
+        setUserData((prev) => {
+          const merged: Record<string, DistrictUserData> = { ...cUserData };
+          (Object.entries(prev) as [string, DistrictUserData][]).forEach(([did, ld]) => {
+            const ex = merged[did];
+            if (!ex) { merged[did] = ld; }
+            else if (new Date(ld.updatedAt || 0).getTime() > new Date(ex.updatedAt || 0).getTime()) { merged[did] = ld; }
+          });
+          StorageService.saveUserData(merged);
+          return merged;
+        });
       }
 
-      const cloudData = res.data;
-      if (cloudData.userData) {
-        setUserData(cloudData.userData);
-        StorageService.saveUserData(cloudData.userData);
+      if (cVisits.length > 0) {
+        setVisits((prev) => {
+          const m = new Map<string, Visit>();
+          cVisits.forEach((v) => m.set(v.id, v));
+          prev.forEach((lv) => {
+            const cv = m.get(lv.id);
+            if (!cv) { m.set(lv.id, lv); }
+            else if (new Date(lv.updatedAt || 0).getTime() > new Date(cv.updatedAt || 0).getTime()) { m.set(lv.id, lv); }
+          });
+          const merged = Array.from(m.values());
+          StorageService.saveVisits(merged);
+          return merged;
+        });
       }
-      if (cloudData.visits) {
-        setVisits(cloudData.visits);
-        StorageService.saveVisits(cloudData.visits);
+
+      if (cTrips.length > 0) {
+        setTrips((prev) => {
+          const m = new Map<string, Trip>();
+          cTrips.forEach((t) => m.set(t.id, t));
+          prev.forEach((lt) => {
+            const ct = m.get(lt.id);
+            if (!ct) { m.set(lt.id, lt); }
+            else if (new Date(lt.updatedAt || 0).getTime() > new Date(ct.updatedAt || 0).getTime()) { m.set(lt.id, lt); }
+          });
+          const merged = Array.from(m.values());
+          StorageService.saveTrips(merged);
+          return merged;
+        });
       }
-      if (cloudData.trips) {
-        setTrips(cloudData.trips);
-        StorageService.saveTrips(cloudData.trips);
-      }
-      if (cloudData.profile) {
-        setProfile(cloudData.profile);
-        StorageService.saveProfile(cloudData.profile);
-      }
-      if (cloudData.settings) {
-        setSettings(cloudData.settings);
-        StorageService.saveSettings(cloudData.settings);
-      }
+
+      if (cProfile) { setProfile(cProfile); StorageService.saveProfile(cProfile); }
+      if (cSettings) { setSettings(cSettings); StorageService.saveSettings(cSettings); }
 
       const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setCloudSync({
         connected: true,
         syncing: false,
         lastSynced: nowStr,
-        message: `ক্লাউড থেকে সফলভাবে রিস্টোর হয়েছে (${nowStr})`,
+        message: 'Cloud restore done (' + nowStr + ')',
       });
 
       return { success: true };
     } catch (err: any) {
+      console.error('[Sync] pullFromCloud FAILED:', err);
       setCloudSync((prev) => ({
         ...prev,
         syncing: false,
         error: err.message,
-        message: 'রিস্টোর ব্যর্থ: ' + err.message,
+        message: 'Restore failed: ' + err.message,
       }));
       return { success: false, error: err.message };
     }
   };
+
+  // Flush pending backup on page close & auto-pull on tab visibility
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Flush any pending debounced backup immediately
+      if (backupDebounceTimerRef.current) {
+        clearTimeout(backupDebounceTimerRef.current);
+        backupDebounceTimerRef.current = null;
+      }
+      if (pendingBackupDataRef.current && authUser?.id) {
+        // Use sendBeacon for reliable delivery on page close
+        try {
+          const payload = pendingBackupDataRef.current;
+          // Fire-and-forget sync - sendBeacon not available for Supabase, so just try sync call
+          SupabaseDB.pushBackup('auto_sync', payload, authUser.id);
+          pendingBackupDataRef.current = null;
+        } catch (e) {
+          console.error('[Sync] beforeunload flush failed:', e);
+        }
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && authUser?.id) {
+        // Auto-pull when user switches back to this tab
+        pullFromCloud().catch((err) => console.error('[Sync] visibility auto-pull failed:', err));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [authUser?.id]);
 
   const signOut = async () => {
     await SupabaseAuth.signOut();
