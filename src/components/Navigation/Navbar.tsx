@@ -14,6 +14,7 @@ export const Navbar: React.FC = () => {
     activeTab,
     setActiveTab,
     authUser,
+    profile,
     openAuthModal,
     openDistrictJournal,
   } = useApp();
@@ -31,6 +32,8 @@ export const Navbar: React.FC = () => {
     { key: 'explore', label: 'মানচিত্র', icon: Map },
     { key: 'memories', label: 'ভ্রমণ ডায়েরি', icon: BookOpen },
   ];
+
+  const profileDisplayName = profile.displayName || profile.name || authUser?.user_metadata?.display_name || authUser?.email?.split('@')[0] || 'প্রোফাইল';
 
   return (
     <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-3 sm:px-6 lg:px-8 bg-transparent pointer-events-none transition-all">
@@ -55,7 +58,7 @@ export const Navbar: React.FC = () => {
                   <motion.div
                     layoutId="active-nav-pill"
                     transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                    className="absolute inset-0 bg-[#059669] rounded-full shadow-md shadow-[#059669]/30 -z-10"
+                    className="absolute inset-0 bg-[#004526] rounded-full shadow-md shadow-[#004526]/30 -z-10"
                   />
                 )}
                 <Icon className="w-3.5 h-3.5" />
@@ -65,13 +68,13 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Corner: Auth Status & Settings Button */}
+        {/* Right Corner: Auth Status & Settings / Profile Button */}
         <div className="absolute right-0 flex items-center gap-2 pointer-events-auto">
           {!authUser ? (
             <button
               id="nav-login-btn"
               onClick={() => openAuthModal('আপনার ভ্রমণ তথ্য সংরক্ষণ ও সিঙ্ক করতে লগইন করুন')}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 bg-[#059669] hover:bg-[#047857] text-white text-[11px] sm:text-xs font-body font-bold shadow-lg shadow-[#059669]/30 transition-all cursor-pointer hover:scale-105 active:scale-95"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 bg-[#004526] hover:bg-[#005a32] text-white text-[11px] sm:text-xs font-body font-bold shadow-lg shadow-[#004526]/30 transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">লগইন করুন</span>
@@ -83,17 +86,21 @@ export const Navbar: React.FC = () => {
               onClick={() => handleTabChange('settings')}
               className={`flex items-center gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full backdrop-blur-xl border transition-all cursor-pointer shadow-md hover:scale-105 group relative ${
                 activeTab === 'settings'
-                  ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/30'
+                  ? 'bg-[#004526] border-[#004526] text-white shadow-lg shadow-[#004526]/30'
                   : 'bg-[#12141A]/85 border-white/15 text-stone-200 hover:text-white hover:bg-[#1A1D24] hover:border-white/30'
               }`}
               title={`প্রোফাইল ও সেটিংস (${authUser.email})`}
               aria-label="সেটিংস ও প্রোফাইল"
             >
-              <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold uppercase border border-emerald-500/40">
-                {(authUser.user_metadata?.display_name || authUser.email || 'U')[0]}
+              <div className="w-5 h-5 rounded-full overflow-hidden bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold uppercase border border-emerald-500/40">
+                {profile.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  profileDisplayName[0]?.toUpperCase()
+                )}
               </div>
               <span className="text-[11px] sm:text-xs font-bold font-body max-w-[90px] truncate hidden md:inline">
-                {authUser.user_metadata?.display_name || authUser.email?.split('@')[0]}
+                {profileDisplayName}
               </span>
               <Settings className="w-3.5 h-3.5 group-hover:rotate-45 transition-transform duration-300 text-stone-400 group-hover:text-white" />
             </button>

@@ -92,8 +92,11 @@ export interface Achievement {
 export interface UserProfile {
   name: string;
   displayName?: string;
+  handle?: string;
   avatarUrl?: string;
+  coverUrl?: string;
   homeDistrictId?: string;
+  location?: string;
   bio?: string;
   joinedDate: string;
 }

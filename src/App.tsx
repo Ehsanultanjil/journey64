@@ -52,13 +52,20 @@ const MainContent: React.FC = () => {
   const [openDivision, setOpenDivision] = useState<string | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    // Disable slide to switch completely for settings/profile page and journal view
+    if (activeTab === 'settings' || viewingJournalDistrictId) {
+      return;
+    }
+
     const target = e.target as HTMLElement;
     if (
+      target.closest('#map-container') ||
       target.closest('#bangladesh-map-svg') ||
+      target.closest('svg') ||
       target.closest('input') ||
       target.closest('textarea') ||
-      target.closest('.fixed') ||
-      viewingJournalDistrictId
+      target.closest('button') ||
+      target.closest('.fixed')
     ) {
       return;
     }
@@ -67,6 +74,12 @@ const MainContent: React.FC = () => {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (activeTab === 'settings' || viewingJournalDistrictId) {
+      setTouchStartX(null);
+      setTouchStartY(null);
+      return;
+    }
+
     if (touchStartX === null || touchStartY === null) return;
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
@@ -74,7 +87,7 @@ const MainContent: React.FC = () => {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
-    // Minimum 45px horizontal swipe with dominant horizontal trajectory
+    // Minimum 45px horizontal swipe with dominant horizontal trajectory between explore & memories only
     if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
       if (deltaX < 0) {
         // Swiped Left -> Move to Memories
@@ -83,7 +96,7 @@ const MainContent: React.FC = () => {
         }
       } else {
         // Swiped Right -> Move to Explore
-        if (activeTab === 'memories' || activeTab === 'settings') {
+        if (activeTab === 'memories') {
           setActiveTab('explore');
         }
       }
@@ -122,7 +135,7 @@ const MainContent: React.FC = () => {
                 <div className="max-w-3xl space-y-3 sm:space-y-4">
                   <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight sm:leading-[1.12] drop-shadow-md">
                     <span className="block">দেশজুড়ে ঘুরে বেড়ান,</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#059669]">
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-100 to-[#004526]">
                       জমিয়ে রাখুন প্রতিটি
                     </span>
                     <span className="block">জেলার সুন্দর স্মৃতি।</span>
@@ -148,7 +161,7 @@ const MainContent: React.FC = () => {
                     {!authUser && (
                       <button
                         onClick={() => openAuthModal('আপনার ভ্রমণ ডায়েরি শুরু করতে লগইন বা সাইন আপ করুন')}
-                        className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#059669] hover:bg-[#047857] text-white font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2 shadow-xl shadow-[#059669]/30 hover:scale-105 transition-all cursor-pointer"
+                        className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#004526] hover:bg-[#005a32] text-white font-body text-xs sm:text-sm font-bold rounded-full flex items-center gap-2 shadow-xl shadow-[#004526]/30 hover:scale-105 transition-all cursor-pointer"
                       >
                         <LogIn className="w-4 h-4" />
                         <span>লগইন / সাইন আপ</span>
@@ -168,7 +181,7 @@ const MainContent: React.FC = () => {
                     </div>
                     <div className="h-8 w-[1px] bg-white/20" />
                     <div>
-                      <p className="font-display text-3xl sm:text-4xl font-bold text-[#059669] tracking-tight drop-shadow-sm">
+                      <p className="font-display text-3xl sm:text-4xl font-bold text-[#004526] tracking-tight drop-shadow-sm">
                         {stats.percentageExplored}%
                       </p>
                       <p className="font-body text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold">
@@ -221,7 +234,7 @@ const MainContent: React.FC = () => {
               <section className="space-y-4 pt-4 border-t border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                   <div>
-                    <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#059669]">
+                    <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#004526]">
                       বিভাগ ও জেলা তালিকা
                     </span>
                     <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-white mt-0.5 sm:mt-1">
@@ -248,7 +261,7 @@ const MainContent: React.FC = () => {
                         key={div.name}
                         className={`w-full rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden ${
                           isOpen
-                            ? 'bg-[#12141A] border-[#059669]/60 shadow-lg shadow-[#059669]/10'
+                            ? 'bg-[#12141A] border-[#004526]/60 shadow-lg shadow-[#004526]/10'
                             : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 hover:border-white/20 shadow-xs'
                         }`}
                       >
@@ -292,7 +305,7 @@ const MainContent: React.FC = () => {
                           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                             <div className="flex flex-col items-end">
                               <span className="font-display font-bold text-xs sm:text-sm text-white flex items-center gap-1">
-                                <span className={divVisited > 0 ? 'text-[#059669]' : 'text-stone-300'}>
+                                <span className={divVisited > 0 ? 'text-[#004526]' : 'text-stone-300'}>
                                   {divVisited}
                                 </span>
                                 <span className="text-stone-500">/{divDistricts.length}</span>
@@ -305,7 +318,7 @@ const MainContent: React.FC = () => {
                             <div
                               className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition-all ${
                                 isOpen
-                                  ? 'bg-[#059669] text-white shadow-xs'
+                                  ? 'bg-[#004526] text-white shadow-xs'
                                   : 'bg-white/5 text-stone-400 group-hover:bg-white/10 group-hover:text-white'
                               }`}
                             >
@@ -340,7 +353,7 @@ const MainContent: React.FC = () => {
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                                   <div className="absolute bottom-3 left-4 right-4 text-white">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#059669] text-white shadow-xs">
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#004526] text-white shadow-xs">
                                         {div.bn_name} বিভাগ
                                       </span>
                                       <span className="text-[11px] font-body text-stone-200">
@@ -365,7 +378,7 @@ const MainContent: React.FC = () => {
                                         onClick={() => selectDistrict(dist.id)}
                                         className={`px-3 py-2.5 rounded-xl text-left text-xs transition-all flex items-center justify-between group cursor-pointer border ${
                                           isVisited
-                                            ? 'bg-[#059669] text-white font-bold border-[#059669] shadow-xs'
+                                            ? 'bg-[#004526] text-white font-bold border-[#004526] shadow-xs'
                                             : status === 'want_to_visit'
                                             ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
                                             : 'bg-white/5 text-stone-300 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/10'
@@ -417,7 +430,7 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <div className="min-h-screen w-full bg-[#07080A] text-white font-sans selection:bg-[#059669] selection:text-white flex flex-col p-1 sm:p-2 md:p-3">
+      <div className="min-h-screen w-full bg-[#07080A] text-white font-sans selection:bg-[#004526] selection:text-white flex flex-col p-1 sm:p-2 md:p-3">
         <div className="w-full bg-[#0A0C10] text-white rounded-[20px] sm:rounded-[28px] md:rounded-[36px] shadow-2xl border border-white/10 overflow-clip relative flex flex-col flex-1">
           <MainContent />
         </div>

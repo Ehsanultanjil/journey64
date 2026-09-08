@@ -629,14 +629,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           particleCount: 160,
           spread: 100,
           origin: { y: 0.6 },
-          colors: ['#059669', '#10B981', '#F59E0B', '#EF4444', '#3B82F6'],
+          colors: ['#004526', '#10B981', '#F59E0B', '#EF4444', '#3B82F6'],
         });
       } else {
         confetti({
           particleCount: 60,
           spread: 60,
           origin: { y: 0.7 },
-          colors: ['#059669', '#10B981', '#F59E0B'],
+          colors: ['#004526', '#10B981', '#F59E0B'],
         });
       }
     } catch (e) {

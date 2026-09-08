@@ -27,12 +27,12 @@ export const Completion100Modal: React.FC = () => {
           </button>
 
           {/* Trophy Icon */}
-          <div className="w-16 h-16 rounded-2xl bg-[#059669] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#059669]/30 text-3xl font-bold">
+          <div className="w-16 h-16 rounded-2xl bg-[#004526] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#004526]/30 text-3xl font-bold">
             🏆
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#059669]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#004526]">
               ঐতিহাসিক মাইলফলক!
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mt-1">
@@ -40,7 +40,7 @@ export const Completion100Modal: React.FC = () => {
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 font-light mt-3 leading-relaxed">
               অভিনন্দন <strong className="text-white font-bold">{profile.name || 'ভ্রমণকারী'}</strong>! আপনি বাংলাদেশের ৮টি বিভাগের পুরো{' '}
-              <strong className="text-[#059669] font-bold">৬৪টি জেলা</strong> ঘুরে আপনার ডায়েরিতে যুক্ত করেছেন।
+              <strong className="text-[#004526] font-bold">৬৪টি জেলা</strong> ঘুরে আপনার ডায়েরিতে যুক্ত করেছেন।
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export const Completion100Modal: React.FC = () => {
 
           <button
             onClick={close100PercentModal}
-            className="w-full py-3.5 px-6 bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
+            className="w-full py-3.5 px-6 bg-[#004526] hover:bg-[#005a32] text-white font-bold text-xs rounded-2xl shadow-lg shadow-[#004526]/25 transition-all cursor-pointer hover:scale-[1.01]"
           >
             সম্পূর্ণ মানচিত্র দেখুন
           </button>

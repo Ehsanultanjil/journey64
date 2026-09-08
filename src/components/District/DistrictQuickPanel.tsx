@@ -5,7 +5,6 @@ import {
   Calendar,
   Camera,
   Heart,
-  Star,
   BookOpen,
   CheckCircle2,
   Bookmark,
@@ -27,7 +26,6 @@ export const DistrictQuickPanel: React.FC = () => {
     userData,
     visits,
     setDistrictStatus,
-    updateDistrictRating,
     toggleDistrictFavorite,
     updateDistrictNotes,
     openDistrictJournal,
@@ -40,14 +38,15 @@ export const DistrictQuickPanel: React.FC = () => {
   const districtId = selectedDistrict.id;
   const currentData = userData[districtId];
   const currentStatus: DistrictStatus = currentData?.status || 'not_visited';
+  const isVisited = currentStatus === 'visited';
   const districtVisits = visits.filter((v) => v.districtId === districtId);
-  const totalPhotos = districtVisits.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
-  const coverPhoto =
-    districtVisits.flatMap((v) => v.photos || []).find((p) => p.isCover)?.url ||
-    districtVisits.flatMap((v) => v.photos || [])[0]?.url;
+  const totalPhotos = isVisited ? districtVisits.reduce((acc, v) => acc + (v.photos?.length || 0), 0) : 0;
+  const coverPhoto = isVisited
+    ? (districtVisits.flatMap((v) => v.photos || []).find((p) => p.isCover)?.url ||
+       districtVisits.flatMap((v) => v.photos || [])[0]?.url)
+    : null;
 
   const isFavorite = !!currentData?.isFavorite;
-  const rating = currentData?.rating || 5;
   const notes = currentData?.notes || districtVisits[0]?.notes || '';
 
   const handleStatusChange = (newStatus: DistrictStatus) => {
@@ -90,8 +89,8 @@ export const DistrictQuickPanel: React.FC = () => {
                 className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05]"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#059669]/25 via-[#161A22] to-[#0A0C10] p-6 text-center">
-                <Compass className="w-12 h-12 text-[#059669]/60 mb-2" />
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#004526]/25 via-[#161A22] to-[#0A0C10] p-6 text-center">
+                <Compass className="w-12 h-12 text-[#004526]/60 mb-2" />
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">
                     {selectedDistrict.division} DIVISION
@@ -116,8 +115,8 @@ export const DistrictQuickPanel: React.FC = () => {
                 }}
                 className={`p-2.5 rounded-full backdrop-blur-md transition-all cursor-pointer ${
                   isFavorite
-                    ? 'bg-[#059669] text-white shadow-md scale-105'
-                    : 'bg-black/60 text-white/80 hover:bg-black hover:text-[#059669]'
+                    ? 'bg-[#004526] text-white shadow-md scale-105'
+                    : 'bg-black/60 text-white/80 hover:bg-black hover:text-[#004526]'
                 }`}
                 aria-label="পছন্দের তালিকা"
               >
@@ -127,7 +126,7 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="quick-panel-close-btn"
                 onClick={() => selectDistrict(null)}
-                className="p-2.5 rounded-full bg-black/60 hover:bg-[#059669] text-white backdrop-blur-md transition-colors cursor-pointer"
+                className="p-2.5 rounded-full bg-black/60 hover:bg-[#004526] text-white backdrop-blur-md transition-colors cursor-pointer"
                 aria-label="বন্ধ করুন"
               >
                 <X className="w-4 h-4" />
@@ -137,7 +136,7 @@ export const DistrictQuickPanel: React.FC = () => {
             {/* District Titles on Banner */}
             <div className="absolute bottom-3.5 left-4 right-4 text-white">
               <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#059669] text-white shadow-xs">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#004526] text-white shadow-xs">
                   {selectedDistrict.division} বিভাগ
                 </span>
                 {selectedDistrict.isCoastal && (
@@ -180,7 +179,7 @@ export const DistrictQuickPanel: React.FC = () => {
 
             {/* Tagline / Highlights */}
             {selectedDistrict.tagline && (
-              <p className="text-xs text-stone-300 font-light italic border-l-2 border-[#059669] pl-3 py-0.5">
+              <p className="text-xs text-stone-300 font-light italic border-l-2 border-[#004526] pl-3 py-0.5">
                 "{selectedDistrict.tagline}"
               </p>
             )}
@@ -198,7 +197,7 @@ export const DistrictQuickPanel: React.FC = () => {
                   onClick={() => handleStatusChange('visited')}
                   className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
                     currentStatus === 'visited'
-                      ? 'bg-[#059669] border-[#059669] text-white shadow-lg shadow-[#059669]/25'
+                      ? 'bg-[#004526] border-[#004526] text-white shadow-lg shadow-[#004526]/25'
                       : 'bg-white/5 border-white/10 text-stone-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -238,32 +237,14 @@ export const DistrictQuickPanel: React.FC = () => {
               </div>
             </div>
 
-            {/* Rating & Photo Counter Bar */}
-            {currentStatus === 'visited' && (
-              <div className="p-3.5 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between gap-3">
-                <div>
-                  <span className="block text-[11px] font-bold text-stone-400">আপনার রেটিং</span>
-                  <div className="flex items-center gap-1 mt-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => updateDistrictRating(districtId, star)}
-                        className="text-amber-400 hover:scale-110 transition-transform cursor-pointer"
-                        aria-label={`${star} star`}
-                      >
-                        <Star className={`w-4 h-4 ${star <= rating ? 'fill-amber-400' : 'text-white/20'}`} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-right border-l border-white/10 pl-3">
-                  <span className="block text-[11px] font-bold text-stone-400">মোট ছবি</span>
-                  <span className="text-xs font-bold text-white flex items-center justify-end gap-1 mt-1">
-                    <Camera className="w-3.5 h-3.5 text-[#059669]" />
-                    {totalPhotos}টি ছবি
-                  </span>
-                </div>
+            {/* Photo Counter Indicator when visited and has photos */}
+            {currentStatus === 'visited' && totalPhotos > 0 && (
+              <div className="p-3 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
+                <span className="text-xs font-medium text-stone-300">সংরক্ষিত ছবি</span>
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#004526]" />
+                  {totalPhotos}টি ছবি
+                </span>
               </div>
             )}
 
@@ -272,7 +253,7 @@ export const DistrictQuickPanel: React.FC = () => {
               <button
                 id="open-journal-page-btn"
                 onClick={() => openDistrictJournal(districtId)}
-                className="w-full py-3 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/25 transition-all cursor-pointer hover:scale-[1.01]"
+                className="w-full py-3 bg-[#004526] hover:bg-[#005a32] text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#004526]/25 transition-all cursor-pointer hover:scale-[1.01]"
               >
                 <Camera className="w-4 h-4" />
                 <span>ছবি ও স্মৃতিকথা যোগ করুন</span>
@@ -306,7 +287,7 @@ export const DistrictQuickPanel: React.FC = () => {
                 </button>
                 <button
                   onClick={handleConfirmUnvisit}
-                  className="px-4 py-2 text-xs font-bold bg-[#059669] hover:bg-[#047857] text-white rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold bg-[#004526] hover:bg-[#005a32] text-white rounded-xl cursor-pointer"
                 >
                   হ্যাঁ, পরিবর্তন করুন
                 </button>

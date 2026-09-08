@@ -240,7 +240,7 @@ export const BangladeshMap: React.FC = () => {
     }
 
     if (userStatus === 'visited') {
-      return isSelected ? '#047857' : '#059669'; // Deep Forest Emerald Green
+      return isSelected ? '#00381e' : '#004526'; // Bangladesh Deep Forest Green
     }
     if (userStatus === 'want_to_visit') {
       return isSelected ? '#D97706' : '#F59E0B'; // Amber Gold
@@ -261,13 +261,15 @@ export const BangladeshMap: React.FC = () => {
     return isDarkMode ? '#2a2a2a' : '#CBD5E1';
   };
 
-  // Get photo count for district
+  // Get photo count for district (only when visited)
   const getDistrictMemoryCount = (districtId: string) => {
+    if (userData[districtId]?.status !== 'visited') return 0;
     const districtVisits = visits.filter((v) => v.districtId === districtId);
     return districtVisits.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
   };
 
   const getDistrictCoverUrl = (districtId: string) => {
+    if (userData[districtId]?.status !== 'visited') return null;
     const districtVisits = visits.filter((v) => v.districtId === districtId);
     for (const v of districtVisits) {
       const cover = v.photos?.find((p) => p.isCover) || v.photos?.[0];
@@ -288,7 +290,7 @@ export const BangladeshMap: React.FC = () => {
             placeholder="জেলা খুঁজুন... (যেমন: ঢাকা, কক্সবাজার)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs font-body font-semibold tracking-wide bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-white/40 focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669]"
+            className="w-full pl-9 pr-8 py-2 text-xs font-body font-semibold tracking-wide bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-white/40 focus:outline-none focus:border-[#004526] focus:ring-1 focus:ring-[#004526]"
           />
           {searchQuery && (
             <button
@@ -323,14 +325,14 @@ export const BangladeshMap: React.FC = () => {
                         <span
                           className={`w-2 h-2 shrink-0 ${
                             status === 'visited'
-                              ? 'bg-[#059669]'
+                              ? 'bg-[#004526]'
                               : status === 'want_to_visit'
                               ? 'bg-amber-400'
                               : 'bg-stone-300 dark:bg-white/30'
                           }`}
                         />
                         <div>
-                          <p className="font-body text-base font-bold text-stone-900 dark:text-white group-hover:text-[#059669]">
+                          <p className="font-body text-base font-bold text-stone-900 dark:text-white group-hover:text-[#004526]">
                             {d.bn_name}{' '}
                             <span className="text-xs font-normal text-stone-500 dark:text-white/40">
                               ({d.name})
@@ -341,7 +343,7 @@ export const BangladeshMap: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <span className="font-body text-xs font-bold text-[#059669]">
+                      <span className="font-body text-xs font-bold text-[#004526]">
                         দেখুন →
                       </span>
                     </button>
@@ -359,7 +361,7 @@ export const BangladeshMap: React.FC = () => {
             <select
               value={divisionFilter}
               onChange={(e) => setDivisionFilter(e.target.value)}
-              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#059669] cursor-pointer truncate rounded-xl"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#004526] cursor-pointer truncate rounded-xl"
             >
               <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সব বিভাগ (৮টি)</option>
               {DIVISIONS.map((div) => (
@@ -375,10 +377,10 @@ export const BangladeshMap: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#059669] cursor-pointer truncate rounded-xl"
+              className="w-full sm:w-auto text-xs font-body font-semibold bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/15 px-2.5 py-2 text-stone-900 dark:text-white focus:outline-none focus:border-[#004526] cursor-pointer truncate rounded-xl"
             >
               <option value="all" className="bg-white text-stone-900 dark:bg-[#111] dark:text-white">সব জেলা (৬৪টি)</option>
-              <option value="visited" className="bg-white text-emerald-600 dark:bg-[#111] dark:text-[#059669]">ঘুরেছি</option>
+              <option value="visited" className="bg-white text-emerald-600 dark:bg-[#111] dark:text-[#004526]">ঘুরেছি</option>
               <option value="want_to_visit" className="bg-white text-amber-700 dark:bg-[#111] dark:text-amber-400">যেতে চাই</option>
               <option value="not_visited" className="bg-white text-stone-500 dark:bg-[#111] dark:text-stone-400">যাইনি</option>
             </select>
@@ -416,7 +418,7 @@ export const BangladeshMap: React.FC = () => {
               <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.25" />
             </filter>
             <filter id="active-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#059669" floodOpacity="0.7" />
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#004526" floodOpacity="0.7" />
             </filter>
           </defs>
 
@@ -497,7 +499,7 @@ export const BangladeshMap: React.FC = () => {
                       <circle
                         r={isSelected ? 4 : 2.5}
                         fill="#FFFFFF"
-                        stroke="#059669"
+                        stroke="#004526"
                         strokeWidth={1.5}
                       />
                     )}
@@ -525,7 +527,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-zoom-in-btn"
             onClick={handleZoomIn}
             aria-label="জুম ইন"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#004526] hover:text-white transition-colors cursor-pointer"
           >
             <ZoomIn className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -533,7 +535,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-zoom-out-btn"
             onClick={handleZoomOut}
             aria-label="জুম আউট"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#004526] hover:text-white transition-colors cursor-pointer"
           >
             <ZoomOut className="w-4 h-4 stroke-[2.5]" />
           </button>
@@ -541,7 +543,7 @@ export const BangladeshMap: React.FC = () => {
             id="map-reset-zoom-btn"
             onClick={handleResetZoom}
             aria-label="রিসেট জুম"
-            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#059669] hover:text-white transition-colors border-t border-stone-200 dark:border-white/10 cursor-pointer"
+            className="p-2.5 text-stone-800 dark:text-white hover:bg-[#004526] hover:text-white transition-colors border-t border-stone-200 dark:border-white/10 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
@@ -570,7 +572,7 @@ export const BangladeshMap: React.FC = () => {
                   />
                 )}
                 <div>
-                  <span className="font-body font-bold text-[9px] uppercase tracking-wider text-[#059669] block">
+                  <span className="font-body font-bold text-[9px] uppercase tracking-wider text-[#004526] block">
                     {hoveredDistrict.district.division} বিভাগ
                   </span>
                   <h4 className="font-display text-2xl font-bold leading-tight text-stone-900 dark:text-white mt-0.5">
@@ -584,7 +586,7 @@ export const BangladeshMap: React.FC = () => {
                     <span
                       className={`font-body text-[10px] font-bold px-2 py-0.5 inline-block ${
                         userData[hoveredDistrict.district.id]?.status === 'visited'
-                          ? 'bg-[#059669] text-white'
+                          ? 'bg-[#004526] text-white'
                           : userData[hoveredDistrict.district.id]?.status === 'want_to_visit'
                           ? 'bg-amber-400 text-black'
                           : 'bg-stone-100 dark:bg-white/10 text-stone-700 dark:text-white/60'
@@ -598,7 +600,7 @@ export const BangladeshMap: React.FC = () => {
                     </span>
                     {getDistrictMemoryCount(hoveredDistrict.district.id) > 0 && (
                       <span className="font-body text-xs font-bold text-stone-600 dark:text-white/70 flex items-center gap-1">
-                        <Camera className="w-3.5 h-3.5 text-[#059669]" />
+                        <Camera className="w-3.5 h-3.5 text-[#004526]" />
                         {getDistrictMemoryCount(hoveredDistrict.district.id)}
                       </span>
                     )}
@@ -614,7 +616,7 @@ export const BangladeshMap: React.FC = () => {
       <div className="px-3 sm:px-5 py-3 sm:py-4 border-t border-stone-200/80 dark:border-white/10 bg-white dark:bg-[#050505] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 transition-colors">
         <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#059669] shrink-0" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#004526] shrink-0" />
             <span className="font-body text-[11px] sm:text-xs font-semibold text-stone-900 dark:text-white">
               ভ্রমণ সম্পন্ন ({DISTRICTS.filter((d) => userData[d.id]?.status === 'visited').length})
             </span>

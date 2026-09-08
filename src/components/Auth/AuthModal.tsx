@@ -102,7 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           className="w-full max-w-md bg-[#0F1218] border border-white/15 text-white p-5 sm:p-7 rounded-[28px] sm:rounded-3xl shadow-2xl relative overflow-hidden z-10"
         >
           {/* Subtle Ambient Background Light */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#059669]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#004526]/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
 
           {/* Close button */}
@@ -116,7 +116,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
           {/* Brand Header */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#059669] to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-[#059669]/30">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#004526] to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-[#004526]/30">
               <Compass className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
@@ -138,7 +138,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-2.5 bg-[#059669]/15 border border-[#059669]/40 rounded-xl flex items-center gap-2 text-xs text-emerald-200"
+              className="mb-4 p-2.5 bg-[#004526]/15 border border-[#004526]/40 rounded-xl flex items-center gap-2 text-xs text-emerald-200"
             >
               <Info className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>{authPromptMessage}</span>
@@ -156,7 +156,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               }}
               className={`flex-1 py-2 rounded-xl transition-all text-center cursor-pointer ${
                 mode === 'signin'
-                  ? 'bg-[#059669] text-white shadow-md'
+                  ? 'bg-[#004526] text-white shadow-md'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -171,7 +171,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               }}
               className={`flex-1 py-2 rounded-xl transition-all text-center cursor-pointer ${
                 mode === 'signup'
-                  ? 'bg-[#059669] text-white shadow-md'
+                  ? 'bg-[#004526] text-white shadow-md'
                   : 'text-stone-400 hover:text-white'
               }`}
             >
@@ -195,7 +195,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-3 bg-[#059669]/20 border border-[#059669]/50 text-emerald-300 text-xs rounded-2xl flex items-center gap-2.5"
+              className="mb-4 p-3 bg-[#004526]/20 border border-[#004526]/50 text-emerald-300 text-xs rounded-2xl flex items-center gap-2.5"
             >
               <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
               <span>{successMsg}</span>
@@ -217,7 +217,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="যেমন: তানজিল আহমেদ"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669] transition-all"
+                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#004526] focus:ring-1 focus:ring-[#004526] transition-all"
                   />
                 </div>
               </div>
@@ -235,7 +235,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="yourname@gmail.com"
-                  className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669] transition-all"
+                  className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#004526] focus:ring-1 focus:ring-[#004526] transition-all"
                 />
               </div>
             </div>
@@ -264,7 +264,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="কমপক্ষে ৬ অক্ষর"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#059669] focus:ring-1 focus:ring-[#059669] transition-all"
+                    className="w-full bg-white/5 border border-white/15 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-[#004526] focus:ring-1 focus:ring-[#004526] transition-all"
                   />
                   <button
                     type="button"
@@ -298,7 +298,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 bg-[#059669] hover:bg-[#047857] active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#059669]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-2 py-3 bg-[#004526] hover:bg-[#005a32] active:scale-[0.99] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#004526]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
                 <>

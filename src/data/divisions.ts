@@ -26,7 +26,7 @@ export const DIVISIONS: DivisionMeta[] = [
     name: 'Chattogram',
     bn_name: 'চট্টগ্রাম',
     districtsCount: 11,
-    color: '#059669', // Emerald forest
+    color: '#004526', // Deep forest green
     bgLight: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     bgDark: 'dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
     description: 'Home to the world\'s longest sea beach, Chittagong Hill Tracts, misty mountains, and naval ports.',
