@@ -391,24 +391,14 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleSaveAll}
-                className="px-3.5 py-1.5 bg-[#004526] hover:bg-[#005a32] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>সেভ করুন</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="p-2 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-                title="সম্পাদনা বন্ধ করুন"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="p-2 text-stone-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+              title="সম্পাদনা বন্ধ করুন"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           <div className="space-y-4">
