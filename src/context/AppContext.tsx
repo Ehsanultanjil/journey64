@@ -101,6 +101,7 @@ interface AppContextType {
   addVisit: (visit: Omit<Visit, 'id' | 'createdAt' | 'updatedAt'>) => Visit;
   updateVisit: (visitId: string, updates: Partial<Visit>) => void;
   addPhoto: (districtId: string, photo: { url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }) => Photo | null;
+  addPhotos: (districtId: string, photos: Array<{ url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }>) => Photo[];
   updatePhoto: (photoId: string, updates: Partial<Photo>) => void;
   deletePhoto: (photoId: string) => void;
   reorderPhotos: (districtId: string, photoIds: string[]) => void;
@@ -881,11 +882,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const addPhoto = (
+  const addPhotos = (
     districtId: string,
-    photoData: { url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }
-  ): Photo | null => {
-    if (!ensureAuth('ছবি ও স্মৃতিকথা যুক্ত করতে লগইন করুন।')) return null;
+    photosData: Array<{ url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }>
+  ): Photo[] => {
+    if (!ensureAuth('ছবি ও স্মৃতিকথা যুক্ত করতে লগইন করুন।')) return [];
+    if (!photosData || photosData.length === 0) return [];
 
     // Find or create primary visit for this district
     let targetVisit = visits.find((v) => v.districtId === districtId);
@@ -896,7 +898,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       targetVisit = {
         id: `visit-${districtId}-${Date.now()}`,
         districtId,
-        visitDate: photoData.takenDate || now.split('T')[0],
+        visitDate: photosData[0]?.takenDate || now.split('T')[0],
         notes: '',
         rating: 5,
         photos: [],
@@ -906,49 +908,67 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       allVisits = [targetVisit, ...allVisits];
     }
 
-    const targetPlaceName = photoData.placeName?.trim() || 'প্রধান আকর্ষণ';
-    const currentPlacePhotos = (targetVisit.photos || []).filter(
-      (p) => (p.placeName?.trim() || 'প্রধান আকর্ষণ') === targetPlaceName
-    );
+    let existingPhotos = [...(targetVisit.photos || [])];
+    const createdPhotos: Photo[] = [];
+    let hasNewCover = false;
 
-    // Max 5 photos per spot/place
-    if (currentPlacePhotos.length >= 5) {
-      return null;
+    for (let i = 0; i < photosData.length; i++) {
+      const pData = photosData[i];
+      const targetPlaceName = pData.placeName?.trim() || 'প্রধান আকর্ষণ';
+      const currentPlacePhotos = existingPhotos.filter(
+        (p) => (p.placeName?.trim() || 'প্রধান আকর্ষণ') === targetPlaceName
+      );
+
+      // Max 5 photos per spot/place
+      if (currentPlacePhotos.length >= 5) {
+        continue;
+      }
+
+      const totalExisting = existingPhotos.length;
+      const isFirstPhotoOverall = totalExisting === 0;
+      const isCover = pData.isCover !== undefined ? pData.isCover : isFirstPhotoOverall;
+
+      if (isCover) {
+        hasNewCover = true;
+      }
+
+      const newPhoto: Photo = {
+        id: crypto.randomUUID ? crypto.randomUUID() : `photo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        districtId,
+        visitId: targetVisit.id,
+        placeName: targetPlaceName,
+        url: pData.url,
+        caption: pData.caption || '',
+        sortOrder: totalExisting,
+        isCover: isCover,
+        isFavoriteMemory: isFirstPhotoOverall,
+        takenDate: pData.takenDate || targetVisit.visitDate,
+        createdAt: now,
+      };
+
+      existingPhotos.push(newPhoto);
+      createdPhotos.push(newPhoto);
     }
 
-    const totalExistingPhotos = targetVisit.photos?.length || 0;
-    const isFirstPhotoOverall = totalExistingPhotos === 0;
-    const isNewCover = photoData.isCover !== undefined ? photoData.isCover : isFirstPhotoOverall;
-
-    const newPhoto: Photo = {
-      id: crypto.randomUUID ? crypto.randomUUID() : `photo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      districtId,
-      visitId: targetVisit.id,
-      placeName: targetPlaceName,
-      url: photoData.url,
-      caption: photoData.caption || '',
-      sortOrder: totalExistingPhotos,
-      isCover: isNewCover,
-      isFavoriteMemory: isFirstPhotoOverall,
-      takenDate: photoData.takenDate || targetVisit.visitDate,
-      createdAt: now,
-    };
-
-    if (photoData.takenDate) {
-      targetVisit.visitDate = photoData.takenDate;
+    if (createdPhotos.length === 0) {
+      return [];
     }
 
-    const sanitizedExisting = (targetVisit.photos || []).map((p) =>
-      isNewCover ? { ...p, isCover: false } : p
-    );
-    const updatedPhotos = [...sanitizedExisting, newPhoto];
+    if (hasNewCover) {
+      const coverPhotoId = createdPhotos.find((p) => p.isCover)?.id;
+      existingPhotos = existingPhotos.map((p) => ({
+        ...p,
+        isCover: p.id === coverPhotoId,
+      }));
+    }
 
+    const latestTakenDate = photosData.find((p) => p.takenDate)?.takenDate;
     const updatedVisits = allVisits.map((v) => {
       if (v.id === targetVisit!.id) {
         return {
           ...v,
-          visitDate: photoData.takenDate || v.visitDate,
-          photos: updatedPhotos,
+          visitDate: latestTakenDate || v.visitDate,
+          photos: existingPhotos,
           updatedAt: now,
         };
       }
@@ -959,19 +979,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     // Ensure status is visited and sync firstVisitedDate
     const currentUD = userData[districtId];
-    if (!currentUD || currentUD.status !== 'visited' || (photoData.takenDate && !currentUD.firstVisitedDate)) {
+    if (!currentUD || currentUD.status !== 'visited' || (latestTakenDate && !currentUD.firstVisitedDate)) {
       syncUserData({
         ...userData,
         [districtId]: {
           ...(currentUD || { districtId, updatedAt: now }),
           status: 'visited',
-          firstVisitedDate: photoData.takenDate || currentUD?.firstVisitedDate || now.split('T')[0],
+          firstVisitedDate: latestTakenDate || currentUD?.firstVisitedDate || now.split('T')[0],
           updatedAt: now,
         },
       });
     }
 
-    return newPhoto;
+    return createdPhotos;
+  };
+
+  const addPhoto = (
+    districtId: string,
+    photoData: { url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }
+  ): Photo | null => {
+    const res = addPhotos(districtId, [photoData]);
+    return res.length > 0 ? res[0] : null;
   };
 
   const updatePhoto = (photoId: string, updates: Partial<Photo>) => {
@@ -1372,6 +1400,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateVisit,
         deleteVisit,
         addPhoto,
+        addPhotos,
         updatePhoto,
         deletePhoto,
         reorderPhotos,

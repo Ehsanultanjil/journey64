@@ -36,6 +36,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     updateDistrictNotes,
     toggleDistrictFavorite,
     addPhoto,
+    addPhotos,
     updatePhoto,
     deletePhoto,
     openLightbox,
@@ -157,17 +158,23 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
     setIsUploading(true);
     try {
+      const photosToAdd = [];
+      const isOverallEmpty = allPhotos.length === 0;
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const compressedBase64 = await compressImage(file, 1600, 1600, 0.82);
-
-        addPhoto(districtId, {
+        photosToAdd.push({
           url: compressedBase64,
           caption: '',
           placeName: targetUploadPlace,
-          isCover: allPhotos.length === 0 && i === 0,
+          isCover: isOverallEmpty && i === 0,
           takenDate: visitDateDraft || new Date().toISOString().split('T')[0],
         });
+      }
+
+      if (photosToAdd.length > 0) {
+        addPhotos(districtId, photosToAdd);
       }
     } catch (err) {
       console.error('Photo upload failed:', err);
