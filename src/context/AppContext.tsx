@@ -100,8 +100,7 @@ interface AppContextType {
   toggleDistrictFavorite: (districtId: string) => void;
   addVisit: (visit: Omit<Visit, 'id' | 'createdAt' | 'updatedAt'>) => Visit;
   updateVisit: (visitId: string, updates: Partial<Visit>) => void;
-  deleteVisit: (visitId: string) => void;
-  addPhoto: (districtId: string, photo: { url: string; caption?: string; isCover?: boolean; takenDate?: string }) => Photo | null;
+  addPhoto: (districtId: string, photo: { url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }) => Photo | null;
   updatePhoto: (photoId: string, updates: Partial<Photo>) => void;
   deletePhoto: (photoId: string) => void;
   reorderPhotos: (districtId: string, photoIds: string[]) => void;
@@ -334,7 +333,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
   }, []);
 
-  // Load initial data from StorageService
+  // Load initial data from StorageService (localStorage + IndexedDB)
   useEffect(() => {
     const loaded = StorageService.loadData();
     setUserData(loaded.userData);
@@ -344,6 +343,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Lock dark mode permanently
     document.documentElement.classList.add('dark');
     document.documentElement.classList.remove('light');
+
+    // Async hydration from IndexedDB for full high-capacity persistence
+    StorageService.loadDataAsync().then((idbData) => {
+      if (idbData.visits && idbData.visits.length > 0) {
+        setVisits((prev) => {
+          const prevPhotosCount = prev.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
+          const idbPhotosCount = idbData.visits!.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
+          if (idbPhotosCount >= prevPhotosCount) {
+            return idbData.visits!;
+          }
+          return prev;
+        });
+      }
+      if (idbData.userData && Object.keys(idbData.userData).length > 0) {
+        setUserData((prev) => ({ ...idbData.userData, ...prev }));
+      }
+      if (idbData.profile) {
+        setProfile((prev) => ({ ...idbData.profile, ...prev }));
+      }
+    });
   }, []);
 
   // --- Browser & Mobile Back/Forward History Synchronization ---
@@ -864,7 +883,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const addPhoto = (
     districtId: string,
-    photoData: { url: string; caption?: string; isCover?: boolean; takenDate?: string }
+    photoData: { url: string; caption?: string; isCover?: boolean; takenDate?: string; placeName?: string }
   ): Photo | null => {
     if (!ensureAuth('ছবি ও স্মৃতিকথা যুক্ত করতে লগইন করুন।')) return null;
 
@@ -887,24 +906,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       allVisits = [targetVisit, ...allVisits];
     }
 
-    // Check max 5 photos per district constraint
-    const totalCurrentPhotos = targetVisit.photos?.length || 0;
-    if (totalCurrentPhotos >= 5) {
+    const targetPlaceName = photoData.placeName?.trim() || 'প্রধান আকর্ষণ';
+    const currentPlacePhotos = (targetVisit.photos || []).filter(
+      (p) => (p.placeName?.trim() || 'প্রধান আকর্ষণ') === targetPlaceName
+    );
+
+    // Max 5 photos per spot/place
+    if (currentPlacePhotos.length >= 5) {
       return null;
     }
 
-    const isFirstPhoto = totalCurrentPhotos === 0;
-    const isNewCover = photoData.isCover !== undefined ? photoData.isCover : isFirstPhoto;
+    const totalExistingPhotos = targetVisit.photos?.length || 0;
+    const isFirstPhotoOverall = totalExistingPhotos === 0;
+    const isNewCover = photoData.isCover !== undefined ? photoData.isCover : isFirstPhotoOverall;
 
     const newPhoto: Photo = {
       id: crypto.randomUUID ? crypto.randomUUID() : `photo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       districtId,
       visitId: targetVisit.id,
+      placeName: targetPlaceName,
       url: photoData.url,
       caption: photoData.caption || '',
-      sortOrder: totalCurrentPhotos,
+      sortOrder: totalExistingPhotos,
       isCover: isNewCover,
-      isFavoriteMemory: isFirstPhoto,
+      isFavoriteMemory: isFirstPhotoOverall,
       takenDate: photoData.takenDate || targetVisit.visitDate,
       createdAt: now,
     };

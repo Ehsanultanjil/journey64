@@ -32,12 +32,79 @@ export const DEFAULT_PROFILE: UserProfile = {
   joinedDate: '2025-01-01',
 };
 
-// Image compression helper using HTML5 Canvas
+// ================= IndexedDB Utility for Unlimited Reliable Storage =================
+const DB_NAME = 'journey64_db_v2';
+const DB_VERSION = 1;
+const STORE_NAME = 'app_data';
+
+function openIndexedDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      reject(new Error('IndexedDB not supported'));
+      return;
+    }
+    const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = (event: any) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+
+    request.onsuccess = (event: any) => {
+      resolve(event.target.result);
+    };
+
+    request.onerror = (event: any) => {
+      reject(event.target.error);
+    };
+  });
+}
+
+async function idbGet<T>(key: string): Promise<T | null> {
+  try {
+    const db = await openIndexedDB();
+    return new Promise((resolve) => {
+      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(key);
+
+      request.onsuccess = () => {
+        resolve(request.result !== undefined ? request.result : null);
+      };
+      request.onerror = () => {
+        resolve(null);
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function idbSet<T>(key: string, value: T): Promise<boolean> {
+  try {
+    const db = await openIndexedDB();
+    return new Promise((resolve) => {
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.put(value, key);
+
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+// ================= Image compression helper =================
+// Resizes to max 1200x1200 with 0.75 JPEG compression for lightweight, instant saving
 export async function compressImage(
   source: File | string,
-  maxWidth = 1400,
-  maxHeight = 1400,
-  quality = 0.82
+  maxWidth = 1200,
+  maxHeight = 1200,
+  quality = 0.75
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -92,8 +159,9 @@ export async function compressImage(
   });
 }
 
-// Storage Service
+// ================= Robust Dual Storage Service (LocalStorage + IndexedDB) =================
 export const StorageService = {
+  // Synchronous load on initial mount
   loadData(): {
     userData: Record<string, DistrictUserData>;
     visits: Visit[];
@@ -136,44 +204,79 @@ export const StorageService = {
     }
   },
 
+  // Asynchronous load from IndexedDB (Unlimited capacity, retrieves all photos)
+  async loadDataAsync(): Promise<{
+    userData?: Record<string, DistrictUserData>;
+    visits?: Visit[];
+    trips?: Trip[];
+    profile?: UserProfile;
+    settings?: AppSettings;
+  }> {
+    try {
+      const [userData, visits, trips, profile, settings] = await Promise.all([
+        idbGet<Record<string, DistrictUserData>>(STORAGE_KEYS.USER_DATA),
+        idbGet<Visit[]>(STORAGE_KEYS.VISITS),
+        idbGet<Trip[]>(STORAGE_KEYS.TRIPS),
+        idbGet<UserProfile>(STORAGE_KEYS.PROFILE),
+        idbGet<AppSettings>(STORAGE_KEYS.SETTINGS),
+      ]);
+
+      return {
+        userData: userData || undefined,
+        visits: visits || undefined,
+        trips: trips || undefined,
+        profile: profile || undefined,
+        settings: settings || undefined,
+      };
+    } catch (e) {
+      console.warn('IndexedDB load warning:', e);
+      return {};
+    }
+  },
+
   saveUserData(userData: Record<string, DistrictUserData>) {
     try {
       localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
     } catch (e) {
-      console.error('Storage quota or error saving user data:', e);
+      console.warn('LocalStorage quota warning for user data:', e);
     }
+    idbSet(STORAGE_KEYS.USER_DATA, userData);
   },
 
   saveVisits(visits: Visit[]) {
     try {
       localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(visits));
     } catch (e) {
-      console.error('Storage quota or error saving visits:', e);
+      console.warn('LocalStorage quota reached for visits, saved safely to IndexedDB:', e);
     }
+    idbSet(STORAGE_KEYS.VISITS, visits);
   },
 
   saveTrips(trips: Trip[]) {
     try {
       localStorage.setItem(STORAGE_KEYS.TRIPS, JSON.stringify(trips));
     } catch (e) {
-      console.error('Error saving trips:', e);
+      console.warn('Error saving trips to localStorage:', e);
     }
+    idbSet(STORAGE_KEYS.TRIPS, trips);
   },
 
   saveProfile(profile: UserProfile) {
     try {
       localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
     } catch (e) {
-      console.error('Error saving profile:', e);
+      console.warn('Error saving profile to localStorage:', e);
     }
+    idbSet(STORAGE_KEYS.PROFILE, profile);
   },
 
   saveSettings(settings: AppSettings) {
     try {
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
     } catch (e) {
-      console.error('Error saving settings:', e);
+      console.warn('Error saving settings to localStorage:', e);
     }
+    idbSet(STORAGE_KEYS.SETTINGS, settings);
   },
 
   resetToBlank(): {
@@ -212,43 +315,6 @@ export const StorageService = {
     };
   },
 
-  exportBackup(
-    userData: Record<string, DistrictUserData>,
-    visits: Visit[],
-    trips: Trip[],
-    profile: UserProfile
-  ): string {
-    const backup = {
-      app: 'My Bangladesh',
-      version: '1.0.0',
-      exportedAt: new Date().toISOString(),
-      profile,
-      userData,
-      visits,
-      trips,
-    };
-    return JSON.stringify(backup, null, 2);
-  },
-
-  exportBackupFile() {
-    const current = this.loadData();
-    const jsonStr = this.exportBackup(
-      current.userData,
-      current.visits,
-      current.trips,
-      current.profile
-    );
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `my-bangladesh-backup-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  },
-
   validateAndImportBackup(jsonString: string): {
     success: boolean;
     data?: {
@@ -256,19 +322,28 @@ export const StorageService = {
       visits: Visit[];
       trips: Trip[];
       profile?: UserProfile;
+      settings?: AppSettings;
     };
     error?: string;
   } {
     try {
       const parsed = JSON.parse(jsonString);
       if (!parsed || typeof parsed !== 'object') {
-        return { success: false, error: 'Invalid backup file format.' };
+        return { success: false, error: 'অবৈধ ব্যাকআপ ফাইল ফরম্যাট।' };
       }
 
-      const userData = parsed.userData || {};
-      const visits = Array.isArray(parsed.visits) ? parsed.visits : [];
-      const trips = Array.isArray(parsed.trips) ? parsed.trips : [];
-      const profile = parsed.profile;
+      const backupData = parsed.data || parsed;
+      const userData = backupData.userData || {};
+      const visits = backupData.visits || [];
+      const trips = backupData.trips || [];
+      const profile = backupData.profile || DEFAULT_PROFILE;
+      const settings = backupData.settings || DEFAULT_SETTINGS;
+
+      this.saveUserData(userData);
+      this.saveVisits(visits);
+      this.saveTrips(trips);
+      this.saveProfile(profile);
+      this.saveSettings(settings);
 
       return {
         success: true,
@@ -277,10 +352,11 @@ export const StorageService = {
           visits,
           trips,
           profile,
+          settings,
         },
       };
-    } catch (e) {
-      return { success: false, error: 'Could not parse JSON file. Please ensure it is a valid My Bangladesh export.' };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'ব্যাকআপ ফাইলটি পার্স করা যায়নি।' };
     }
   },
 };

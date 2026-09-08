@@ -42,6 +42,7 @@ export interface Photo {
   id: string;
   districtId: string;
   visitId?: string;
+  placeName?: string;
   url: string;
   caption?: string;
   sortOrder: number;
