@@ -16,8 +16,6 @@ import {
   Maximize2,
   Save,
   Sparkles,
-  LayoutGrid,
-  SlidersHorizontal,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { getDistrictById } from '../../data/districts';
@@ -668,55 +666,6 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
               <Edit3 className="w-4 h-4" />
               <span>ছবি ও স্মৃতি যোগ করুন</span>
             </button>
-          </div>
-        )}
-
-        {/* Gallery Control Bar */}
-        {(allPhotos.length > 0 || isEditing) && (
-          <div className="flex items-center justify-between gap-4 flex-wrap bg-[#0E1015]/70 border border-white/10 px-5 py-3 rounded-2xl shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <ImageIcon className="w-4 h-4" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-white tracking-wide">
-                  ফটোগ্যালারি ও অ্যালবাম
-                </h2>
-                <p className="text-[11px] text-stone-400 font-light">
-                  মোট {allPhotos.length}টি স্মৃতি সংরক্ষিত
-                </p>
-              </div>
-            </div>
-
-            {/* View Mode Toggle: Grid vs Slider */}
-            <div className="flex items-center bg-black/50 border border-white/10 rounded-xl p-0.5">
-              <button
-                type="button"
-                onClick={() => setGalleryViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  galleryViewMode === 'grid'
-                    ? 'bg-[#004526] text-white shadow-sm'
-                    : 'text-stone-400 hover:text-white hover:bg-white/5'
-                }`}
-                title="গ্রিড ভিউ"
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>গ্রিড ভিউ</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setGalleryViewMode('slider')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  galleryViewMode === 'slider'
-                    ? 'bg-[#004526] text-white shadow-sm'
-                    : 'text-stone-400 hover:text-white hover:bg-white/5'
-                }`}
-                title="স্লাইডার ভিউ"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>স্লাইডার ভিউ</span>
-              </button>
-            </div>
           </div>
         )}
 
