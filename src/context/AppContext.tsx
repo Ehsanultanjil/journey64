@@ -105,6 +105,7 @@ interface AppContextType {
   updatePhoto: (photoId: string, updates: Partial<Photo>) => void;
   deletePhoto: (photoId: string) => void;
   reorderPhotos: (districtId: string, photoIds: string[]) => void;
+  renamePlace: (districtId: string, oldPlaceName: string, newPlaceName: string) => void;
   createTrip: (trip: Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>) => Trip;
   updateTrip: (tripId: string, updates: Partial<Trip>) => void;
   deleteTrip: (tripId: string) => void;
@@ -1125,6 +1126,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncVisits(newVisits);
   };
 
+  const renamePlace = (districtId: string, oldPlaceName: string, newPlaceName: string) => {
+    if (!ensureAuth()) return;
+    const trimmedNew = newPlaceName.trim();
+    if (!trimmedNew || trimmedNew === oldPlaceName) return;
+
+    const defaultPlace = getDistrictById(districtId)?.famousSpots?.[0] || 'প্রধান আকর্ষণ';
+    const now = new Date().toISOString();
+
+    const newVisits = visits.map((v) => {
+      if (v.districtId !== districtId || !v.photos) return v;
+
+      let changed = false;
+      const newPhotos = v.photos.map((p) => {
+        const currentPlace = p.placeName?.trim() || defaultPlace;
+        if (currentPlace === oldPlaceName) {
+          changed = true;
+          return { ...p, placeName: trimmedNew };
+        }
+        return p;
+      });
+
+      if (changed) {
+        return {
+          ...v,
+          photos: newPhotos,
+          updatedAt: now,
+        };
+      }
+      return v;
+    });
+
+    syncVisits(newVisits);
+  };
+
   const createTrip = (tripData: Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>): Trip => {
     if (!ensureAuth('ট্যুর পরিকল্পনা তৈরি করতে লগইন করুন।')) return null as any;
 
@@ -1539,6 +1574,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updatePhoto,
         deletePhoto,
         reorderPhotos,
+        renamePlace,
         createTrip,
         updateTrip,
         deleteTrip,

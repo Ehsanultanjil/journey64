@@ -40,6 +40,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     addPhotos,
     updatePhoto,
     deletePhoto,
+    renamePlace,
     openLightbox,
   } = useApp();
 
@@ -66,7 +67,9 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
   const [newPlaceNameDraft, setNewPlaceNameDraft] = useState('');
   const [customPlaces, setCustomPlaces] = useState<string[]>([]);
 
-  // Caption & Delete states
+  // Caption, Place Rename & Delete states
+  const [editingPlaceName, setEditingPlaceName] = useState<string | null>(null);
+  const [editingPlaceDraft, setEditingPlaceDraft] = useState('');
   const [editingCaptionId, setEditingCaptionId] = useState<string | null>(null);
   const [captionDraft, setCaptionDraft] = useState('');
   const [deletePhotoConfirmId, setDeletePhotoConfirmId] = useState<string | null>(null);
@@ -204,6 +207,26 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
     }
     setNewPlaceNameDraft('');
     setIsAddingPlace(false);
+  };
+
+  // Rename a place section
+  const handleSavePlaceName = (oldPlaceName: string) => {
+    const trimmed = editingPlaceDraft.trim();
+    if (!trimmed) {
+      setEditingPlaceName(null);
+      return;
+    }
+
+    if (trimmed !== oldPlaceName) {
+      renamePlace(districtId, oldPlaceName, trimmed);
+      setCustomPlaces((prev) => prev.map((cp) => (cp === oldPlaceName ? trimmed : cp)));
+      if (targetUploadPlace === oldPlaceName) {
+        setTargetUploadPlace(trimmed);
+      }
+      setIsSavedToast(true);
+      setTimeout(() => setIsSavedToast(false), 2000);
+    }
+    setEditingPlaceName(null);
   };
 
   const handleSetCoverPhoto = (photoId: string) => {
@@ -476,10 +499,74 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-bold text-white leading-tight flex items-center gap-2">
-                      <span>{placeName}</span>
-                    </h3>
-                    <p className="text-[11px] text-stone-400 font-light">
+                    {editingPlaceName === placeName ? (
+                      <div className="flex items-center gap-1.5 py-0.5">
+                        <input
+                          type="text"
+                          value={editingPlaceDraft}
+                          onChange={(e) => setEditingPlaceDraft(e.target.value)}
+                          placeholder="স্থানের নাম..."
+                          className="px-2.5 py-1 text-sm font-bold bg-black/90 border border-emerald-500/60 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 shadow-inner"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleSavePlaceName(placeName);
+                            }
+                            if (e.key === 'Escape') {
+                              setEditingPlaceName(null);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSavePlaceName(placeName)}
+                          className="p-1.5 bg-[#004526] hover:bg-[#005a32] text-white rounded-lg transition-colors cursor-pointer shadow-xs"
+                          title="নাম সংরক্ষণ করুন"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPlaceName(null)}
+                          className="p-1.5 bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white rounded-lg transition-colors cursor-pointer shadow-xs"
+                          title="বাতিল"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 group/placename">
+                        <h3
+                          onClick={() => {
+                            if (isEditing) {
+                              setEditingPlaceName(placeName);
+                              setEditingPlaceDraft(placeName);
+                            }
+                          }}
+                          className={`font-display text-lg font-bold text-white leading-tight flex items-center gap-2 ${
+                            isEditing ? 'cursor-pointer hover:text-emerald-300 transition-colors' : ''
+                          }`}
+                          title={isEditing ? 'নাম পরিবর্তন করতে ক্লিক করুন' : undefined}
+                        >
+                          <span>{placeName}</span>
+                        </h3>
+                        {isEditing && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPlaceName(placeName);
+                              setEditingPlaceDraft(placeName);
+                            }}
+                            className="p-1 rounded-lg text-stone-400 hover:text-emerald-300 hover:bg-white/10 transition-all cursor-pointer opacity-70 group-hover/placename:opacity-100"
+                            title="স্থানের নাম পরিবর্তন করুন"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-stone-400 font-light mt-0.5">
                       {placePhotos.length} / ৫টি ছবি
                     </p>
                   </div>
