@@ -153,6 +153,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const backupDebounceTimerRef = useRef<any>(null);
   const pendingBackupDataRef = useRef<any>(null);
 
+  // Refs to always have latest state for debounced backup (avoids stale closure)
+  const userDataRef = useRef(userData);
+  const visitsRef = useRef(visits);
+  const tripsRef = useRef(trips);
+  const profileRef = useRef(profile);
+  const settingsRef = useRef(settings);
+  userDataRef.current = userData;
+  visitsRef.current = visits;
+  tripsRef.current = trips;
+  profileRef.current = profile;
+  settingsRef.current = settings;
+
   const pullAndSyncUserCloudData = async (user: User) => {
     if (isPullingCloudRef.current) return;
     isPullingCloudRef.current = true;
@@ -493,27 +505,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await pullAndSyncUserCloudData(authUser);
   };
 
-  // Schedule debounced snapshot backup (300ms debounce for fast sync)
-  const scheduleDebouncedBackup = (currentData: {
-    userData: Record<string, DistrictUserData>;
-    visits: Visit[];
-    trips: Trip[];
-    profile: UserProfile;
-    settings: AppSettings;
-  }) => {
-    // Always keep latest data in ref for beforeunload flush
-    pendingBackupDataRef.current = currentData;
-
+  // Schedule debounced snapshot backup (2s debounce to avoid hammering DB)
+  const scheduleDebouncedBackup = () => {
     if (backupDebounceTimerRef.current) {
       clearTimeout(backupDebounceTimerRef.current);
     }
     backupDebounceTimerRef.current = setTimeout(() => {
       if (authUser?.id) {
-        SupabaseDB.pushBackup('auto_sync', currentData, authUser.id)
+        // Always use refs for latest state — avoids stale closure
+        const latestData = {
+          userData: userDataRef.current,
+          visits: visitsRef.current,
+          trips: tripsRef.current,
+          profile: profileRef.current,
+          settings: settingsRef.current,
+        };
+        pendingBackupDataRef.current = latestData;
+        SupabaseDB.pushBackup('auto_sync', latestData, authUser.id)
           .then(() => { pendingBackupDataRef.current = null; })
           .catch((err) => console.error('[Sync] Debounced backup failed:', err));
       }
-    }, 300);
+    }, 2000);
   };
 
   // Sync state to storage and cloud
@@ -522,13 +534,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveUserData(newUserData);
     const userId = authUser?.id;
     SupabaseDB.syncDistrictUserData(newUserData, userId).catch((err) => console.error('[Sync] syncDistrictUserData failed:', err));
-    scheduleDebouncedBackup({
-      userData: newUserData,
-      visits,
-      trips,
-      profile,
-      settings,
-    });
+    scheduleDebouncedBackup();
   };
 
   const syncVisits = (newVisits: Visit[]) => {
@@ -536,13 +542,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveVisits(newVisits);
     const userId = authUser?.id;
     SupabaseDB.syncVisits(newVisits, userId).catch((err) => console.error('[Sync] syncVisits failed:', err));
-    scheduleDebouncedBackup({
-      userData,
-      visits: newVisits,
-      trips,
-      profile,
-      settings,
-    });
+    scheduleDebouncedBackup();
   };
 
   const syncTrips = (newTrips: Trip[]) => {
@@ -550,13 +550,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveTrips(newTrips);
     const userId = authUser?.id;
     SupabaseDB.syncTrips(newTrips, userId).catch((err) => console.error('[Sync] syncTrips failed:', err));
-    scheduleDebouncedBackup({
-      userData,
-      visits,
-      trips: newTrips,
-      profile,
-      settings,
-    });
+    scheduleDebouncedBackup();
   };
 
   const syncProfile = (newProfile: UserProfile) => {
@@ -564,13 +558,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveProfile(newProfile);
     const userId = authUser?.id;
     SupabaseDB.saveProfile(newProfile, userId).catch((err) => console.error('[Sync] saveProfile failed:', err));
-    SupabaseDB.pushBackup('auto_sync', {
-      userData,
-      visits,
-      trips,
-      profile: newProfile,
-      settings,
-    }, userId).catch((err) => console.error('[Sync] pushBackup failed:', err));
+    scheduleDebouncedBackup();
   };
 
   const syncSettings = (newSettings: AppSettings) => {
@@ -578,13 +566,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.saveSettings(newSettings);
     const userId = authUser?.id;
     SupabaseDB.saveSettings(newSettings, userId).catch((err) => console.error('[Sync] saveSettings failed:', err));
-    SupabaseDB.pushBackup('auto_sync', {
-      userData,
-      visits,
-      trips,
-      profile,
-      settings: newSettings,
-    }, userId).catch((err) => console.error('[Sync] pushBackup failed:', err));
+    scheduleDebouncedBackup();
   };
 
   // Memoized stats & achievements

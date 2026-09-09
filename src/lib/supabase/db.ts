@@ -1,6 +1,16 @@
 import { supabase } from './client';
-import { DistrictUserData, Visit, Trip, UserProfile } from '../../types';
+import { DistrictUserData, Visit, Trip, UserProfile, Photo } from '../../types';
 import { AppSettings } from '../storage';
+
+// Strip base64 photo data before sending to DB — photos should be uploaded to
+// Supabase Storage first, only URLs are persisted in the visits JSONB column.
+function stripBase64FromPhotos(photos: Photo[]): Photo[] {
+  return photos.map((p) => ({
+    ...p,
+    // If it's a base64 data URL, replace with empty string as safety net
+    url: p.url?.startsWith('data:') ? '' : p.url,
+  }));
+}
 
 export const SupabaseDB = {
   // Helper to get active user ID
@@ -14,23 +24,108 @@ export const SupabaseDB = {
     }
   },
 
-  // Push full snapshot / backup to Supabase
+  // ==================== PHOTO STORAGE ====================
+
+  // Upload a photo (base64 data URL) to Supabase Storage and return the public URL
+  async uploadPhoto(
+    base64DataUrl: string,
+    districtId: string,
+    photoId: string,
+    userId?: string
+  ): Promise<string | null> {
+    try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
+      if (!effectiveUserId) {
+        console.error('[SupabaseDB] uploadPhoto: no user ID');
+        return null;
+      }
+
+      // Convert base64 data URL to Blob
+      const response = await fetch(base64DataUrl);
+      const blob = await response.blob();
+
+      const mimeType = blob.type || 'image/jpeg';
+      const ext = mimeType.includes('png') ? 'png' : 'jpg';
+
+      // Unique path: userId/districtId/photoId.ext
+      const filePath = `${effectiveUserId}/${districtId}/${photoId}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('photos')
+        .upload(filePath, blob, {
+          contentType: mimeType,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error('[SupabaseDB] uploadPhoto FAILED:', uploadError.message);
+        return null;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('photos')
+        .getPublicUrl(filePath);
+
+      return urlData?.publicUrl || null;
+    } catch (err: any) {
+      console.error('[SupabaseDB] uploadPhoto EXCEPTION:', err?.message, err);
+      return null;
+    }
+  },
+
+  // ==================== BACKUP ====================
+
+  // Push full snapshot backup — finds and updates existing backup for this user,
+  // or inserts a new one. Avoids creating duplicate rows on every call.
   async pushBackup(name: string, payload: any, userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      const backupName = effectiveUserId ? `user_backup_${effectiveUserId}` : name;
+      if (!effectiveUserId) {
+        return { success: false, error: 'No user ID available' };
+      }
 
-      const { error } = await supabase.from('journey_backups').insert([
-        {
+      const backupName = `user_backup_${effectiveUserId}`;
+
+      // Strip base64 photos from the backup payload to avoid bloating
+      const cleanPayload = { ...payload };
+      if (cleanPayload.visits && Array.isArray(cleanPayload.visits)) {
+        cleanPayload.visits = cleanPayload.visits.map((v: any) => ({
+          ...v,
+          photos: v.photos ? stripBase64FromPhotos(v.photos) : [],
+        }));
+      }
+
+      const backupData = {
+        ...cleanPayload,
+        userId: effectiveUserId,
+        syncedAt: new Date().toISOString(),
+      };
+
+      // Find existing backup for this user and update it instead of creating duplicates
+      const { data: existing } = await supabase
+        .from('journey_backups')
+        .select('id')
+        .eq('name', backupName)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existing?.id) {
+        // Update existing backup in place
+        const { error } = await supabase
+          .from('journey_backups')
+          .update({ data: backupData })
+          .eq('id', existing.id);
+        if (error) throw error;
+      } else {
+        // Insert new backup row
+        const { error } = await supabase.from('journey_backups').insert([{
           name: backupName,
-          data: {
-            ...payload,
-            userId: effectiveUserId || null,
-            syncedAt: new Date().toISOString(),
-          },
-        },
-      ]);
-      if (error) throw error;
+          data: backupData,
+        }]);
+        if (error) throw error;
+      }
+
       return { success: true };
     } catch (err: any) {
       console.error('[SupabaseDB] pushBackup FAILED:', err.message, err);
@@ -38,7 +133,7 @@ export const SupabaseDB = {
     }
   },
 
-  // Pull latest backup from Supabase for this user (or latest available)
+  // Pull latest backup from Supabase for this user
   async pullLatestBackup(userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
@@ -62,14 +157,17 @@ export const SupabaseDB = {
     }
   },
 
-  // Sync User Profile
+  // ==================== PROFILE & SETTINGS ====================
+
+  // Sync User Profile — uses userId as the primary key `id`
   async saveProfile(profile: UserProfile, userId?: string): Promise<boolean> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      const id = effectiveUserId || 'default_user';
+      if (!effectiveUserId) return false;
+
       const { error } = await supabase.from('user_profiles').upsert([
         {
-          id,
+          id: effectiveUserId,
           name: profile.name,
           display_name: profile.displayName || profile.name,
           bio: profile.bio || '',
@@ -92,7 +190,9 @@ export const SupabaseDB = {
   async saveSettings(settings: AppSettings, userId?: string): Promise<boolean> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      const id = effectiveUserId ? `settings_${effectiveUserId}` : 'default_settings';
+      if (!effectiveUserId) return false;
+
+      const id = `settings_${effectiveUserId}`;
       const { error } = await supabase.from('app_settings').upsert([
         {
           id,
@@ -114,12 +214,16 @@ export const SupabaseDB = {
     }
   },
 
-  // Sync District User Data
+  // ==================== DISTRICT USER DATA ====================
+
+  // Sync District User Data — uses `{userId}_{districtId}` as primary key
   async syncDistrictUserData(userData: Record<string, DistrictUserData>, userId?: string): Promise<boolean> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
+      if (!effectiveUserId) return false;
+
       const items = Object.values(userData).map((item) => ({
-        id: effectiveUserId ? `${effectiveUserId}_${item.districtId}` : `local_${item.districtId}`,
+        id: `${effectiveUserId}_${item.districtId}`,
         district_id: item.districtId,
         status: item.status,
         rating: item.rating || 0,
@@ -142,41 +246,59 @@ export const SupabaseDB = {
     }
   },
 
-  // Sync Visits
+  // ==================== VISITS ====================
+
+  // Sync Visits — uses `{userId}_{localVisitId}` as primary key
+  // Photos are stripped of base64 data before writing — only URLs are stored.
+  // Batches in chunks of 10 to avoid exceeding PostgREST payload limits.
   async syncVisits(visits: Visit[], userId?: string): Promise<boolean> {
     try {
       if (visits.length === 0) return true;
       const effectiveUserId = await this.getEffectiveUserId(userId);
+      if (!effectiveUserId) return false;
+
       const records = visits.map((v) => ({
-        id: effectiveUserId ? `${effectiveUserId}_${v.id}` : v.id,
+        id: `${effectiveUserId}_${v.id}`,
         district_id: v.districtId,
         date: v.visitDate || new Date().toISOString().split('T')[0],
         title: v.title || 'ভ্রমণ স্মৃতি',
         story: v.notes || '',
-        photos: v.photos || [],
+        // Only store photo metadata with URLs — no base64 in DB
+        photos: v.photos ? stripBase64FromPhotos(v.photos) : [],
         rating: v.rating || 5,
         created_at: v.createdAt || new Date().toISOString(),
         updated_at: v.updatedAt || new Date().toISOString(),
       }));
 
-      const { error } = await supabase.from('visits').upsert(records);
-      if (error) {
-        console.error('[SupabaseDB] syncVisits FAILED:', error.message, error);
+      // Batch in chunks to avoid payload size limits
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < records.length; i += BATCH_SIZE) {
+        const batch = records.slice(i, i + BATCH_SIZE);
+        const { error } = await supabase.from('visits').upsert(batch);
+        if (error) {
+          console.error(`[SupabaseDB] syncVisits batch ${i / BATCH_SIZE + 1} FAILED:`, error.message, error);
+          // Continue with other batches instead of returning false immediately
+        }
       }
-      return !error;
+
+      return true;
     } catch (e: any) {
       console.error('[SupabaseDB] syncVisits EXCEPTION:', e?.message, e);
       return false;
     }
   },
 
-  // Sync Trips
+  // ==================== TRIPS ====================
+
+  // Sync Trips — uses `{userId}_{localTripId}` as primary key
   async syncTrips(trips: Trip[], userId?: string): Promise<boolean> {
     try {
       if (trips.length === 0) return true;
       const effectiveUserId = await this.getEffectiveUserId(userId);
+      if (!effectiveUserId) return false;
+
       const records = trips.map((t) => ({
-        id: effectiveUserId ? `${effectiveUserId}_${t.id}` : t.id,
+        id: `${effectiveUserId}_${t.id}`,
         name: t.name,
         description: t.notes || '',
         start_date: t.startDate,
@@ -197,15 +319,19 @@ export const SupabaseDB = {
     }
   },
 
-  // Fetch structured user data from tables
+  // ==================== FETCH / READ ====================
+
+  // Fetch user data — uses deterministic ID prefix `{userId}_` to scope records
   async fetchUserData(userId?: string): Promise<Record<string, DistrictUserData> | null> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      let query = supabase.from('district_user_data').select('*');
-      if (effectiveUserId) {
-        query = query.like('id', `${effectiveUserId}_%`);
-      }
-      const { data, error } = await query;
+      if (!effectiveUserId) return null;
+
+      const { data, error } = await supabase
+        .from('district_user_data')
+        .select('*')
+        .like('id', `${effectiveUserId}_%`);
+
       if (error) {
         console.error('[SupabaseDB] fetchUserData FAILED:', error.message, error);
         return null;
@@ -231,23 +357,30 @@ export const SupabaseDB = {
     }
   },
 
-  // Fetch structured visits
+  // Fetch visits — uses deterministic ID prefix `{userId}_` to scope records
+  // Increases limit to 200 to capture all visits
   async fetchVisits(userId?: string): Promise<Visit[] | null> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      let query = supabase.from('visits').select('*').order('updated_at', { ascending: false }).limit(64);
-      if (effectiveUserId) {
-        query = query.like('id', `${effectiveUserId}_%`);
-      }
-      const { data, error } = await query;
+      if (!effectiveUserId) return null;
+
+      const { data, error } = await supabase
+        .from('visits')
+        .select('*')
+        .like('id', `${effectiveUserId}_%`)
+        .order('updated_at', { ascending: false })
+        .limit(200);
+
       if (error) {
         console.error('[SupabaseDB] fetchVisits FAILED:', error.message, error);
         return null;
       }
       if (!data || data.length === 0) return null;
 
+      const prefix = `${effectiveUserId}_`;
       return data.map((row: any) => ({
-        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.slice(`${effectiveUserId}_`.length) : row.id,
+        // Strip the userId prefix to get local visit ID
+        id: row.id.startsWith(prefix) ? row.id.slice(prefix.length) : row.id,
         districtId: row.district_id,
         visitDate: row.date || new Date().toISOString().split('T')[0],
         title: row.title || 'ভ্রমণ স্মৃতি',
@@ -263,23 +396,26 @@ export const SupabaseDB = {
     }
   },
 
-  // Fetch structured trips
+  // Fetch trips — uses deterministic ID prefix
   async fetchTrips(userId?: string): Promise<Trip[] | null> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      let query = supabase.from('trips').select('*');
-      if (effectiveUserId) {
-        query = query.like('id', `${effectiveUserId}_%`);
-      }
-      const { data, error } = await query;
+      if (!effectiveUserId) return null;
+
+      const { data, error } = await supabase
+        .from('trips')
+        .select('*')
+        .like('id', `${effectiveUserId}_%`);
+
       if (error) {
         console.error('[SupabaseDB] fetchTrips FAILED:', error.message, error);
         return null;
       }
       if (!data || data.length === 0) return null;
 
+      const prefix = `${effectiveUserId}_`;
       return data.map((row: any) => ({
-        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
+        id: row.id.startsWith(prefix) ? row.id.slice(prefix.length) : row.id,
         name: row.name,
         startDate: row.start_date,
         endDate: row.end_date,
