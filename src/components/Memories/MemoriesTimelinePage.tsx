@@ -31,16 +31,13 @@ export const MemoriesTimelinePage: React.FC = () => {
     return DISTRICTS.filter((d) => userData[d.id]?.status === 'visited');
   }, [userData]);
 
-  // Group visits / memories chronologically by Year & Month
-  const timelineGroups = useMemo(() => {
-    // Collect all visited items
+  // Collect and sort visited items chronologically (most recent first)
+  const sortedItems = useMemo(() => {
     const allItems: {
       district: (typeof DISTRICTS)[0];
       userData: (typeof userData)[string];
       latestVisit?: (typeof visits)[0];
       dateStr: string;
-      year: number;
-      month: number;
       coverPhoto?: string;
       photosCount: number;
       note: string;
@@ -77,58 +74,24 @@ export const MemoriesTimelinePage: React.FC = () => {
         latestVisit?.visitDate ||
         latestVisit?.createdAt ||
         new Date().toISOString();
-      const parsedDate = new Date(dateStr);
-      const year = isNaN(parsedDate.getFullYear())
-        ? new Date().getFullYear()
-        : parsedDate.getFullYear();
-      const month = isNaN(parsedDate.getMonth())
-        ? new Date().getMonth()
-        : parsedDate.getMonth();
 
       allItems.push({
         district: d,
         userData: ud,
         latestVisit,
         dateStr,
-        year,
-        month,
         coverPhoto,
         photosCount: allPhotos.length,
         note: ud?.notes || latestVisit?.notes || '',
       });
     });
 
-    // Group by Year -> Month
-    const groups = new Map<number, Map<number, typeof allItems>>();
-
-    allItems.forEach((item) => {
-      if (!groups.has(item.year)) {
-        groups.set(item.year, new Map());
-      }
-      const yearMap = groups.get(item.year)!;
-      if (!yearMap.has(item.month)) {
-        yearMap.set(item.month, []);
-      }
-      yearMap.get(item.month)!.push(item);
+    // Sort chronologically (most recent first)
+    return allItems.sort((a, b) => {
+      const timeA = new Date(a.dateStr).getTime() || 0;
+      const timeB = new Date(b.dateStr).getTime() || 0;
+      return timeB - timeA;
     });
-
-    // Convert map to sorted array
-    const months = [
-      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
-    ];
-
-    return Array.from(groups.entries())
-      .sort((a, b) => b[0] - a[0]) // Sort years descending
-      .map(([year, monthsMap]) => ({
-        year,
-        months: Array.from(monthsMap.entries())
-          .sort((a, b) => b[0] - a[0])
-          .map(([monthIndex, items]) => ({
-            monthName: months[monthIndex],
-            items,
-          })),
-      }));
   }, [visitedDistricts, userData, visits, selectedDivision, favoritesOnly, searchQuery]);
 
   // If currently viewing a specific district journal, render that component
@@ -230,97 +193,72 @@ export const MemoriesTimelinePage: React.FC = () => {
               মানচিত্রে যান
             </button>
           </div>
-        ) : timelineGroups.length === 0 ? (
+        ) : sortedItems.length === 0 ? (
           <div className="text-center py-16 text-stone-500 font-body text-xs font-semibold">
             খুঁজে পাওয়া যায়নি। অন্য কিছু লিখে দেখুন।
           </div>
         ) : (
-          /* Timeline Feed */
-          <div className="space-y-12 relative">
-            {/* Vertical Timeline Rule */}
-            <div className="absolute left-6 top-8 bottom-8 w-[1px] bg-white/10 hidden sm:block" />
+          /* Cards Grid organized chronologically by time */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {sortedItems.map((item) => (
+              <motion.div
+                key={item.district.id}
+                whileHover={{ y: -4 }}
+                onClick={() => openDistrictJournal(item.district.id)}
+                className="group relative h-64 sm:h-72 w-full bg-[#12141A] border border-white/15 hover:border-white/35 transition-all cursor-pointer rounded-3xl overflow-hidden shadow-lg"
+              >
+                {/* Full Cover Image */}
+                {item.coverPhoto ? (
+                  <img
+                    src={item.coverPhoto}
+                    alt={item.district.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#0B1A13] to-[#0A0C10] flex items-center justify-center">
+                    <Compass className="w-12 h-12 text-[#004526]/40" />
+                  </div>
+                )}
 
-            {timelineGroups.map((group) => (
-              <div key={group.year} className="space-y-8">
-                {/* Year Heading */}
-                <div className="flex items-center gap-4">
-                  <span className="font-display text-3xl sm:text-4xl text-[#004526] font-bold tracking-wide z-10">
-                    {group.year}
+                {/* Atmospheric Gradient Overlays for Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/35" />
+
+                {/* Top Badges */}
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                  <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10 rounded-full shadow-sm">
+                    {item.district.division} বিভাগ
                   </span>
-                  <div className="h-[1px] bg-white/10 flex-1" />
+                  {item.userData?.isFavorite && (
+                    <span className="p-1.5 bg-[#004526] text-white rounded-full shadow-md">
+                      <Heart className="w-3.5 h-3.5 fill-white" />
+                    </span>
+                  )}
                 </div>
 
-                {group.months.map((month) => (
-                  <div key={month.monthName} className="space-y-4 sm:pl-10 relative">
-                    <h3 className="font-body font-bold text-[11px] sm:text-xs tracking-wider text-white/50 uppercase">
-                      {month.monthName}
-                    </h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-                      {month.items.map((item) => (
-                        <motion.div
-                          key={item.district.id}
-                          whileHover={{ y: -4 }}
-                          onClick={() => openDistrictJournal(item.district.id)}
-                          className="group relative h-64 sm:h-72 w-full bg-[#12141A] border border-white/15 hover:border-white/35 transition-all cursor-pointer rounded-3xl overflow-hidden shadow-lg"
-                        >
-                          {/* Full Cover Image */}
-                          {item.coverPhoto ? (
-                            <img
-                              src={item.coverPhoto}
-                              alt={item.district.name}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-[#0B1A13] to-[#0A0C10] flex items-center justify-center">
-                              <Compass className="w-12 h-12 text-[#004526]/40" />
-                            </div>
-                          )}
-
-                          {/* Atmospheric Gradient Overlays for Readability */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/35" />
-
-                          {/* Top Badges */}
-                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                            <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10 rounded-full shadow-sm">
-                              {item.district.division} বিভাগ
-                            </span>
-                            {item.userData?.isFavorite && (
-                              <span className="p-1.5 bg-[#004526] text-white rounded-full shadow-md">
-                                <Heart className="w-3.5 h-3.5 fill-white" />
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Bottom Info on Photo */}
-                          <div className="absolute bottom-3.5 left-4 right-4 text-white z-10 space-y-1">
-                            <h4 className="font-display text-2xl font-bold uppercase tracking-wide flex items-baseline gap-2 drop-shadow-md">
-                              {item.district.bn_name}
-                              <span className="font-sans text-xs font-normal text-white/80">
-                                ({item.district.name})
-                              </span>
-                            </h4>
-                            <div className="flex items-center gap-4 font-body text-[10px] text-white/80 font-semibold drop-shadow-xs">
-                              <span className="flex items-center gap-1.5">
-                                <Calendar className="w-3 h-3 text-emerald-400" />
-                                {new Date(item.dateStr).toLocaleDateString('bn-BD', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                })}
-                              </span>
-                              <span className="flex items-center gap-1.5">
-                                <Camera className="w-3 h-3 text-emerald-400" />
-                                {item.photosCount}টি ছবি
-                              </span>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                {/* Bottom Info on Photo */}
+                <div className="absolute bottom-3.5 left-4 right-4 text-white z-10 space-y-1">
+                  <h4 className="font-display text-2xl font-bold uppercase tracking-wide flex items-baseline gap-2 drop-shadow-md">
+                    {item.district.bn_name}
+                    <span className="font-sans text-xs font-normal text-white/80">
+                      ({item.district.name})
+                    </span>
+                  </h4>
+                  <div className="flex items-center gap-4 font-body text-[10px] text-white/80 font-semibold drop-shadow-xs">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3 h-3 text-emerald-400" />
+                      {new Date(item.dateStr).toLocaleDateString('bn-BD', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Camera className="w-3 h-3 text-emerald-400" />
+                      {item.photosCount}টি ছবি
+                    </span>
                   </div>
-                ))}
-              </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
