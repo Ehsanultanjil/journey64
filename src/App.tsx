@@ -50,6 +50,7 @@ const MainContent: React.FC = () => {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [openDivision, setOpenDivision] = useState<string | null>(null);
+  const [isDivisionSectionExpanded, setIsDivisionSectionExpanded] = useState<boolean>(false);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     // Disable slide to switch completely for settings/profile page and journal view
@@ -229,25 +230,66 @@ const MainContent: React.FC = () => {
               </section>
             </div>
 
-            {/* 64-District Regional Catalog by Division (Horizontal List Rows on All Screen Sizes) */}
+            {/* 64-District Regional Catalog by Division (Foldable / Collapsible Section) */}
             <div className="px-3 sm:px-8 lg:px-12 pb-16">
-              <section className="space-y-4 pt-4 border-t border-white/10">
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
-                  <div>
-                    <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#004526]">
-                      বিভাগ ও জেলা তালিকা
-                    </span>
-                    <h2 className="font-display text-xl sm:text-3xl font-bold tracking-wide text-white mt-0.5 sm:mt-1">
-                      বিভাগ অনুযায়ী ৬৪ জেলা
-                    </h2>
+              <section className="pt-4 border-t border-white/10 space-y-3">
+                {/* Foldable Header Toggle Button */}
+                <button
+                  type="button"
+                  id="toggle-division-catalog-btn"
+                  onClick={() => setIsDivisionSectionExpanded((prev) => !prev)}
+                  className="w-full text-left p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-white/20 transition-all flex items-center justify-between gap-3 sm:gap-4 cursor-pointer group shadow-sm"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-[#004526]/20 border border-[#004526]/40 text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-body font-bold text-[10px] uppercase tracking-wider text-[#004526] bg-[#004526]/10 px-2 py-0.5 rounded-md border border-[#004526]/20">
+                          বিভাগ ও জেলা তালিকা
+                        </span>
+                        <span className="text-[11px] text-stone-400 font-body hidden sm:inline">
+                          (৮টি বিভাগ • ৬৪ জেলা)
+                        </span>
+                      </div>
+                      <h2 className="font-display text-base sm:text-xl font-bold tracking-wide text-white mt-0.5">
+                        বিভাগ অনুযায়ী ৬৪ জেলা
+                      </h2>
+                    </div>
                   </div>
-                  <p className="font-body text-xs text-stone-400 font-light max-w-sm">
-                    যেকোনো বিভাগে ক্লিক করে জেলা তালিকা দেখুন ও স্থিতি পরিবর্তন করুন
-                  </p>
-                </div>
 
-                {/* Horizontal List of Divisions (Full-Width Rows on All Screen Sizes) */}
-                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <span className="text-[11px] sm:text-xs font-semibold text-stone-400 group-hover:text-white transition-colors">
+                      {isDivisionSectionExpanded ? 'লুকান' : 'তালিকা দেখুন'}
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-white/5 group-hover:bg-white/10 flex items-center justify-center text-stone-400 group-hover:text-white transition-all">
+                      <motion.div
+                        animate={{ rotate: isDivisionSectionExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Collapsible Content */}
+                <AnimatePresence>
+                  {isDivisionSectionExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden space-y-4 pt-1"
+                    >
+                      <p className="font-body text-xs text-stone-400 font-light px-1">
+                        যেকোনো বিভাগে ক্লিক করে জেলা তালিকা দেখুন ও স্থিতি পরিবর্তন করুন
+                      </p>
+
+                      {/* Horizontal List of Divisions (Full-Width Rows on All Screen Sizes) */}
+                      <div className="space-y-2.5">
                   {DIVISIONS.map((div) => {
                     const isOpen = openDivision === div.name;
                     const divDistricts = DISTRICTS.filter((d) => d.division === div.name);
@@ -403,8 +445,11 @@ const MainContent: React.FC = () => {
                     );
                   })}
                 </div>
-              </section>
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+      </div>
           </div>
         ) : activeTab === 'memories' ? (
           <MemoriesTimelinePage />
