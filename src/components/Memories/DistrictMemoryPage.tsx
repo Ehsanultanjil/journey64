@@ -26,6 +26,189 @@ import { compressImage } from '../../lib/storage';
 import { uploadPhotoFile } from '../../lib/supabase/storage';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
+interface DistrictPhotoCardProps {
+  photo: Photo;
+  placeName: string;
+  allPhotos: Photo[];
+  isCover: boolean;
+  isEditing: boolean;
+  editingCaptionId: string | null;
+  captionDraft: string;
+  setCaptionDraft: (val: string) => void;
+  setEditingCaptionId: (id: string | null) => void;
+  handleSaveCaption: (id: string) => void;
+  handleSetCoverPhoto: (id: string) => void;
+  setDeletePhotoConfirmId: (id: string) => void;
+  openLightbox: (photos: Photo[], index: number, name?: string) => void;
+  pIdx: number;
+}
+
+const DistrictPhotoCard: React.FC<DistrictPhotoCardProps> = ({
+  photo,
+  placeName,
+  allPhotos,
+  isCover,
+  isEditing,
+  editingCaptionId,
+  captionDraft,
+  setCaptionDraft,
+  setEditingCaptionId,
+  handleSaveCaption,
+  handleSetCoverPhoto,
+  setDeletePhotoConfirmId,
+  openLightbox,
+  pIdx,
+}) => {
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) {
+      setAspectRatio(naturalWidth / naturalHeight);
+    }
+  };
+
+  const photoIndex = allPhotos.findIndex((p) => p.id === photo.id);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.25, delay: Math.min(pIdx * 0.04, 0.3) }}
+      className="group relative break-inside-avoid mb-4 rounded-2xl overflow-hidden bg-[#12151C] border border-white/15 hover:border-emerald-500/50 shadow-md transition-all"
+    >
+      <AspectRatio ratio={aspectRatio || 4 / 3} className="bg-black/40 relative w-full overflow-hidden">
+        <img
+          src={photo.url}
+          alt={photo.caption || placeName}
+          onLoad={handleImageLoad}
+          onClick={() => openLightbox(allPhotos, photoIndex >= 0 ? photoIndex : 0, placeName)}
+          className="size-full object-contain rounded-2xl cursor-pointer group-hover:scale-[1.02] transition-transform duration-500 block"
+          loading="lazy"
+        />
+
+        {/* Cover Badge */}
+        {isCover && (
+          <div className="absolute top-2 left-2 z-20 pointer-events-none">
+            <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
+              কভার ছবি
+            </span>
+          </div>
+        )}
+
+        {/* Full Screen View Button on Hover */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            openLightbox(allPhotos, photoIndex >= 0 ? photoIndex : 0, placeName);
+          }}
+          className={`absolute top-2 z-20 p-1.5 bg-black/70 hover:bg-[#004526] text-white rounded-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm ${
+            isEditing ? 'left-2' : 'right-2'
+          }`}
+          title="পূর্ণ স্ক্রিনে সম্পূর্ণ ছবি দেখুন"
+        >
+          <Maximize2 className="w-3 h-3 text-stone-200" />
+        </button>
+
+        {/* Top Action Buttons (Shown ONLY in Edit Mode) */}
+        {isEditing && (
+          <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+            {!isCover && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSetCoverPhoto(photo.id);
+                }}
+                className="p-1.5 bg-black/70 hover:bg-[#004526] text-white rounded-lg backdrop-blur-md transition-colors cursor-pointer"
+                title="কভার ছবি হিসেবে সেট করুন"
+              >
+                <Sparkles className="w-3 h-3 text-amber-300" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeletePhotoConfirmId(photo.id);
+              }}
+              className="p-1.5 bg-black/70 hover:bg-rose-600 text-white rounded-lg backdrop-blur-md transition-colors cursor-pointer"
+              title="ছবি মুছে ফেলুন"
+            >
+              <Trash2 className="w-3 h-3 text-rose-300" />
+            </button>
+          </div>
+        )}
+
+        {/* Bottom Caption Overlay */}
+        {isEditing ? (
+          <div
+            className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent text-white z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {editingCaptionId === photo.id ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="text"
+                  value={captionDraft}
+                  onChange={(e) => setCaptionDraft(e.target.value)}
+                  placeholder="ক্যাপশন..."
+                  className="flex-1 px-1.5 py-0.5 text-[10px] bg-black/90 border border-[#004526] rounded text-white focus:outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveCaption(photo.id);
+                    }
+                    if (e.key === 'Escape') {
+                      setEditingCaptionId(null);
+                    }
+                  }}
+                  onBlur={() => handleSaveCaption(photo.id)}
+                />
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSaveCaption(photo.id);
+                  }}
+                  className="p-1 bg-[#004526] text-white rounded cursor-pointer"
+                >
+                  <Check className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => {
+                  setEditingCaptionId(photo.id);
+                  setCaptionDraft(photo.caption || '');
+                }}
+                className="flex items-center justify-between gap-1 cursor-pointer hover:bg-white/10 px-1 py-0.5 rounded transition-colors"
+                title="ক্যাপশন এডিট করতে ক্লিক করুন"
+              >
+                <p className="text-[10px] truncate text-stone-200">
+                  {photo.caption || '+ ক্যাপশন দিন'}
+                </p>
+                <Edit3 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
+              </div>
+            )}
+          </div>
+        ) : (
+          photo.caption && (
+            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white pointer-events-none z-20">
+              <p className="text-[10px] sm:text-xs font-medium text-stone-200 truncate">
+                {photo.caption}
+              </p>
+            </div>
+          )
+        )}
+      </AspectRatio>
+    </motion.div>
+  );
+};
+
 interface Props {
   districtId: string;
   onBack: () => void;
@@ -643,156 +826,45 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                 )}
               </div>
 
-              {/* Photos Display: AspectRatio Grid View or Scrollable Row */}
+              {/* Photos Display: AspectRatio Uncropped Masonry Grid View or Scrollable Row */}
               {galleryViewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
-                  {placePhotos.map((photo, pIdx) => {
-                    const isCover = photo.id === coverPhoto?.id;
-                    return (
-                      <motion.div
-                        key={photo.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.25, delay: pIdx * 0.04 }}
-                        className="group relative rounded-2xl overflow-hidden bg-[#12151C] border border-white/15 hover:border-emerald-500/50 shadow-md transition-all"
-                      >
-                        <AspectRatio ratio={4 / 3} className="bg-white/5 relative w-full overflow-hidden">
-                          <img
-                            src={photo.url}
-                            alt={photo.caption || placeName}
-                            onClick={() => openLightbox(allPhotos, allPhotos.findIndex((p) => p.id === photo.id), placeName)}
-                            className="size-full object-cover rounded-2xl cursor-pointer group-hover:scale-105 transition-transform duration-500 ease-out block"
-                            loading="lazy"
-                          />
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 pt-1">
+                  {placePhotos.map((photo, pIdx) => (
+                    <DistrictPhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      placeName={placeName}
+                      allPhotos={allPhotos}
+                      isCover={photo.id === coverPhoto?.id}
+                      isEditing={isEditing}
+                      editingCaptionId={editingCaptionId}
+                      captionDraft={captionDraft}
+                      setCaptionDraft={setCaptionDraft}
+                      setEditingCaptionId={setEditingCaptionId}
+                      handleSaveCaption={handleSaveCaption}
+                      handleSetCoverPhoto={handleSetCoverPhoto}
+                      setDeletePhotoConfirmId={setDeletePhotoConfirmId}
+                      openLightbox={openLightbox}
+                      pIdx={pIdx}
+                    />
+                  ))}
 
-                          {/* Cover Badge */}
-                          {isCover && (
-                            <div className="absolute top-2 left-2 z-20 pointer-events-none">
-                              <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
-                                কভার ছবি
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Top Action Buttons (Shown ONLY in Edit Mode) */}
-                          {isEditing && (
-                            <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                              {!isCover && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSetCoverPhoto(photo.id);
-                                  }}
-                                  className="p-1.5 bg-black/70 hover:bg-[#004526] text-white rounded-lg backdrop-blur-md transition-colors cursor-pointer"
-                                  title="কভার ছবি হিসেবে সেট করুন"
-                                >
-                                  <Sparkles className="w-3 h-3 text-amber-300" />
-                                </button>
-                              )}
-
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeletePhotoConfirmId(photo.id);
-                                }}
-                                className="p-1.5 bg-black/70 hover:bg-rose-600 text-white rounded-lg backdrop-blur-md transition-colors cursor-pointer"
-                                title="ছবি মুছে ফেলুন"
-                              >
-                                <Trash2 className="w-3 h-3 text-rose-300" />
-                              </button>
-                            </div>
-                          )}
-
-                          {/* Bottom Caption Overlay */}
-                          {isEditing ? (
-                            <div
-                              className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent text-white z-20"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {editingCaptionId === photo.id ? (
-                                <div className="flex items-center gap-1">
-                                  <input
-                                    type="text"
-                                    value={captionDraft}
-                                    onChange={(e) => setCaptionDraft(e.target.value)}
-                                    placeholder="ক্যাপশন..."
-                                    className="flex-1 px-1.5 py-0.5 text-[10px] bg-black/90 border border-[#004526] rounded text-white focus:outline-none"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        handleSaveCaption(photo.id);
-                                      }
-                                      if (e.key === 'Escape') {
-                                        setEditingCaptionId(null);
-                                      }
-                                    }}
-                                    onBlur={() => handleSaveCaption(photo.id)}
-                                  />
-                                  <button
-                                    type="button"
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      handleSaveCaption(photo.id);
-                                    }}
-                                    className="p-1 bg-[#004526] text-white rounded cursor-pointer"
-                                  >
-                                    <Check className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <div
-                                  onClick={() => {
-                                    setEditingCaptionId(photo.id);
-                                    setCaptionDraft(photo.caption || '');
-                                  }}
-                                  className="flex items-center justify-between gap-1 cursor-pointer hover:bg-white/10 px-1 py-0.5 rounded transition-colors"
-                                  title="ক্যাপশন এডিট করতে ক্লিক করুন"
-                                >
-                                  <p className="text-[10px] truncate text-stone-200">
-                                    {photo.caption || '+ ক্যাপশন দিন'}
-                                  </p>
-                                  <Edit3 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            photo.caption && (
-                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white pointer-events-none z-20">
-                                <p className="text-[10px] sm:text-xs font-medium text-stone-200 truncate">
-                                  {photo.caption}
-                                </p>
-                              </div>
-                            )
-                          )}
-                        </AspectRatio>
-                      </motion.div>
-                    );
-                  })}
-
-                  {/* Empty Upload Slot if less than 5 photos and in Edit Mode (Grid) */}
+                  {/* Empty Upload Slot if less than 5 photos and in Edit Mode (Masonry) */}
                   {isEditing && placePhotos.length < 5 && (
                     <div
                       onClick={() => handleTriggerUpload(placeName)}
-                      className="cursor-pointer group"
+                      className="break-inside-avoid mb-4 h-48 sm:h-52 rounded-2xl border-2 border-dashed border-white/20 hover:border-emerald-500/60 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center p-3 text-center transition-all cursor-pointer group"
                       title={`এই স্থানে আরও ${5 - placePhotos.length}টি ছবি যোগ করতে পারবেন`}
                     >
-                      <AspectRatio
-                        ratio={4 / 3}
-                        className="rounded-2xl border-2 border-dashed border-white/20 hover:border-emerald-500/60 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center p-3 text-center transition-all"
-                      >
-                        <div className="w-9 h-9 rounded-full bg-white/5 group-hover:bg-[#004526] text-stone-400 group-hover:text-white flex items-center justify-center transition-colors shadow-sm mb-1.5">
-                          <Plus className="w-4 h-4 stroke-[2.5]" />
-                        </div>
-                        <span className="text-[11px] font-bold text-stone-300 group-hover:text-white">
-                          ছবি যোগ করুন
-                        </span>
-                        <span className="text-[9px] text-stone-400 mt-0.5 font-light">
-                          ({5 - placePhotos.length}টি বাকি)
-                        </span>
-                      </AspectRatio>
+                      <div className="w-9 h-9 rounded-full bg-white/5 group-hover:bg-[#004526] text-stone-400 group-hover:text-white flex items-center justify-center transition-colors shadow-sm mb-1.5">
+                        <Plus className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                      <span className="text-[11px] font-bold text-stone-300 group-hover:text-white">
+                        ছবি যোগ করুন
+                      </span>
+                      <span className="text-[9px] text-stone-400 mt-0.5 font-light">
+                        ({5 - placePhotos.length}টি বাকি)
+                      </span>
                     </div>
                   )}
                 </div>

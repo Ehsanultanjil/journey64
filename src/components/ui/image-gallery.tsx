@@ -126,13 +126,14 @@ interface AnimatedImageProps {
   src: string;
   className?: string;
   placeholder?: string;
-  ratio: number;
+  ratio?: number;
 }
 
 export function AnimatedImage({ alt, src, ratio, placeholder, className }: AnimatedImageProps) {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true });
   const [isLoading, setIsLoading] = React.useState(true);
+  const [currentRatio, setCurrentRatio] = React.useState<number | undefined>(ratio);
 
   const [imgSrc, setImgSrc] = React.useState(src);
 
@@ -142,22 +143,30 @@ export function AnimatedImage({ alt, src, ratio, placeholder, className }: Anima
     }
   };
 
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setIsLoading(false);
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) {
+      setCurrentRatio(naturalWidth / naturalHeight);
+    }
+  };
+
   return (
     <AspectRatio
       ref={ref}
-      ratio={ratio}
+      ratio={currentRatio || 16 / 9}
       className={cn('bg-accent relative size-full rounded-2xl border overflow-hidden bg-[#12151C] border-white/10', className)}
     >
       <img
         alt={alt}
         src={imgSrc}
         className={cn(
-          'size-full rounded-2xl object-cover opacity-0 transition-all duration-1000 ease-in-out',
+          'size-full rounded-2xl object-contain opacity-0 transition-all duration-700 ease-in-out',
           {
             'opacity-100': isInView && !isLoading,
           },
         )}
-        onLoad={() => setIsLoading(false)}
+        onLoad={handleLoad}
         loading="lazy"
         onError={handleError}
       />
