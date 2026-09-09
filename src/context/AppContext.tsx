@@ -26,7 +26,7 @@ import {
   evaluateAchievements,
 } from '../lib/stats';
 import { User } from '@supabase/supabase-js';
-import { checkSupabaseConnection } from '../lib/supabase/client';
+import { checkSupabaseConnection, supabase } from '../lib/supabase/client';
 import { SupabaseAuth } from '../lib/supabase/auth';
 import { SupabaseDB } from '../lib/supabase/db';
 
@@ -236,27 +236,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setVisits((prev) => {
         const local = StorageService.loadData();
         const visitMap = new Map<string, Visit>();
-        cloudVisits.forEach((v) => visitMap.set(v.id, v));
+
+        // Sanitize cloud visits (discard any photos with empty or invalid URLs)
+        const sanitizedCloudVisits = cloudVisits.map((cv) => ({
+          ...cv,
+          photos: (cv.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0),
+        }));
+        sanitizedCloudVisits.forEach((v) => visitMap.set(v.id, v));
 
         [...local.visits, ...prev].forEach((localVisit) => {
-          if (!visitMap.has(localVisit.id)) {
-            visitMap.set(localVisit.id, localVisit);
+          const sanitizedLocalVisit = {
+            ...localVisit,
+            photos: (localVisit.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0),
+          };
+
+          if (!visitMap.has(sanitizedLocalVisit.id)) {
+            visitMap.set(sanitizedLocalVisit.id, sanitizedLocalVisit);
           } else {
-            const cloudVisit = visitMap.get(localVisit.id)!;
-            const localPhotos = localVisit.photos?.length || 0;
-            const cloudPhotos = cloudVisit.photos?.length || 0;
-            const localTime = new Date(localVisit.updatedAt || 0).getTime();
+            const cloudVisit = visitMap.get(sanitizedLocalVisit.id)!;
+            const localTime = new Date(sanitizedLocalVisit.updatedAt || 0).getTime();
             const cloudTime = new Date(cloudVisit.updatedAt || 0).getTime();
 
-            // If one version has more photos, retain the version with photos
-            if (cloudPhotos > localPhotos) {
-              visitMap.set(localVisit.id, cloudVisit);
-            } else if (localPhotos > cloudPhotos) {
-              visitMap.set(localVisit.id, localVisit);
-            } else if (localTime >= cloudTime) {
-              visitMap.set(localVisit.id, localVisit);
+            // Most recent edit wins! Do not compare photo counts, as user deletions
+            // intentionally reduce photo count.
+            if (localTime >= cloudTime) {
+              visitMap.set(sanitizedLocalVisit.id, sanitizedLocalVisit);
             } else {
-              visitMap.set(localVisit.id, cloudVisit);
+              visitMap.set(sanitizedLocalVisit.id, cloudVisit);
             }
           }
         });
@@ -368,12 +374,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     StorageService.loadDataAsync().then((idbData) => {
       if (idbData.visits && idbData.visits.length > 0) {
         setVisits((prev) => {
-          const prevPhotosCount = prev.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
-          const idbPhotosCount = idbData.visits!.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
-          if (idbPhotosCount >= prevPhotosCount) {
-            return idbData.visits!;
-          }
-          return prev;
+          if (!prev || prev.length === 0) return idbData.visits!;
+          const map = new Map<string, Visit>();
+          idbData.visits!.forEach((v) => map.set(v.id, v));
+          prev.forEach((pv) => {
+            const idbV = map.get(pv.id);
+            if (!idbV) {
+              map.set(pv.id, pv);
+            } else {
+              const prevTime = new Date(pv.updatedAt || 0).getTime();
+              const idbTime = new Date(idbV.updatedAt || 0).getTime();
+              if (prevTime >= idbTime) {
+                map.set(pv.id, pv);
+              }
+            }
+          });
+          return Array.from(map.values());
         });
       }
       if (idbData.userData && Object.keys(idbData.userData).length > 0) {
@@ -867,6 +883,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const newVisits = visits.filter((v) => v.id !== visitId);
     syncVisits(newVisits);
 
+    // Also delete permanently from Supabase DB
+    if (authUser?.id) {
+      SupabaseDB.deleteVisit(visitId, authUser.id).catch((err) =>
+        console.error('[Sync] deleteVisit failed:', err)
+      );
+    }
+
     // If no visits remain for this district, we keep the district status as is, but we can clean up if desired
     if (target) {
       const remainingForDistrict = newVisits.filter((v) => v.districtId === target.districtId);
@@ -1026,8 +1049,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const deletePhoto = (photoId: string) => {
     if (!ensureAuth()) return;
 
+    let photoUrlToDelete: string | undefined;
+    const now = new Date().toISOString();
+
     const newVisits = visits.map((v) => {
       if (!v.photos || !v.photos.some((p) => p.id === photoId)) return v;
+
+      const target = v.photos.find((p) => p.id === photoId);
+      if (target?.url) {
+        photoUrlToDelete = target.url;
+      }
 
       const remaining = v.photos.filter((p) => p.id !== photoId);
       if (remaining.length > 0 && !remaining.some((p) => p.isCover)) {
@@ -1037,11 +1068,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return {
         ...v,
         photos: remaining,
-        updatedAt: new Date().toISOString(),
+        updatedAt: now,
       };
     });
 
     syncVisits(newVisits);
+
+    // If photo was stored in Supabase storage bucket, delete it from storage
+    if (photoUrlToDelete && photoUrlToDelete.includes('/storage/v1/object/public/photos/')) {
+      const storagePath = photoUrlToDelete.split('/storage/v1/object/public/photos/')[1];
+      if (storagePath) {
+        supabase.storage.from('photos').remove([decodeURIComponent(storagePath)]).catch((err) => {
+          console.warn('[Storage] Failed to delete file from storage:', err);
+        });
+      }
+    }
   };
 
   const reorderPhotos = (districtId: string, photoIds: string[]) => {
@@ -1310,20 +1351,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (cVisits.length > 0) {
         setVisits((prev) => {
           const m = new Map<string, Visit>();
-          cVisits.forEach((v) => m.set(v.id, v));
+          // Sanitize cloud visits
+          cVisits.forEach((v) => {
+            m.set(v.id, {
+              ...v,
+              photos: (v.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0),
+            });
+          });
+
           prev.forEach((lv) => {
-            const cv = m.get(lv.id);
+            const sanitizedLv = {
+              ...lv,
+              photos: (lv.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0),
+            };
+            const cv = m.get(sanitizedLv.id);
             if (!cv) {
-              m.set(lv.id, lv);
+              m.set(sanitizedLv.id, sanitizedLv);
             } else {
-              const lvPhotos = lv.photos?.length || 0;
-              const cvPhotos = cv.photos?.length || 0;
-              if (cvPhotos > lvPhotos) {
-                m.set(lv.id, cv);
-              } else if (lvPhotos > cvPhotos) {
-                m.set(lv.id, lv);
-              } else if (new Date(lv.updatedAt || 0).getTime() > new Date(cv.updatedAt || 0).getTime()) {
-                m.set(lv.id, lv);
+              const localTime = new Date(sanitizedLv.updatedAt || 0).getTime();
+              const cloudTime = new Date(cv.updatedAt || 0).getTime();
+              // Most recent edit wins!
+              if (localTime >= cloudTime) {
+                m.set(sanitizedLv.id, sanitizedLv);
+              } else {
+                m.set(sanitizedLv.id, cv);
               }
             }
           });

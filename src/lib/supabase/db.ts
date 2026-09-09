@@ -2,14 +2,23 @@ import { supabase } from './client';
 import { DistrictUserData, Visit, Trip, UserProfile, Photo } from '../../types';
 import { AppSettings } from '../storage';
 
-// Strip base64 photo data before sending to DB — photos should be uploaded to
-// Supabase Storage first, only URLs are persisted in the visits JSONB column.
-function stripBase64FromPhotos(photos: Photo[]): Photo[] {
-  return photos.map((p) => ({
-    ...p,
-    // If it's a base64 data URL, replace with empty string as safety net
-    url: p.url?.startsWith('data:') ? '' : p.url,
-  }));
+// Clean photo data before sending to DB — ensure only valid URLs are persisted in the visits JSONB column.
+function cleanPhotosForDB(photos: Photo[]): Photo[] {
+  return (photos || [])
+    .filter((p) => p && typeof p.url === 'string' && p.url.trim().length > 0 && !p.url.startsWith('data:'))
+    .map((p) => ({
+      id: p.id,
+      districtId: p.districtId,
+      visitId: p.visitId,
+      placeName: p.placeName || '',
+      url: p.url,
+      caption: p.caption || '',
+      sortOrder: p.sortOrder || 0,
+      isCover: !!p.isCover,
+      isFavoriteMemory: !!p.isFavoriteMemory,
+      takenDate: p.takenDate,
+      createdAt: p.createdAt,
+    }));
 }
 
 export const SupabaseDB = {
@@ -86,12 +95,12 @@ export const SupabaseDB = {
 
       const backupName = `user_backup_${effectiveUserId}`;
 
-      // Strip base64 photos from the backup payload to avoid bloating
+      // Clean photos from the backup payload to avoid bloating and eliminate corrupt entries
       const cleanPayload = { ...payload };
       if (cleanPayload.visits && Array.isArray(cleanPayload.visits)) {
         cleanPayload.visits = cleanPayload.visits.map((v: any) => ({
           ...v,
-          photos: v.photos ? stripBase64FromPhotos(v.photos) : [],
+          photos: v.photos ? cleanPhotosForDB(v.photos) : [],
         }));
       }
 
@@ -263,8 +272,8 @@ export const SupabaseDB = {
         date: v.visitDate || new Date().toISOString().split('T')[0],
         title: v.title || 'ভ্রমণ স্মৃতি',
         story: v.notes || '',
-        // Only store photo metadata with URLs — no base64 in DB
-        photos: v.photos ? stripBase64FromPhotos(v.photos) : [],
+        // Only store photo metadata with valid URLs — no base64 in DB
+        photos: v.photos ? cleanPhotosForDB(v.photos) : [],
         rating: v.rating || 5,
         created_at: v.createdAt || new Date().toISOString(),
         updated_at: v.updatedAt || new Date().toISOString(),
@@ -284,6 +293,23 @@ export const SupabaseDB = {
       return true;
     } catch (e: any) {
       console.error('[SupabaseDB] syncVisits EXCEPTION:', e?.message, e);
+      return false;
+    }
+  },
+
+  // Delete a visit permanently from Supabase
+  async deleteVisit(visitId: string, userId?: string): Promise<boolean> {
+    try {
+      const effectiveUserId = await this.getEffectiveUserId(userId);
+      if (!effectiveUserId) return false;
+      const fullId = `${effectiveUserId}_${visitId}`;
+      const { error } = await supabase.from('visits').delete().eq('id', fullId);
+      if (error) {
+        console.error('[SupabaseDB] deleteVisit FAILED:', error.message);
+      }
+      return !error;
+    } catch (e: any) {
+      console.error('[SupabaseDB] deleteVisit EXCEPTION:', e?.message);
       return false;
     }
   },
@@ -385,7 +411,7 @@ export const SupabaseDB = {
         visitDate: row.date || new Date().toISOString().split('T')[0],
         title: row.title || 'ভ্রমণ স্মৃতি',
         notes: row.story || '',
-        photos: row.photos || [],
+        photos: (row.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0),
         rating: row.rating || 5,
         createdAt: row.created_at || new Date().toISOString(),
         updatedAt: row.updated_at || new Date().toISOString(),

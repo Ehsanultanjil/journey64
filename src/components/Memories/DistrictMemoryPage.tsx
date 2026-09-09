@@ -88,11 +88,11 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
   const isFavorite = !!districtData?.isFavorite;
 
-  // Aggregate all photos for this district
+  // Aggregate all photos for this district (ensure only valid image URLs are rendered)
   const allPhotos: Photo[] = useMemo(() => {
-    return (activeVisit?.photos || []).sort(
-      (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
-    );
+    return (activeVisit?.photos || [])
+      .filter((p) => p && typeof p.url === 'string' && p.url.trim().length > 0)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }, [activeVisit?.photos]);
 
   const coverPhoto = allPhotos.find((p) => p.isCover) || allPhotos[0];
