@@ -152,3 +152,24 @@ CREATE POLICY "Public & Auth app_settings delete" ON public.app_settings FOR DEL
 
 CREATE POLICY "Public & Auth journey_backups select" ON public.journey_backups FOR SELECT USING (true);
 CREATE POLICY "Public & Auth journey_backups insert" ON public.journey_backups FOR INSERT WITH CHECK (true);
+
+-- ==============================================================================
+-- 7. SUPABASE STORAGE: PUBLIC 'photos' BUCKET FOR CROSS-DEVICE PHOTO SYNC
+-- ==============================================================================
+
+-- Create the public bucket 'photos' if it does not exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('photos', 'photos', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Storage RLS Policies: allow public view and authenticated/anon uploads
+DROP POLICY IF EXISTS "Public Access Photos" ON storage.objects;
+DROP POLICY IF EXISTS "Public Upload Photos" ON storage.objects;
+DROP POLICY IF EXISTS "Public Update Photos" ON storage.objects;
+DROP POLICY IF EXISTS "Public Delete Photos" ON storage.objects;
+
+CREATE POLICY "Public Access Photos" ON storage.objects FOR SELECT USING (bucket_id = 'photos');
+CREATE POLICY "Public Upload Photos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'photos');
+CREATE POLICY "Public Update Photos" ON storage.objects FOR UPDATE USING (bucket_id = 'photos');
+CREATE POLICY "Public Delete Photos" ON storage.objects FOR DELETE USING (bucket_id = 'photos');
+

@@ -21,6 +21,7 @@ import { useApp } from '../../context/AppContext';
 import { getDistrictById } from '../../data/districts';
 import { Photo } from '../../types';
 import { compressImage } from '../../lib/storage';
+import { uploadPhotoFile } from '../../lib/supabase/storage';
 
 interface Props {
   districtId: string;
@@ -169,9 +170,9 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const compressedBase64 = await compressImage(file, 1600, 1600, 0.82);
+        const res = await uploadPhotoFile(file, districtId, authUser?.id);
         photosToAdd.push({
-          url: compressedBase64,
+          url: res.url,
           caption: '',
           placeName: targetUploadPlace,
           isCover: isOverallEmpty && i === 0,
@@ -181,6 +182,8 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
       if (photosToAdd.length > 0) {
         addPhotos(districtId, photosToAdd);
+        setIsSavedToast(true);
+        setTimeout(() => setIsSavedToast(false), 2000);
       }
     } catch (err) {
       console.error('Photo upload failed:', err);

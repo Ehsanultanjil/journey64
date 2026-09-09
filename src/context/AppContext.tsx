@@ -172,24 +172,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const tableTrips = await SupabaseDB.fetchTrips(user.id);
 
       const cloudUserData: Record<string, DistrictUserData> =
-        backupRes.data?.userData && Object.keys(backupRes.data.userData).length > 0
-          ? backupRes.data.userData
-          : tableUserData && Object.keys(tableUserData).length > 0
+        tableUserData && Object.keys(tableUserData).length > 0
           ? tableUserData
+          : backupRes.data?.userData && Object.keys(backupRes.data.userData).length > 0
+          ? backupRes.data.userData
           : {};
 
       const cloudVisits: Visit[] =
-        backupRes.data?.visits && backupRes.data.visits.length > 0
-          ? backupRes.data.visits
-          : tableVisits && tableVisits.length > 0
+        tableVisits && tableVisits.length > 0
           ? tableVisits
+          : backupRes.data?.visits && backupRes.data.visits.length > 0
+          ? backupRes.data.visits
           : [];
 
       const cloudTrips: Trip[] =
-        backupRes.data?.trips && backupRes.data.trips.length > 0
-          ? backupRes.data.trips
-          : tableTrips && tableTrips.length > 0
+        tableTrips && tableTrips.length > 0
           ? tableTrips
+          : backupRes.data?.trips && backupRes.data.trips.length > 0
+          ? backupRes.data.trips
           : [];
 
       const cloudProfile = backupRes.data?.profile;
@@ -231,11 +231,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             visitMap.set(localVisit.id, localVisit);
           } else {
             const cloudVisit = visitMap.get(localVisit.id)!;
+            const localPhotos = localVisit.photos?.length || 0;
+            const cloudPhotos = cloudVisit.photos?.length || 0;
             const localTime = new Date(localVisit.updatedAt || 0).getTime();
             const cloudTime = new Date(cloudVisit.updatedAt || 0).getTime();
 
-            // If local is newer or equal, local takes precedence (preserves deletions, edits, reordering)
-            if (localTime >= cloudTime) {
+            // If one version has more photos, retain the version with photos
+            if (cloudPhotos > localPhotos) {
+              visitMap.set(localVisit.id, cloudVisit);
+            } else if (localPhotos > cloudPhotos) {
+              visitMap.set(localVisit.id, localVisit);
+            } else if (localTime >= cloudTime) {
               visitMap.set(localVisit.id, localVisit);
             } else {
               visitMap.set(localVisit.id, cloudVisit);
@@ -1325,8 +1331,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           cVisits.forEach((v) => m.set(v.id, v));
           prev.forEach((lv) => {
             const cv = m.get(lv.id);
-            if (!cv) { m.set(lv.id, lv); }
-            else if (new Date(lv.updatedAt || 0).getTime() > new Date(cv.updatedAt || 0).getTime()) { m.set(lv.id, lv); }
+            if (!cv) {
+              m.set(lv.id, lv);
+            } else {
+              const lvPhotos = lv.photos?.length || 0;
+              const cvPhotos = cv.photos?.length || 0;
+              if (cvPhotos > lvPhotos) {
+                m.set(lv.id, cv);
+              } else if (lvPhotos > cvPhotos) {
+                m.set(lv.id, lv);
+              } else if (new Date(lv.updatedAt || 0).getTime() > new Date(cv.updatedAt || 0).getTime()) {
+                m.set(lv.id, lv);
+              }
+            }
           });
           const merged = Array.from(m.values());
           StorageService.saveVisits(merged);

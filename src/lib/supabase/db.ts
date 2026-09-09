@@ -14,18 +14,14 @@ export const SupabaseDB = {
     }
   },
 
-  // Push full snapshot / backup to Supabase (upsert: one row per user, always up-to-date)
+  // Push full snapshot / backup to Supabase
   async pushBackup(name: string, payload: any, userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       const backupName = effectiveUserId ? `user_backup_${effectiveUserId}` : name;
 
-      // Use upsert with deterministic ID so there's exactly ONE backup per user
-      const deterministicId = effectiveUserId ? `backup_${effectiveUserId}` : `backup_anonymous_${Date.now()}`;
-
-      const { error } = await supabase.from('journey_backups').upsert([
+      const { error } = await supabase.from('journey_backups').insert([
         {
-          id: deterministicId,
           name: backupName,
           data: {
             ...payload,
@@ -239,7 +235,7 @@ export const SupabaseDB = {
   async fetchVisits(userId?: string): Promise<Visit[] | null> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId);
-      let query = supabase.from('visits').select('*');
+      let query = supabase.from('visits').select('*').order('updated_at', { ascending: false }).limit(64);
       if (effectiveUserId) {
         query = query.like('id', `${effectiveUserId}_%`);
       }
@@ -251,7 +247,7 @@ export const SupabaseDB = {
       if (!data || data.length === 0) return null;
 
       return data.map((row: any) => ({
-        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.replace(`${effectiveUserId}_`, '') : row.id,
+        id: effectiveUserId && row.id.startsWith(`${effectiveUserId}_`) ? row.id.slice(`${effectiveUserId}_`.length) : row.id,
         districtId: row.district_id,
         visitDate: row.date || new Date().toISOString().split('T')[0],
         title: row.title || 'ভ্রমণ স্মৃতি',
