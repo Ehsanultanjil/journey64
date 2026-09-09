@@ -75,7 +75,7 @@ const DistrictPhotoCard: React.FC<DistrictPhotoCardProps> = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.25, delay: Math.min(pIdx * 0.04, 0.3) }}
-      className="group relative break-inside-avoid mb-4 rounded-2xl overflow-hidden bg-[#12151C] border border-white/15 hover:border-emerald-500/50 shadow-md transition-all"
+      className="group relative break-inside-avoid mb-2.5 sm:mb-4 rounded-xl sm:rounded-2xl overflow-hidden bg-[#12151C] border border-white/15 hover:border-emerald-500/50 shadow-md transition-all"
     >
       <AspectRatio ratio={aspectRatio || 4 / 3} className="bg-black/40 relative w-full overflow-hidden">
         <img
@@ -83,14 +83,14 @@ const DistrictPhotoCard: React.FC<DistrictPhotoCardProps> = ({
           alt={photo.caption || placeName}
           onLoad={handleImageLoad}
           onClick={() => openLightbox(allPhotos, photoIndex >= 0 ? photoIndex : 0, placeName)}
-          className="size-full object-contain rounded-2xl cursor-pointer group-hover:scale-[1.02] transition-transform duration-500 block"
+          className="size-full object-contain rounded-xl sm:rounded-2xl cursor-pointer group-hover:scale-[1.02] transition-transform duration-500 block"
           loading="lazy"
         />
 
         {/* Cover Badge */}
         {isCover && (
-          <div className="absolute top-2 left-2 z-20 pointer-events-none">
-            <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
+          <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-20 pointer-events-none">
+            <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
               কভার ছবি
             </span>
           </div>
@@ -103,8 +103,8 @@ const DistrictPhotoCard: React.FC<DistrictPhotoCardProps> = ({
             e.stopPropagation();
             openLightbox(allPhotos, photoIndex >= 0 ? photoIndex : 0, placeName);
           }}
-          className={`absolute top-2 z-20 p-1.5 bg-black/70 hover:bg-[#004526] text-white rounded-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm ${
-            isEditing ? 'left-2' : 'right-2'
+          className={`absolute top-1.5 sm:top-2 z-20 p-1 sm:p-1.5 bg-black/70 hover:bg-[#004526] text-white rounded-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm ${
+            isEditing ? 'left-1.5 sm:left-2' : 'right-1.5 sm:right-2'
           }`}
           title="পূর্ণ স্ক্রিনে সম্পূর্ণ ছবি দেখুন"
         >
@@ -726,7 +726,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
           return (
             <div
               key={placeName}
-              className="bg-[#0E1015]/90 border border-white/10 p-5 sm:p-7 rounded-3xl space-y-4 shadow-xl"
+              className="bg-[#0E1015]/90 border border-white/10 p-3.5 sm:p-7 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-xl"
             >
               {/* Place/Spot Header */}
               <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3 flex-wrap">
@@ -828,7 +828,7 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
 
               {/* Photos Display: AspectRatio Uncropped Masonry Grid View or Scrollable Row */}
               {galleryViewMode === 'grid' ? (
-                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 pt-1">
+                <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-3 gap-2.5 sm:gap-4 pt-1">
                   {placePhotos.map((photo, pIdx) => (
                     <DistrictPhotoCard
                       key={photo.id}
@@ -853,16 +853,16 @@ export const DistrictMemoryPage: React.FC<Props> = ({ districtId, onBack }) => {
                   {isEditing && placePhotos.length < 5 && (
                     <div
                       onClick={() => handleTriggerUpload(placeName)}
-                      className="break-inside-avoid mb-4 h-48 sm:h-52 rounded-2xl border-2 border-dashed border-white/20 hover:border-emerald-500/60 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center p-3 text-center transition-all cursor-pointer group"
+                      className="break-inside-avoid mb-2.5 sm:mb-4 h-36 sm:h-52 rounded-xl sm:rounded-2xl border-2 border-dashed border-white/20 hover:border-emerald-500/60 bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center p-2.5 sm:p-3 text-center transition-all cursor-pointer group"
                       title={`এই স্থানে আরও ${5 - placePhotos.length}টি ছবি যোগ করতে পারবেন`}
                     >
-                      <div className="w-9 h-9 rounded-full bg-white/5 group-hover:bg-[#004526] text-stone-400 group-hover:text-white flex items-center justify-center transition-colors shadow-sm mb-1.5">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 group-hover:bg-[#004526] text-stone-400 group-hover:text-white flex items-center justify-center transition-colors shadow-sm mb-1 sm:mb-1.5">
                         <Plus className="w-4 h-4 stroke-[2.5]" />
                       </div>
-                      <span className="text-[11px] font-bold text-stone-300 group-hover:text-white">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-stone-300 group-hover:text-white">
                         ছবি যোগ করুন
                       </span>
-                      <span className="text-[9px] text-stone-400 mt-0.5 font-light">
+                      <span className="text-[8px] sm:text-[9px] text-stone-400 mt-0.5 font-light">
                         ({5 - placePhotos.length}টি বাকি)
                       </span>
                     </div>

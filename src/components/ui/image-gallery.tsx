@@ -37,66 +37,53 @@ const DEMO_IMAGES = [
 ];
 
 export function ImageGallery({ photos, onPhotoClick, className }: ImageGalleryProps) {
-  // If user provided real photos, divide them into 3 masonry columns
+  // If user provided real photos, render using responsive masonry columns
   if (photos && photos.length > 0) {
-    const columns: GalleryPhotoItem[][] = [[], [], []];
-    photos.forEach((photo, idx) => {
-      columns[idx % 3].push(photo);
-    });
-
     return (
-      <div className={cn('relative w-full py-4', className)}>
-        <div className="mx-auto grid w-full gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {columns.map((colPhotos, colIdx) => (
-            <div key={colIdx} className="grid gap-4 sm:gap-6">
-              {colPhotos.map((photo, photoIdx) => {
-                // Determine ratio: if user provided ratio use it, else alternate elegantly
-                const isPortrait = photo.ratio ? photo.ratio < 1 : ((colIdx + photoIdx) % 2 === 1);
-                const ratio = photo.ratio || (isPortrait ? 3 / 4 : 4 / 3);
-                const globalIndex = photos.findIndex((p) => p.id === photo.id);
-
-                return (
-                  <div
-                    key={photo.id || `${colIdx}-${photoIdx}`}
-                    onClick={() => onPhotoClick?.(photo, globalIndex >= 0 ? globalIndex : photoIdx)}
-                    className="group cursor-pointer relative"
-                  >
-                    <AnimatedImage
-                      alt={photo.caption || photo.placeName || `Photo ${photoIdx + 1}`}
-                      src={photo.url}
-                      ratio={ratio}
-                      className="border border-white/10 hover:border-emerald-500/50 shadow-md group-hover:shadow-emerald-500/10 transition-all duration-300 rounded-2xl overflow-hidden"
-                    />
-                    {photo.isCover && (
-                      <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
-                        <span className="px-2 py-0.5 text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
-                          কভার ছবি
-                        </span>
-                      </div>
-                    )}
-                    {photo.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white rounded-b-2xl pointer-events-none">
-                        <p className="text-xs font-medium text-stone-200 truncate">
-                          {photo.caption}
-                        </p>
-                      </div>
-                    )}
+      <div className={cn('relative w-full py-2 sm:py-4', className)}>
+        <div className="columns-2 sm:columns-2 lg:columns-3 gap-2.5 sm:gap-6">
+          {photos.map((photo, photoIdx) => {
+            const globalIndex = photos.findIndex((p) => p.id === photo.id);
+            return (
+              <div
+                key={photo.id || photoIdx}
+                onClick={() => onPhotoClick?.(photo, globalIndex >= 0 ? globalIndex : photoIdx)}
+                className="group cursor-pointer relative break-inside-avoid mb-2.5 sm:mb-6"
+              >
+                <AnimatedImage
+                  alt={photo.caption || photo.placeName || `Photo ${photoIdx + 1}`}
+                  src={photo.url}
+                  ratio={photo.ratio}
+                  className="border border-white/10 hover:border-emerald-500/50 shadow-md group-hover:shadow-emerald-500/10 transition-all duration-300 rounded-xl sm:rounded-2xl overflow-hidden"
+                />
+                {photo.isCover && (
+                  <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-20 pointer-events-none">
+                    <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded-md bg-[#004526] text-white shadow-md backdrop-blur-md border border-emerald-400/40">
+                      কভার ছবি
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          ))}
+                )}
+                {photo.caption && (
+                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white rounded-b-xl sm:rounded-b-2xl pointer-events-none">
+                    <p className="text-[10px] sm:text-xs font-medium text-stone-200 truncate">
+                      {photo.caption}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
   }
 
-  // Default demo implementation with 3 columns
+  // Default demo implementation with 2 columns on mobile, 3 columns on desktop
   return (
-    <div className={cn('relative flex min-h-screen w-full flex-col items-center justify-center py-10 px-4', className)}>
-      <div className="mx-auto grid w-full max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={cn('relative flex min-h-screen w-full flex-col items-center justify-center py-6 sm:py-10 px-2 sm:px-4', className)}>
+      <div className="mx-auto grid w-full max-w-5xl gap-2.5 sm:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, col) => (
-          <div key={col} className="grid gap-6">
+          <div key={col} className={cn('grid gap-2.5 sm:gap-6', col === 2 ? 'hidden lg:grid' : 'grid')}>
             {Array.from({ length: 4 }).map((_, index) => {
               const itemIdx = (col * 4 + index) % DEMO_IMAGES.length;
               const demo = DEMO_IMAGES[itemIdx];
