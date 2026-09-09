@@ -6,7 +6,6 @@ import {
   Calendar,
   Camera,
   MapPin,
-  ArrowRight,
   Compass,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -261,78 +260,59 @@ export const MemoriesTimelinePage: React.FC = () => {
                       {month.items.map((item) => (
                         <motion.div
                           key={item.district.id}
-                          whileHover={{ y: -3 }}
+                          whileHover={{ y: -4 }}
                           onClick={() => openDistrictJournal(item.district.id)}
-                          className="group bg-[#12141A]/90 border border-white/10 hover:border-white/25 transition-all cursor-pointer flex flex-col rounded-3xl overflow-hidden shadow-md"
+                          className="group relative h-64 sm:h-72 w-full bg-[#12141A] border border-white/15 hover:border-white/35 transition-all cursor-pointer rounded-3xl overflow-hidden shadow-lg"
                         >
-                          {/* Cover Image */}
-                          <div className="relative h-48 w-full bg-[#181818] overflow-hidden border-b border-white/10">
-                            {item.coverPhoto ? (
-                              <img
-                                src={item.coverPhoto}
-                                alt={item.district.name}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-[#0B1A13] to-[#0A0C10] flex items-center justify-center">
-                                <Compass className="w-12 h-12 text-[#004526]/40" />
-                              </div>
-                            )}
+                          {/* Full Cover Image */}
+                          {item.coverPhoto ? (
+                            <img
+                              src={item.coverPhoto}
+                              alt={item.district.name}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#0B1A13] to-[#0A0C10] flex items-center justify-center">
+                              <Compass className="w-12 h-12 text-[#004526]/40" />
+                            </div>
+                          )}
 
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          {/* Atmospheric Gradient Overlays for Readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/35" />
 
-                            {/* Top Badges */}
-                            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                              <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10 rounded-full">
-                                {item.district.division} বিভাগ
+                          {/* Top Badges */}
+                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                            <span className="font-body font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 bg-black/60 backdrop-blur-md text-white border border-white/10 rounded-full shadow-sm">
+                              {item.district.division} বিভাগ
+                            </span>
+                            {item.userData?.isFavorite && (
+                              <span className="p-1.5 bg-[#004526] text-white rounded-full shadow-md">
+                                <Heart className="w-3.5 h-3.5 fill-white" />
                               </span>
-                              {item.userData?.isFavorite && (
-                                <span className="p-1.5 bg-[#004526] text-white rounded-full">
-                                  <Heart className="w-3.5 h-3.5 fill-white" />
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Bottom title on photo */}
-                            <div className="absolute bottom-3.5 left-4 right-4 text-white">
-                              <h4 className="font-display text-2xl font-bold uppercase tracking-wide flex items-baseline gap-2">
-                                {item.district.bn_name}
-                                <span className="font-sans text-xs font-normal text-white/70">
-                                  ({item.district.name})
-                                </span>
-                              </h4>
-                              <div className="flex items-center gap-4 font-body text-[10px] text-white/70 mt-1 font-semibold">
-                                <span className="flex items-center gap-1.5">
-                                  <Calendar className="w-3 h-3 text-[#004526]" />
-                                  {new Date(item.dateStr).toLocaleDateString('bn-BD', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric',
-                                  })}
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                  <Camera className="w-3 h-3 text-[#004526]" />
-                                  {item.photosCount}টি ছবি
-                                </span>
-                              </div>
-                            </div>
+                            )}
                           </div>
 
-                          {/* Note / Excerpt Body */}
-                          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                            {item.note.trim().length > 0 ? (
-                              <p className="font-body text-xs leading-relaxed text-stone-300 font-light italic line-clamp-2">
-                                "{item.note}"
-                              </p>
-                            ) : (
-                              <p className="font-body text-xs text-stone-500 italic font-light">
-                                ভ্রমণের অনুভূতি ও গল্প লিখে রাখতে ক্লিক করুন...
-                              </p>
-                            )}
-
-                            <div className="pt-3 border-t border-white/10 flex items-center justify-between font-body font-bold text-[10px] uppercase tracking-wider text-[#004526]">
-                              <span>ডায়েরি ও ছবি দেখুন</span>
-                              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                          {/* Bottom Info on Photo */}
+                          <div className="absolute bottom-3.5 left-4 right-4 text-white z-10 space-y-1">
+                            <h4 className="font-display text-2xl font-bold uppercase tracking-wide flex items-baseline gap-2 drop-shadow-md">
+                              {item.district.bn_name}
+                              <span className="font-sans text-xs font-normal text-white/80">
+                                ({item.district.name})
+                              </span>
+                            </h4>
+                            <div className="flex items-center gap-4 font-body text-[10px] text-white/80 font-semibold drop-shadow-xs">
+                              <span className="flex items-center gap-1.5">
+                                <Calendar className="w-3 h-3 text-emerald-400" />
+                                {new Date(item.dateStr).toLocaleDateString('bn-BD', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <Camera className="w-3 h-3 text-emerald-400" />
+                                {item.photosCount}টি ছবি
+                              </span>
                             </div>
                           </div>
                         </motion.div>
