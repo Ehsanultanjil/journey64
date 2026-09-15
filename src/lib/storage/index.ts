@@ -30,6 +30,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   displayName: 'ভ্রমণকারী',
   bio: 'বাংলাদেশের ৬৪ জেলার পথে প্রান্তরে এক অনন্য পদচিহ্ন।',
   joinedDate: '2025-01-01',
+  isLocked: true,
 };
 
 // ================= IndexedDB Utility for Unlimited Reliable Storage =================

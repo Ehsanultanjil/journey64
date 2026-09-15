@@ -10,11 +10,19 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL DEFAULT 'Explorer',
   display_name TEXT NOT NULL DEFAULT 'Explorer',
+  handle TEXT UNIQUE,
   bio TEXT DEFAULT 'Explorer of Bangladesh — one district at a time.',
   avatar_url TEXT,
+  cover_url TEXT,
+  location TEXT DEFAULT 'বাংলাদেশ',
+  is_locked BOOLEAN DEFAULT false,
   joined_date TEXT DEFAULT '2024-01-01',
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Index on handle for fast case-insensitive username searching
+CREATE INDEX IF NOT EXISTS idx_user_profiles_handle ON public.user_profiles (lower(handle));
+
 
 -- 2. District User Data (Visited, Wishlist, Notes, Ratings)
 CREATE TABLE IF NOT EXISTS public.district_user_data (

@@ -115,35 +115,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </button>
 
           {/* Brand Header */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#004526] to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-[#004526]/30">
-              <Compass className="w-6 h-6 stroke-[2.5]" />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#004526] to-emerald-400 text-white flex items-center justify-center shadow-lg shadow-[#004526]/30">
+              <Compass className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="font-display text-xl sm:text-2xl font-bold text-white leading-tight">
+              <h3 className="font-display text-xl font-bold text-white leading-tight">
                 {mode === 'signin'
-                  ? 'আমার বাংলাদেশ — লগইন'
+                  ? 'লগইন'
                   : mode === 'signup'
-                  ? 'নতুন অ্যাকাউন্ট তৈরি করুন'
+                  ? 'নতুন অ্যাকাউন্ট'
                   : 'পাসওয়ার্ড রিসেট'}
               </h3>
-              <p className="text-xs text-stone-300 font-light mt-0.5">
-                ৬৪ জেলা ভ্রমণের সকল স্মৃতি ও তালিকা সংরক্ষণ করুন
-              </p>
             </div>
           </div>
-
-          {/* Contextual Action Prompt (if triggered by a gated action) */}
-          {authPromptMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-2.5 bg-[#004526]/15 border border-[#004526]/40 rounded-xl flex items-center gap-2 text-xs text-emerald-200"
-            >
-              <Info className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{authPromptMessage}</span>
-            </motion.div>
-          )}
 
           {/* Mode Switch Tabs */}
           <div className="flex bg-white/5 p-1 rounded-2xl mb-4 border border-white/10 text-xs font-bold">
@@ -320,14 +305,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               )}
             </button>
           </form>
-
-          {/* Guest Explanation Notice */}
-          <div className="mt-4 p-2.5 bg-white/5 border border-white/10 rounded-xl text-[11px] text-stone-400 flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-            <span>
-              লগইন ছাড়াই মানচিত্র ও ৬৪ জেলার তথ্য দেখা যাবে। ভ্রমণ স্থিতি ও স্মৃতি সংরক্ষণ করতে লগইন করুন।
-            </span>
-          </div>
         </motion.div>
       </div>
     </AnimatePresence>

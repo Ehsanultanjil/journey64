@@ -1,57 +1,31 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   User,
-  Settings,
   ShieldCheck,
-  Check,
   LogOut,
   ArrowRight,
-  RefreshCw,
   Camera,
   Edit3,
-  Share2,
-  MapPin,
-  Calendar,
-  Award,
   Sparkles,
   Image as ImageIcon,
-  Compass,
-  Bookmark,
   X,
-  Upload,
   CheckCircle2,
   Lock,
-  ChevronRight,
-  Flame,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { DISTRICTS, getDistrictById } from '../../data/districts';
-import { DIVISIONS } from '../../data/divisions';
 import { compressImage } from '../../lib/storage';
 
 export const SettingsPage: React.FC = () => {
   const {
     profile,
-    settings,
     authUser,
     openAuthModal,
     signOut,
-    cloudSync,
-    pushToCloud,
     updateProfile,
-    updateSettings,
+    toggleProfileLock,
     stats,
-    achievements,
-    userData,
-    visits,
-    openLightbox,
-    openDistrictJournal,
-    setActiveTab,
   } = useApp();
-
-  // Active Profile Sub-Tab
-  const [activeProfileTab, setActiveProfileTab] = useState<'gallery' | 'settings'>('gallery');
 
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -61,12 +35,11 @@ export const SettingsPage: React.FC = () => {
   const [locationDraft, setLocationDraft] = useState(profile.location || 'বাংলাদেশ');
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(profile.avatarUrl);
   const [coverPreview, setCoverPreview] = useState<string | undefined>(profile.coverUrl);
-  
-  const [savedToast, setSavedToast] = useState(false);
-  const [copiedToast, setCopiedToast] = useState(false);
-  const [syncLoading, setSyncLoading] = useState(false);
+  const [isLockedDraft, setIsLockedDraft] = useState<boolean>(!!profile.isLocked);
 
-  // Hidden File Inputs
+  const [savedToast, setSavedToast] = useState(false);
+
+  // Hidden File Inputs for avatar & cover uploads
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,6 +51,7 @@ export const SettingsPage: React.FC = () => {
     setLocationDraft(profile.location || 'বাংলাদেশ');
     setAvatarPreview(profile.avatarUrl);
     setCoverPreview(profile.coverUrl);
+    setIsLockedDraft(!!profile.isLocked);
     setIsEditModalOpen(true);
   };
 
@@ -115,6 +89,7 @@ export const SettingsPage: React.FC = () => {
       location: locationDraft.trim(),
       avatarUrl: avatarPreview,
       coverUrl: coverPreview,
+      isLocked: isLockedDraft,
     });
     setIsEditModalOpen(false);
     setSavedToast(true);
@@ -149,83 +124,9 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  // Share profile summary
-  const handleShareProfile = async () => {
-    const shareText = `🌟 আমি "জার্নি ৬৪" এর মাধ্যমে বাংলাদেশের ${stats.visitedCount}টি জেলা ও ${stats.divisionsExploredCount}টি বিভাগ ভ্রমণ করেছি (${stats.percentageExplored}% সম্পন্ন)! 🇧🇩\nআমার ভ্রমণ প্রোফাইল দেখুন।`;
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        setCopiedToast(true);
-        setTimeout(() => setCopiedToast(false), 2500);
-      } catch (err) {
-        console.error('Clipboard error', err);
-      }
-    }
-  };
 
-  const handleManualSync = async () => {
-    setSyncLoading(true);
-    await pushToCloud();
-    setSyncLoading(false);
-  };
 
-  // All visited districts
-  const visitedDistrictsList = useMemo(() => {
-    return DISTRICTS.filter((d) => userData[d.id]?.status === 'visited');
-  }, [userData]);
-
-  // Visited districts with cover photos (1 cover photo per district)
-  const districtCovers = useMemo(() => {
-    const list: {
-      districtId: string;
-      districtName: string;
-      districtBnName: string;
-      division: string;
-      coverUrl: string;
-      caption?: string;
-      totalPhotosCount: number;
-    }[] = [];
-
-    visitedDistrictsList.forEach((d) => {
-      const districtVisits = visits.filter((v) => v.districtId === d.id);
-      const allPhotos = districtVisits.flatMap((v) => v.photos || []);
-      if (allPhotos.length > 0) {
-        const coverPhoto = allPhotos.find((p) => p.isCover) || allPhotos[0];
-        list.push({
-          districtId: d.id,
-          districtName: d.name,
-          districtBnName: d.bn_name,
-          division: d.division,
-          coverUrl: coverPhoto.url,
-          caption: coverPhoto.caption,
-          totalPhotosCount: allPhotos.length,
-        });
-      }
-    });
-
-    return list;
-  }, [visitedDistrictsList, visits]);
-
-  const totalPhotosCount = useMemo(() => {
-    return visits.reduce((acc, v) => acc + (v.photos?.length || 0), 0);
-  }, [visits]);
-
-  const handleOpenDistrictPage = (districtId: string) => {
-    openDistrictJournal(districtId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Travel Rank badge calculation
-  const travelerRank = useMemo(() => {
-    const pct = stats.percentageExplored;
-    if (pct >= 100) return { title: '৬৪ জেলার মহারথী', color: 'from-amber-400 to-yellow-600', level: 'লেভেল ৫' };
-    if (pct >= 50) return { title: 'মাস্টার ট্রাভেলার', color: 'from-emerald-400 to-teal-600', level: 'লেভেল ৪' };
-    if (pct >= 25) return { title: 'অভিযাত্রী ট্র্যাকার', color: 'from-blue-400 to-indigo-600', level: 'লেভেল ৩' };
-    if (pct >= 10) return { title: 'পথিক পর্যটক', color: 'from-teal-400 to-emerald-600', level: 'লেভেল ২' };
-    return { title: 'নবীন অভিযাত্রী', color: 'from-[#004526] to-[#005a32]', level: 'লেভেল ১' };
-  }, [stats.percentageExplored]);
-
-  // Default scenic cover fallback
+  // Fallback cover & names
   const currentCover = profile.coverUrl || '/images/divisions/chattogram.jpg';
   const displayName = profile.displayName || profile.name || authUser?.user_metadata?.display_name || authUser?.email?.split('@')[0] || 'ভ্রমণকারী';
   const handleName = profile.handle || authUser?.email?.split('@')[0] || 'traveler';
@@ -241,7 +142,7 @@ export const SettingsPage: React.FC = () => {
             প্রোফাইল দেখতে লগইন করুন
           </h2>
           <p className="text-xs sm:text-sm text-stone-400 font-light max-w-sm mx-auto leading-relaxed">
-            আপনার ভ্রমণ প্রোফাইল, সামাজিক ব্যাজ ও স্মৃতিগুলো যেকোনো ডিভাইস থেকে দেখতে লগইন করুন।
+            আপনার ভ্রমণ প্রোফাইল ও সেটিংস সুরক্ষিত রাখতে লগইন করুন।
           </p>
         </div>
         <button
@@ -256,10 +157,10 @@ export const SettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300 font-body">
+    <div className="w-full space-y-6 pb-24 animate-in fade-in duration-300 font-body">
       {/* Toast Notification */}
       <AnimatePresence>
-        {(savedToast || copiedToast) && (
+        {savedToast && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -267,12 +168,12 @@ export const SettingsPage: React.FC = () => {
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-[#004526] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border border-emerald-400/30"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-            <span>{savedToast ? 'প্রোফাইল সফলভাবে আপডেট হয়েছে!' : 'প্রোফাইল বিবরণ কপি হয়েছে!'}</span>
+            <span>প্রোফাইল সফলভাবে আপডেট হয়েছে!</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Hidden file inputs for quick upload */}
+      {/* Hidden file inputs for direct upload */}
       <input
         type="file"
         ref={coverInputRef}
@@ -288,10 +189,10 @@ export const SettingsPage: React.FC = () => {
         className="hidden"
       />
 
-      {/* 1. SOCIAL PROFILE CARD HEADER */}
-      <div className="bg-[#12141A]/95 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
+      {/* 1. EXPANSIVE DESKTOP PROFILE HEADER */}
+      <div className="w-full bg-[#12141A]/95 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
         {/* Cover Photo Banner */}
-        <div className="relative h-44 sm:h-64 w-full bg-stone-900 overflow-hidden group">
+        <div className="relative h-56 sm:h-72 md:h-84 lg:h-96 w-full bg-stone-900 overflow-hidden group">
           <img
             src={currentCover}
             alt="Profile Cover"
@@ -299,22 +200,23 @@ export const SettingsPage: React.FC = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#12141A] via-[#12141A]/40 to-black/30" />
 
-          {/* Simple Edit Icon in Corner of Cover Photo */}
+          {/* Edit Profile Button on Cover Photo Corner */}
           <button
             onClick={handleOpenEditModal}
-            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-110 active:scale-95 group"
+            className="absolute top-4 right-4 px-3.5 py-2 rounded-xl bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white flex items-center gap-2 transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95 text-xs font-bold"
             title="প্রোফাইল সম্পাদনা করুন"
           >
-            <Edit3 className="w-4 h-4 text-emerald-400 group-hover:rotate-12 transition-transform" />
+            <Edit3 className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">প্রোফাইল এডিট</span>
           </button>
         </div>
 
         {/* Profile Info & Avatar Layer */}
-        <div className="px-5 sm:px-8 pb-6 pt-0 relative">
-          <div className="flex items-end justify-between -mt-16 sm:-mt-20 mb-4">
+        <div className="px-5 sm:px-8 lg:px-10 pb-6 pt-0 relative">
+          <div className="flex items-end justify-between -mt-16 sm:-mt-20 md:-mt-24 mb-4">
             {/* Avatar with Camera Trigger */}
             <div className="relative group self-start">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden bg-[#0A0C10] border-4 border-[#12141A] shadow-2xl relative flex items-center justify-center">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-3xl overflow-hidden bg-[#0A0C10] border-4 border-[#12141A] shadow-2xl relative flex items-center justify-center">
                 {profile.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
@@ -338,227 +240,143 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* User Details & Bio */}
+          {/* User Details, Bio & Exploration Progress Bar */}
           <div className="space-y-3">
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
                 {displayName}
               </h1>
-              <p className="text-xs sm:text-sm text-stone-400 font-medium mt-0.5">
-                @{handleName}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs sm:text-sm text-stone-400 font-medium">
+                  @{handleName}
+                </p>
+                {/* Lock icon only if locked */}
+                {profile.isLocked && (
+                  <Lock className="w-3.5 h-3.5 text-stone-400" title="লক করা" />
+                )}
+              </div>
             </div>
 
-            {/* Bio Description */}
+            {/* Bio */}
             <p className="text-xs sm:text-sm text-stone-300 font-light leading-relaxed max-w-2xl">
               {profile.bio || 'বাংলাদেশের ৬৪ জেলার পথে প্রান্তরে এক অনন্য পদচিহ্ন।'}
             </p>
+
+            {/* Clean Progress Bar (Requested by user) */}
+            <div className="space-y-1.5 pt-2 max-w-lg">
+              <div className="flex items-center justify-between text-xs text-stone-300">
+                <span className="font-semibold text-white">
+                  ভ্রমণ সম্পন্ন: {stats.visitedCount} / ৬৪ জেলা
+                </span>
+                <span className="text-emerald-400 font-bold">
+                  {stats.percentageExplored}%
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden border border-white/10 p-0.5">
+                <div
+                  className="h-full bg-gradient-to-r from-[#004526] to-emerald-500 rounded-full transition-all duration-700"
+                  style={{ width: `${Math.max(stats.percentageExplored, 2)}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 3. PROFILE SUB-TABS NAVIGATION */}
-      <div className="flex items-center border-b border-white/10 gap-2 sm:gap-6 overflow-x-auto no-scrollbar pt-2">
-        <button
-          onClick={() => setActiveProfileTab('gallery')}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer whitespace-nowrap px-1 ${
-            activeProfileTab === 'gallery'
-              ? 'border-[#004526] text-white'
-              : 'border-transparent text-stone-400 hover:text-white'
-          }`}
-        >
-          <ImageIcon className="w-4 h-4" />
-          <span>স্মৃতির গ্যালারি ({districtCovers.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveProfileTab('settings')}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer whitespace-nowrap px-1 ${
-            activeProfileTab === 'settings'
-              ? 'border-[#004526] text-white'
-              : 'border-transparent text-stone-400 hover:text-white'
-          }`}
-        >
-          <Settings className="w-4 h-4" />
-          <span>অ্যাকাউন্ট ও সেটিংস</span>
-        </button>
-      </div>
-
-      {/* 4. TAB CONTENT AREAS */}
-      <div className="pt-2">
-        {/* TAB 1: DISTRICT COVER PHOTOS FEED */}
-        {activeProfileTab === 'gallery' && (
-          <div className="space-y-4">
-            {districtCovers.length === 0 ? (
-              <div className="text-center py-16 px-4 bg-[#12141A]/60 border border-white/10 rounded-3xl space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto text-stone-500">
-                  <ImageIcon className="w-7 h-7" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-display text-lg font-bold text-white">
-                    এখনও কোনো ভ্রমণকৃত জেলার ছবি নেই
-                  </h3>
-                  <p className="text-xs text-stone-400 font-light max-w-sm mx-auto">
-                    আপনার ভ্রমণকৃত জেলার মেমোরি ডায়েরিতে ছবি আপলোড করুন, এখানে প্রতিটি জেলার কভার ছবি প্রদর্শিত হবে।
-                  </p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('memories')}
-                  className="px-5 py-2.5 bg-[#004526] hover:bg-[#005a32] text-white text-xs font-bold rounded-xl transition-all cursor-pointer inline-flex items-center gap-2 shadow-md shadow-[#004526]/30"
-                >
-                  <span>ডায়েরি খুলুন</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                {districtCovers.map((item, idx) => (
-                  <motion.div
-                    key={item.districtId}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.2, delay: idx * 0.03 }}
-                    onClick={() => handleOpenDistrictPage(item.districtId)}
-                    className="group relative aspect-square rounded-2xl overflow-hidden bg-black/40 border border-white/10 cursor-pointer shadow-md hover:border-emerald-500/60 transition-all hover:scale-[1.02]"
-                    title={`${item.districtBnName} জেলার ডায়েরি ও স্মৃতি দেখতে ক্লিক করুন`}
-                  >
-                    <img
-                      src={item.coverUrl}
-                      alt={item.districtBnName}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
-                      {/* Top Badges */}
-                      <div className="flex items-center justify-between gap-1 w-full">
-                        <span className="px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white shadow-sm">
-                          {item.districtBnName}
-                        </span>
-
-                        {item.totalPhotosCount > 1 && (
-                          <span className="px-2 py-0.5 rounded-md bg-[#004526]/90 backdrop-blur-md text-[9px] font-bold text-emerald-200 border border-emerald-400/30 flex items-center gap-1">
-                            <ImageIcon className="w-2.5 h-2.5" />
-                            <span>{item.totalPhotosCount}</span>
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Bottom Info on Hover */}
-                      <div className="transform translate-y-1 group-hover:translate-y-0 transition-transform">
-                        <div className="flex items-center justify-between text-white">
-                          <p className="text-xs font-bold truncate group-hover:text-emerald-300 transition-colors">
-                            {item.districtBnName} ডায়েরি
-                          </p>
-                          <ArrowRight className="w-3.5 h-3.5 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        {item.caption && (
-                          <p className="text-[10px] text-stone-300 font-light truncate mt-0.5">
-                            {item.caption}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: ACCOUNT & SETTINGS */}
-        {activeProfileTab === 'settings' && (
-          <div className="space-y-4 max-w-3xl">
-            {/* Display Settings */}
-            <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm">
-              <div className="flex items-center gap-3 border-b border-white/10 pb-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center shadow-sm">
-                  <Settings className="w-5 h-5 text-emerald-400" />
+      {/* 2. SUPER CLEAN SETTINGS & PRIVACY SECTION (No extra tabs, no gallery) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+        
+        {/* Card 1: Profile Privacy & Lock Section */}
+        <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
+                  profile.isLocked
+                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                    : 'bg-[#004526]/20 text-emerald-400 border border-emerald-500/30'
+                }`}>
+                  {profile.isLocked ? <Lock className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="font-display text-lg font-bold text-white leading-tight">
-                    ডিসপ্লে সেটিংস
+                  <h3 className="font-display text-base sm:text-lg font-bold text-white leading-tight">
+                    প্রোফাইল প্রাইভেসি ও লক
                   </h3>
-                  <p className="text-xs text-stone-400 font-light">
-                    মানচিত্র ও ইন্টারফেস পছন্দ
-                  </p>
+                  <p className="text-[11px] text-stone-400">আপনার ভ্রমণের গোপনীয়তা নিয়ন্ত্রণ</p>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3.5 bg-white/5 rounded-2xl border border-white/5">
-                  <div>
-                    <p className="text-xs font-bold text-white">মানচিত্রে জেলার নাম</p>
-                    <p className="text-[11px] text-stone-400 font-light">
-                      মানচিত্রের ওপর সরাসরি বাংলা নাম দেখতে চান কি না
-                    </p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={settings.showDistrictLabels}
-                    onChange={(e) => updateSettings({ showDistrictLabels: e.target.checked })}
-                    className="w-5 h-5 accent-[#004526] cursor-pointer rounded"
-                  />
-                </div>
-              </div>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                profile.isLocked
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+              }`}>
+                {profile.isLocked ? '🔒 লক করা' : '🌐 উন্মুক্ত'}
+              </span>
             </div>
 
-            {/* Cloud Sync & Account */}
-            <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#004526]/15 text-[#004526] flex items-center justify-center shadow-sm">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white leading-tight">
-                      ক্লাউড ব্যাকআপ ও সিঙ্ক
-                    </h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          cloudSync.connected ? 'bg-[#004526] animate-pulse' : 'bg-amber-400'
-                        }`}
-                      />
-                      <p className="text-xs text-stone-300">
-                        {cloudSync.message || (cloudSync.connected ? 'ক্লাউড সিঙ্ক চালু আছে' : 'ডাটা এই ডিভাইসে সেভ আছে')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleManualSync}
-                    disabled={syncLoading}
-                    className="px-3.5 py-2 bg-[#004526] hover:bg-[#005a32] text-white border border-[#004526] rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${syncLoading ? 'animate-spin' : ''}`} />
-                    <span>{syncLoading ? 'সিঙ্ক হচ্ছে...' : 'এখনই সিঙ্ক করুন'}</span>
-                  </button>
-
-                  <button
-                    onClick={signOut}
-                    className="px-3.5 py-2 bg-white/10 hover:bg-rose-600/20 text-stone-300 hover:text-rose-400 border border-white/15 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    লগআউট
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-xs text-stone-400 font-light flex items-center justify-between">
-                <span>বর্তমান ইমেইল:</span>
-                <span className="text-white font-semibold">
-                  {authUser.email}
-                </span>
-              </div>
-            </div>
+            <p className="text-xs text-stone-300 font-light leading-relaxed">
+              {profile.isLocked
+                ? 'আপনার প্রোফাইল বর্তমানে লক করা আছে। অনুসন্ধানকারীরা আপনার নাম ও হ্যান্ডেল ছাড়া কোনো ভ্রমণ মানচিত্র বা ছবি দেখতে পারবেন না।'
+                : 'আপনার প্রোফাইল বর্তমানে উন্মুক্ত আছে। যেকেউ ইউজারনেম দিয়ে খুঁজে আপনার ভ্রমণ মানচিত্র ও দর্শনীয় স্থানসমূহ দেখতে পারবেন।'}
+            </p>
           </div>
-        )}
+
+          <button
+            onClick={() => toggleProfileLock(!profile.isLocked)}
+            className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md ${
+              profile.isLocked
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+            }`}
+          >
+            {profile.isLocked ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>প্রোফাইল আনলক করুন</span>
+              </>
+            ) : (
+              <>
+                <Lock className="w-3.5 h-3.5" />
+                <span>প্রোফাইল লক করুন</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Card 2: User Account & Sign Out */}
+        <div className="bg-[#12141A]/90 border border-white/10 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 text-stone-300 flex items-center justify-center shadow-sm">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display text-base sm:text-lg font-bold text-white leading-tight">
+                  লগইনকৃত অ্যাকাউন্ট
+                </h3>
+                <p className="text-[11px] text-stone-400 font-mono mt-0.5">
+                  {authUser.email}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-300 font-light leading-relaxed">
+              আপনার গুগল অ্যাকাউন্টের মাধ্যমে আপনি যেকোনো ডিভাইস থেকে আপনার ভ্রমণ তথ্য অ্যাক্সেস করতে পারবেন।
+            </p>
+          </div>
+
+          <button
+            onClick={signOut}
+            className="w-full py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>লগআউট করুন</span>
+          </button>
+        </div>
       </div>
 
-      {/* 5. EDIT PROFILE MODAL */}
+      {/* 3. EDIT PROFILE MODAL */}
       <AnimatePresence>
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
@@ -690,6 +508,23 @@ export const SettingsPage: React.FC = () => {
                     onChange={(e) => setBioDraft(e.target.value)}
                     placeholder="যেমন: বাংলাদেশের ৬৪ জেলার পথে প্রান্তরে এক অনন্য পদচিহ্ন..."
                     className="w-full px-4 py-2.5 text-xs bg-white/5 border border-white/15 rounded-xl text-white focus:outline-none focus:border-[#004526] transition-colors resize-none"
+                  />
+                </div>
+
+                {/* Profile Privacy / Lock toggle in modal */}
+                <div className="p-3.5 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Lock className={`w-4 h-4 ${isLockedDraft ? 'text-amber-400' : 'text-stone-400'}`} />
+                    <div>
+                      <p className="text-xs font-bold text-white">প্রোফাইল লক রাখুন (ব্যক্তিগত)</p>
+                      <p className="text-[11px] text-stone-400 font-light">অন্যান্য ব্যবহারকারীদের থেকে আপনার ভ্রমণ স্মৃতি ও মানচিত্র গোপন রাখুন</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isLockedDraft}
+                    onChange={(e) => setIsLockedDraft(e.target.checked)}
+                    className="w-5 h-5 accent-[#004526] cursor-pointer rounded"
                   />
                 </div>
 

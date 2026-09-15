@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   Map,
   BookOpen,
   Settings,
   LogIn,
+  Search,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ActiveTab } from '../../types';
@@ -17,7 +18,28 @@ export const Navbar: React.FC = () => {
     profile,
     openAuthModal,
     openDistrictJournal,
+    openSearchModal,
   } = useApp();
+
+  const handleOpenSearch = () => {
+    if (!authUser) {
+      openAuthModal('অন্যান্য ভ্রমণকারীদের প্রোফাইল ও ভ্রমণ ডায়েরি দেখতে অনুগ্রহ করে লগইন করুন');
+      return;
+    }
+    openSearchModal();
+  };
+
+  // Global Ctrl+K / Cmd+K keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        handleOpenSearch();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [authUser, openSearchModal, openAuthModal]);
 
   const handleTabChange = (tab: ActiveTab) => {
     if (tab === 'settings' && !authUser) {
@@ -38,7 +60,20 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full py-2.5 sm:py-3.5 px-3 sm:px-6 lg:px-8 bg-transparent pointer-events-none transition-all">
       <div className="relative flex items-center justify-center max-w-7xl mx-auto min-h-[38px] sm:min-h-[44px]">
-        {/* Center: Perfectly Symmetrical Navigation Capsule with Equal Width Tabs */}
+        {/* Left Corner: Mobile-Only Search Button (prevents collision with center nav bar) */}
+        <div className="absolute left-0 flex items-center pointer-events-auto sm:hidden">
+          <button
+            id="nav-search-users-btn-mobile"
+            onClick={handleOpenSearch}
+            className="w-8 h-8 rounded-full bg-[#12141A]/85 hover:bg-[#1A1D24] text-stone-200 hover:text-white border border-white/15 backdrop-blur-xl shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            title="ভ্রমণকারী খুঁজুন"
+            aria-label="ভ্রমণকারী খুঁজুন"
+          >
+            <Search className="w-3.5 h-3.5 text-emerald-400" />
+          </button>
+        </div>
+
+        {/* Center: Perfectly Symmetrical Navigation Capsule with Equal Width Tabs (Untouched) */}
         <nav className="flex items-center bg-[#12141A]/90 backdrop-blur-2xl border border-white/15 p-1 rounded-full shadow-2xl pointer-events-auto">
           {navItems.map((item) => {
             const isActive = activeTab === item.key;
@@ -68,8 +103,23 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Corner: Auth Status & Settings / Profile Button */}
+        {/* Right Corner: Desktop Search Button, Auth Status & Settings / Profile Button */}
         <div className="absolute right-0 flex items-center gap-2 pointer-events-auto">
+          {/* User Search Trigger Button (Desktop) */}
+          <button
+            id="nav-search-users-btn"
+            onClick={handleOpenSearch}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-[#12141A]/85 hover:bg-[#1A1D24] text-stone-200 hover:text-white border border-white/15 hover:border-white/30 backdrop-blur-xl shadow-md transition-all cursor-pointer hover:scale-105 active:scale-95 group"
+            title="ভ্রমণকারী খুঁজুন (Ctrl+K)"
+            aria-label="ভ্রমণকারী খুঁজুন"
+          >
+            <Search className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline text-[11px] sm:text-xs font-bold font-body">খুঁজুন</span>
+            <kbd className="hidden lg:inline text-[9px] px-1 py-0.2 bg-white/10 rounded text-stone-400 font-mono">
+              ⌘K
+            </kbd>
+          </button>
+
           {!authUser ? (
             <button
               id="nav-login-btn"

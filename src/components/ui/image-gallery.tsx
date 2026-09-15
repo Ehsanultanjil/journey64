@@ -109,6 +109,7 @@ export function ImageGallery({ photos, onPhotoClick, className }: ImageGalleryPr
 }
 
 interface AnimatedImageProps {
+  key?: React.Key;
   alt: string;
   src: string;
   className?: string;

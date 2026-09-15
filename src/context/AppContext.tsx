@@ -12,6 +12,8 @@ import {
   DivisionStat,
   Achievement,
   ActiveTab,
+  PublicUserSummary,
+  PublicUserProfileData,
 } from '../types';
 import { DISTRICTS, getDistrictById } from '../data/districts';
 import {
@@ -114,6 +116,14 @@ interface AppContextType {
   resetToCleanSlate: () => void;
   loadDemoMode: () => void;
   importJsonBackup: (jsonString: string) => { success: boolean; error?: string };
+  isSearchModalOpen: boolean;
+  openSearchModal: () => void;
+  closeSearchModal: () => void;
+  viewingPublicProfile: PublicUserProfileData | null;
+  isLoadingPublicProfile: boolean;
+  openPublicProfile: (userSummaryOrHandle: PublicUserSummary | string) => Promise<void>;
+  closePublicProfile: () => void;
+  toggleProfileLock: (isLocked: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -142,6 +152,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     photos: [],
     currentIndex: 0,
   });
+
+  // Public User Search & Profile Viewing State
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
+  const [viewingPublicProfile, setViewingPublicProfile] = useState<PublicUserProfileData | null>(null);
+  const [isLoadingPublicProfile, setIsLoadingPublicProfile] = useState<boolean>(false);
 
   // Supabase Cloud Sync State
   const [cloudSync, setCloudSync] = useState<CloudSyncState>({
@@ -1221,6 +1236,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncProfile(updated);
   };
 
+  const toggleProfileLock = (isLocked: boolean) => {
+    updateProfile({ isLocked });
+  };
+
+  const openSearchModal = () => {
+    if (!ensureAuth('অন্যান্য ভ্রমণকারীদের প্রোফাইল ও ডায়েরি দেখতে অনুগ্রহ করে লগইন করুন।')) return;
+    setIsSearchModalOpen(true);
+  };
+  const closeSearchModal = () => setIsSearchModalOpen(false);
+
+  const openPublicProfile = async (userSummaryOrHandle: PublicUserSummary | string) => {
+    if (!ensureAuth('অন্যান্য ভ্রমণকারীদের প্রোফাইল ও ডায়েরি দেখতে অনুগ্রহ করে লগইন করুন।')) return;
+    setIsLoadingPublicProfile(true);
+    try {
+      let targetProfile: PublicUserSummary | null = null;
+      if (typeof userSummaryOrHandle === 'string') {
+        targetProfile = await SupabaseDB.fetchPublicProfile(userSummaryOrHandle);
+      } else {
+        targetProfile = userSummaryOrHandle;
+      }
+
+      if (!targetProfile) {
+        setIsLoadingPublicProfile(false);
+        return;
+      }
+
+      const fullData = await SupabaseDB.fetchPublicUserData(targetProfile);
+      setViewingPublicProfile(fullData);
+    } catch (e) {
+      console.error('Failed to open public profile:', e);
+    } finally {
+      setIsLoadingPublicProfile(false);
+    }
+  };
+
+  const closePublicProfile = () => {
+    setViewingPublicProfile(null);
+  };
+
   const updateSettings = (settingsUpdates: Partial<AppSettings>) => {
     if (!ensureAuth('সেটিংস পরিবর্তন করতে লগইন করুন।')) return;
 
@@ -1583,6 +1637,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         resetToCleanSlate,
         loadDemoMode,
         importJsonBackup,
+        isSearchModalOpen,
+        openSearchModal,
+        closeSearchModal,
+        viewingPublicProfile,
+        isLoadingPublicProfile,
+        openPublicProfile,
+        closePublicProfile,
+        toggleProfileLock,
       }}
     >
       {children}

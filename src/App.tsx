@@ -10,6 +10,8 @@ import { UnlockCelebrationModal } from './components/Modals/UnlockCelebrationMod
 import { Completion100Modal } from './components/Modals/Completion100Modal';
 import { PhotoLightbox } from './components/Modals/PhotoLightbox';
 import { AuthModal } from './components/Auth/AuthModal';
+import { UserSearchModal } from './components/Navigation/UserSearchModal';
+import { PublicProfileModal } from './components/Modals/PublicProfileModal';
 import { DISTRICTS } from './data/districts';
 import { DIVISIONS } from './data/divisions';
 import {
@@ -456,7 +458,7 @@ const MainContent: React.FC = () => {
         ) : (
           <div className="flex flex-col flex-1">
             <Navbar />
-            <div className="px-3 sm:px-8 lg:px-12 pt-6 pb-16 flex-1">
+            <div className="px-3 sm:px-8 lg:px-12 pt-4 pb-16 flex-1 w-full max-w-7xl 2xl:max-w-[1600px] mx-auto">
               <SettingsPage />
             </div>
           </div>
@@ -468,6 +470,8 @@ const MainContent: React.FC = () => {
       <Completion100Modal />
       <PhotoLightbox />
       <AuthModal isOpen={authModalOpen} onClose={closeAuthModal} />
+      <UserSearchModal />
+      <PublicProfileModal />
     </div>
   );
 };

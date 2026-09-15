@@ -26,6 +26,7 @@ export interface District {
   areaKm2?: number;
   isCoastal?: boolean;
   isHill?: boolean;
+  imageUrl?: string;
 }
 
 export interface DistrictUserData {
@@ -100,6 +101,36 @@ export interface UserProfile {
   location?: string;
   bio?: string;
   joinedDate: string;
+  isLocked?: boolean;
+}
+
+export interface PublicUserSummary {
+  id: string;
+  name: string;
+  displayName?: string;
+  handle?: string;
+  avatarUrl?: string;
+  coverUrl?: string;
+  bio?: string;
+  location?: string;
+  isLocked?: boolean;
+  joinedDate?: string;
+  visitedCount?: number;
+}
+
+export interface PublicUserProfileData {
+  profile: PublicUserSummary;
+  visitedDistricts?: string[]; // list of district IDs visited
+  visitedCount?: number;
+  totalPhotosCount?: number;
+  coverPhotos?: {
+    districtId: string;
+    districtName: string;
+    districtBnName: string;
+    division: string;
+    coverUrl: string;
+    caption?: string;
+  }[];
 }
 
 export interface DivisionStat {

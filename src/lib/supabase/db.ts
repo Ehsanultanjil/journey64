@@ -1,6 +1,7 @@
 import { supabase } from './client';
-import { DistrictUserData, Visit, Trip, UserProfile, Photo } from '../../types';
+import { DistrictUserData, Visit, Trip, UserProfile, Photo, PublicUserSummary, PublicUserProfileData } from '../../types';
 import { AppSettings } from '../storage';
+import { getDistrictById } from '../../data/districts';
 
 // Clean photo data before sending to DB — ensure only valid URLs are persisted in the visits JSONB column.
 function cleanPhotosForDB(photos: Photo[]): Photo[] {
@@ -174,13 +175,20 @@ export const SupabaseDB = {
       const effectiveUserId = await this.getEffectiveUserId(userId);
       if (!effectiveUserId) return false;
 
+      const cleanHandle = profile.handle ? profile.handle.trim().replace(/^@+/, '').toLowerCase() : null;
+
       const { error } = await supabase.from('user_profiles').upsert([
         {
           id: effectiveUserId,
+          user_id: effectiveUserId,
           name: profile.name,
           display_name: profile.displayName || profile.name,
+          handle: cleanHandle,
           bio: profile.bio || '',
           avatar_url: profile.avatarUrl || null,
+          cover_url: profile.coverUrl || null,
+          location: profile.location || 'বাংলাদেশ',
+          is_locked: profile.isLocked !== undefined ? !!profile.isLocked : true,
           joined_date: profile.joinedDate,
           updated_at: new Date().toISOString(),
         },
@@ -455,4 +463,188 @@ export const SupabaseDB = {
       return null;
     }
   },
+
+  // ==================== SEARCH & PUBLIC PROFILES ====================
+
+  // Search users by handle (username) or display name
+  async searchUsers(query: string): Promise<PublicUserSummary[]> {
+    try {
+      const clean = query.trim().replace(/^@+/, '');
+      if (!clean) return [];
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, name, display_name, handle, avatar_url, cover_url, bio, location, is_locked, joined_date')
+        .or(`handle.ilike.%${clean}%,display_name.ilike.%${clean}%,name.ilike.%${clean}%`)
+        .limit(25);
+
+      if (error) {
+        console.error('[SupabaseDB] searchUsers FAILED:', error.message);
+        return [];
+      }
+      if (!data) return [];
+
+      return data.map((row: any) => ({
+        id: row.id,
+        name: row.name || 'ভ্রমণকারী',
+        displayName: row.display_name || row.name || 'ভ্রমণকারী',
+        handle: row.handle || undefined,
+        avatarUrl: row.avatar_url || undefined,
+        coverUrl: row.cover_url || undefined,
+        bio: row.bio || '',
+        location: row.location || 'বাংলাদেশ',
+        isLocked: !!row.is_locked,
+        joinedDate: row.joined_date || '',
+      }));
+    } catch (e: any) {
+      console.error('[SupabaseDB] searchUsers EXCEPTION:', e?.message);
+      return [];
+    }
+  },
+
+  // Fetch a public user profile by handle or ID
+  async fetchPublicProfile(handleOrId: string): Promise<PublicUserSummary | null> {
+    try {
+      const clean = handleOrId.trim().replace(/^@+/, '');
+      if (!clean) return null;
+
+      // Try searching by handle first
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, name, display_name, handle, avatar_url, cover_url, bio, location, is_locked, joined_date')
+        .ilike('handle', clean)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          id: data.id,
+          name: data.name || 'ভ্রমণকারী',
+          displayName: data.display_name || data.name || 'ভ্রমণকারী',
+          handle: data.handle || undefined,
+          avatarUrl: data.avatar_url || undefined,
+          coverUrl: data.cover_url || undefined,
+          bio: data.bio || '',
+          location: data.location || 'বাংলাদেশ',
+          isLocked: !!data.is_locked,
+          joinedDate: data.joined_date || '',
+        };
+      }
+
+      // Fallback: search by id
+      const { data: byId } = await supabase
+        .from('user_profiles')
+        .select('id, name, display_name, handle, avatar_url, cover_url, bio, location, is_locked, joined_date')
+        .eq('id', clean)
+        .maybeSingle();
+
+      if (byId) {
+        return {
+          id: byId.id,
+          name: byId.name || 'ভ্রমণকারী',
+          displayName: byId.display_name || byId.name || 'ভ্রমণকারী',
+          handle: byId.handle || undefined,
+          avatarUrl: byId.avatar_url || undefined,
+          coverUrl: byId.cover_url || undefined,
+          bio: byId.bio || '',
+          location: byId.location || 'বাংলাদেশ',
+          isLocked: !!byId.is_locked,
+          joinedDate: byId.joined_date || '',
+        };
+      }
+
+      return null;
+    } catch (e: any) {
+      console.error('[SupabaseDB] fetchPublicProfile EXCEPTION:', e?.message);
+      return null;
+    }
+  },
+
+  // Fetch public user's journey (visited districts and memories) if their profile is not locked
+  async fetchPublicUserData(targetProfile: PublicUserSummary): Promise<PublicUserProfileData> {
+    // If the profile is locked, strictly return privacy-protected blank data
+    if (targetProfile.isLocked) {
+      return {
+        profile: targetProfile,
+        visitedDistricts: [],
+        visitedCount: 0,
+        totalPhotosCount: 0,
+        coverPhotos: [],
+      };
+    }
+
+    try {
+      const targetUserId = targetProfile.id;
+
+      // 1. Fetch visited district IDs
+      const { data: districtData, error: distError } = await supabase
+        .from('district_user_data')
+        .select('district_id, status')
+        .like('id', `${targetUserId}_%`)
+        .eq('status', 'visited');
+
+      if (distError) {
+        console.warn('[SupabaseDB] fetchPublicUserData district error:', distError.message);
+      }
+
+      const visitedIds = (districtData || []).map((d: any) => d.district_id);
+
+      // 2. Fetch public visits with photos
+      const { data: visitsData, error: visitsError } = await supabase
+        .from('visits')
+        .select('district_id, photos')
+        .like('id', `${targetUserId}_%`)
+        .limit(100);
+
+      if (visitsError) {
+        console.warn('[SupabaseDB] fetchPublicUserData visits error:', visitsError.message);
+      }
+
+      let totalPhotos = 0;
+      const covers: {
+        districtId: string;
+        districtName: string;
+        districtBnName: string;
+        division: string;
+        coverUrl: string;
+        caption?: string;
+      }[] = [];
+
+      (visitsData || []).forEach((v: any) => {
+        const photos = (v.photos || []).filter((p: any) => p && typeof p.url === 'string' && p.url.trim().length > 0);
+        totalPhotos += photos.length;
+        if (photos.length > 0) {
+          const cover = photos.find((p: any) => p.isCover) || photos[0];
+          const dist = getDistrictById(v.district_id);
+          if (dist && !covers.some((c) => c.districtId === v.district_id)) {
+            covers.push({
+              districtId: dist.id,
+              districtName: dist.name,
+              districtBnName: dist.bn_name,
+              division: dist.division,
+              coverUrl: cover.url,
+              caption: cover.caption,
+            });
+          }
+        }
+      });
+
+      return {
+        profile: targetProfile,
+        visitedDistricts: visitedIds,
+        visitedCount: visitedIds.length,
+        totalPhotosCount: totalPhotos,
+        coverPhotos: covers,
+      };
+    } catch (e: any) {
+      console.error('[SupabaseDB] fetchPublicUserData EXCEPTION:', e?.message);
+      return {
+        profile: targetProfile,
+        visitedDistricts: [],
+        visitedCount: 0,
+        totalPhotosCount: 0,
+        coverPhotos: [],
+      };
+    }
+  },
 };
+

@@ -46,6 +46,9 @@ export const DistrictQuickPanel: React.FC = () => {
        districtVisits.flatMap((v) => v.photos || [])[0]?.url)
     : null;
 
+  const defaultDistrictImage = selectedDistrict.imageUrl || `/images/districts/${districtId}.jpg`;
+  const displayImage = coverPhoto || defaultDistrictImage;
+
   const isFavorite = !!currentData?.isFavorite;
   const notes = currentData?.notes || districtVisits[0]?.notes || '';
 
@@ -80,27 +83,19 @@ export const DistrictQuickPanel: React.FC = () => {
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="relative w-full max-w-md bg-[#0F1218] text-white border border-white/15 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 font-body"
         >
-          {/* Header Banner */}
-          <div className="relative h-44 sm:h-52 w-full bg-[#161A22] overflow-hidden shrink-0">
-            {coverPhoto ? (
-              <img
-                src={coverPhoto}
-                alt={selectedDistrict.name}
-                className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05]"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#004526]/25 via-[#161A22] to-[#0A0C10] p-6 text-center">
-                <Compass className="w-12 h-12 text-[#004526]/60 mb-2" />
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">
-                    {selectedDistrict.division} DIVISION
-                  </span>
-                </div>
-              </div>
-            )}
+          {/* Header Banner with Real District Landmark Photo */}
+          <div className="relative h-48 sm:h-56 w-full bg-[#161A22] overflow-hidden shrink-0 group">
+            <img
+              src={displayImage}
+              alt={selectedDistrict.name}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = `/images/divisions/${selectedDistrict.division.toLowerCase()}.jpg`;
+              }}
+              className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
+            />
 
             {/* Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1218] via-[#0F1218]/50 to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F1218] via-[#0F1218]/40 to-black/30" />
 
             {/* Top Control Buttons */}
             <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
